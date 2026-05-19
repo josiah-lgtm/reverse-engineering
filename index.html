@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reverse Engineering · Agency Advanta</title>
+<style>
+  * { box-sizing: border-box; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+
+  :root {
+    --bg: #161616;
+    --bg-elevated: #1c1c1e;
+    --surface: rgba(255, 255, 255, 0.04);
+    --surface-raised: rgba(255, 255, 255, 0.06);
+    --surface-pressed: rgba(255, 255, 255, 0.10);
+    --surface-input: rgba(0, 0, 0, 0.25);
+    --border: rgba(255, 255, 255, 0.06);
+    --border-strong: rgba(255, 255, 255, 0.10);
+    --border-input: rgba(255, 255, 255, 0.08);
+    --separator: rgba(255, 255, 255, 0.05);
+    --text: #ffffff;
+    --text-secondary: #d4d4d9;
+    --text-tertiary: #9a9aa3;
+    --text-quaternary: #6e6e76;
+    --accent: #d4a017;
+    --accent-hover: #eecf6d;
+    --accent-tint: rgba(212, 160, 23, 0.14);
+    --accent-shadow: rgba(212, 160, 23, 0.30);
+    --good: #30d158;
+    --good-tint: rgba(48, 209, 88, 0.15);
+    --bad: #ff453a;
+    --bad-tint: rgba(255, 69, 58, 0.15);
+    --warn: #ff9f0a;
+    --warn-tint: rgba(255, 159, 10, 0.15);
+    --linkedin: #bf5af2;
+    --linkedin-tint: rgba(191, 90, 242, 0.14);
+    --email: #64d2ff;
+    --email-tint: rgba(100, 210, 255, 0.14);
+    --direct: #30d158;
+    --direct-tint: rgba(48, 209, 88, 0.14);
+  }
+
+  html, body { height: 100%; }
+  body {
+    font-family: -apple-system, "SF Pro Display", "SF Pro Text", BlinkMacSystemFont, "Helvetica Neue", system-ui, sans-serif;
+    margin: 0;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.5;
+    font-size: 15px;
+    font-feature-settings: "ss01" 1, "ss03" 1;
+    letter-spacing: -0.005em;
+  }
+
+  .topbar {
+    background: rgba(28, 28, 30, 0.72);
+    backdrop-filter: saturate(180%) blur(20px);
+    -webkit-backdrop-filter: saturate(180%) blur(20px);
+    border-bottom: 1px solid var(--separator);
+    display: flex;
+    align-items: center;
+    padding: 0 24px;
+    gap: 16px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    height: 56px;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding-right: 18px;
+    border-right: 1px solid var(--separator);
+    height: 100%;
+  }
+  .brand img { height: 34px; width: auto; max-width: 50px; }
+  .brand .name { font-size: 14px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text); }
+  .topbar .title { font-size: 14px; color: var(--text-secondary); letter-spacing: 0.04em; }
+  .topbar .spacer { flex: 1; }
+  .topbar .save-status {
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .topbar .save-status::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--good);
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 32px 32px 80px;
+  }
+
+  .header { margin-bottom: 28px; }
+  .header h1 {
+    font-size: 36px;
+    margin: 0 0 8px;
+    font-weight: 700;
+    letter-spacing: -0.028em;
+  }
+  .header .sub {
+    color: var(--text-secondary);
+    font-size: 15px;
+    max-width: 720px;
+    line-height: 1.5;
+  }
+
+  /* Hero target field */
+  .hero {
+    background: linear-gradient(135deg, var(--surface-raised), var(--surface));
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin-bottom: 22px;
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: 32px;
+    align-items: center;
+  }
+  .hero .target-field { display: flex; flex-direction: column; gap: 6px; }
+  .hero .target-field .lbl {
+    font-size: 11.5px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+  .hero .target-field .input-wrap {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+  }
+  .hero .target-field .currency {
+    font-size: 32px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+  }
+  .hero .target-field input {
+    font-size: 48px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    padding: 0;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    width: 240px;
+    font-feature-settings: "tnum" 1;
+    font-family: inherit;
+  }
+  .hero .target-field input:focus { outline: none; }
+  .hero .target-field .period {
+    font-size: 15px;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+  .hero .hero-stat .lbl {
+    font-size: 11.5px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .hero .hero-stat .val {
+    font-size: 32px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+  }
+  .hero .hero-stat .sub {
+    font-size: 12.5px;
+    color: var(--text-tertiary);
+    margin-top: 6px;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Section + slider rows */
+  .section { margin-bottom: 22px; }
+  .section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 0 4px 12px;
+  }
+  .section-head .title {
+    font-size: 11.5px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+  }
+  .section-head .summary { font-size: 13px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
+
+  .row {
+    display: grid;
+    grid-template-columns: 240px 1fr 100px 60px;
+    gap: 16px;
+    align-items: center;
+    padding: 10px 18px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 6px;
+    font-size: 14px;
+  }
+  .row .lbl { color: var(--text); font-weight: 500; display: flex; align-items: center; gap: 8px; }
+  .row .lbl .hint { color: var(--text-tertiary); font-weight: 400; font-size: 12px; }
+  .row .slider-wrap { display: flex; align-items: center; height: 28px; }
+  .row input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    width: 100%;
+    height: 28px;
+    padding: 0;
+    margin: 0;
+    border: none;
+  }
+  .row input[type="range"]:focus { outline: none; }
+  .row input[type="range"]::-webkit-slider-runnable-track {
+    height: 5px;
+    border-radius: 3px;
+    background: linear-gradient(to right,
+      var(--accent) 0%, var(--accent) var(--pct, 0%),
+      var(--surface-input) var(--pct, 0%), var(--surface-input) 100%);
+  }
+  .row input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px;
+    height: 18px;
+    background: #fff;
+    border-radius: 50%;
+    margin-top: -6.5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.45);
+    cursor: pointer;
+  }
+  .row input[type="range"]::-webkit-slider-thumb:active {
+    box-shadow: 0 2px 8px var(--accent-shadow);
+  }
+  .row input[type="number"] {
+    padding: 6px 9px;
+    background: var(--surface-input);
+    border: 1px solid var(--border-input);
+    border-radius: 7px;
+    color: var(--text);
+    font-size: 13.5px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-family: inherit;
+    width: 100%;
+  }
+  .row input[type="number"]:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  .row .unit { color: var(--text-tertiary); font-size: 12.5px; }
+
+  /* Channel cards */
+  .channel {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    overflow: hidden;
+    margin-bottom: 14px;
+    transition: border-color 0.15s;
+  }
+  .channel:hover { border-color: var(--border-strong); }
+  .channel.disabled { opacity: 0.5; }
+  .channel-head {
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    gap: 18px;
+    align-items: center;
+    padding: 18px 22px;
+    cursor: pointer;
+  }
+  .channel-head:hover { background: rgba(255,255,255,0.02); }
+  .channel-head .swatch { width: 12px; height: 28px; border-radius: 3px; }
+  .channel.linkedin .swatch { background: var(--linkedin); }
+  .channel.email .swatch { background: var(--email); }
+  .channel.direct .swatch { background: var(--direct); }
+  .channel-head .name { font-size: 16px; font-weight: 600; color: var(--text); }
+  .channel-head .summary { color: var(--text-secondary); font-size: 13.5px; font-variant-numeric: tabular-nums; }
+  .channel-head .mix-pct {
+    font-size: 13px;
+    background: var(--accent-tint);
+    color: var(--accent-hover);
+    padding: 4px 12px;
+    border-radius: 14px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+  }
+  .channel-head .toggle {
+    color: var(--text-tertiary);
+    font-size: 20px;
+    transition: transform 0.18s;
+    line-height: 1;
+  }
+  .channel.open .channel-head .toggle { transform: rotate(90deg); }
+  .channel-body {
+    padding: 0 22px 20px;
+    border-top: 1px solid var(--separator);
+    display: none;
+  }
+  .channel.open .channel-body { display: block; }
+
+  /* Channel output tiles */
+  .outputs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 10px;
+    margin: 18px 0;
+  }
+  .outputs .out {
+    background: var(--surface-input);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .outputs .out .lbl {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .outputs .out .val {
+    font-size: 22px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.022em;
+    color: var(--text);
+    line-height: 1.1;
+  }
+  .outputs .out .sub {
+    font-size: 11.5px;
+    color: var(--text-tertiary);
+    margin-top: 4px;
+    font-variant-numeric: tabular-nums;
+  }
+  .outputs .out.hero { background: var(--accent-tint); border: 1px solid rgba(212,160,23,0.25); }
+  .outputs .out.hero .val { color: var(--accent-hover); }
+  .channel.linkedin .outputs .out.hero { background: var(--linkedin-tint); border-color: rgba(191,90,242,0.30); }
+  .channel.linkedin .outputs .out.hero .val { color: var(--linkedin); }
+  .channel.email .outputs .out.hero { background: var(--email-tint); border-color: rgba(100,210,255,0.30); }
+  .channel.email .outputs .out.hero .val { color: var(--email); }
+  .channel.direct .outputs .out.hero { background: var(--direct-tint); border-color: rgba(48,209,88,0.30); }
+  .channel.direct .outputs .out.hero .val { color: var(--direct); }
+
+  .channel-enabled-toggle {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-tertiary);
+  }
+  .channel-enabled-toggle input { width: auto; accent-color: var(--accent); }
+
+  .footer {
+    margin-top: 36px;
+    padding-top: 24px;
+    border-top: 1px solid var(--separator);
+    color: var(--text-tertiary);
+    font-size: 12px;
+    text-align: center;
+  }
+
+  button {
+    padding: 7px 14px;
+    background: var(--surface-raised);
+    color: var(--text);
+    border: 1px solid transparent;
+    border-radius: 7px;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 500;
+    font-family: inherit;
+    transition: background 0.12s, transform 0.08s;
+  }
+  button:hover { background: var(--surface-pressed); }
+  button:active { transform: scale(0.97); }
+  button.ghost { background: transparent; color: var(--text-secondary); }
+  button.ghost:hover { background: var(--surface-raised); color: var(--text); }
+
+  .mix-warning {
+    background: var(--warn-tint);
+    color: var(--warn);
+    padding: 10px 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  @media (max-width: 900px) {
+    .hero { grid-template-columns: 1fr; gap: 18px; }
+    .row { grid-template-columns: 1fr 110px; }
+    .row .slider-wrap, .row .unit { grid-column: 1 / -1; }
+  }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand">
+    <img src="logo.png" alt="" />
+    <span class="name">Agency Advanta</span>
+  </div>
+  <span class="title">REVERSE ENGINEERING</span>
+  <div class="spacer"></div>
+  <span class="save-status" id="save-status">Saved</span>
+  <button id="reset-btn" class="ghost">Reset</button>
+</div>
+
+<div class="container">
+  <div class="header">
+    <h1>Reverse Engineering</h1>
+    <div class="sub">Set a revenue target. The math walks it backwards — through your sales funnel and channel mix — to tell you exactly how many sends, connections, and calls you need to hit it.</div>
+  </div>
+
+  <!-- Hero: revenue target + key outputs -->
+  <div class="hero" id="hero"></div>
+
+  <!-- Revenue per close -->
+  <div class="section">
+    <div class="section-head">
+      <span class="title">Revenue per close</span>
+      <span class="summary" id="rev-per-close-summary">—</span>
+    </div>
+    <div id="rev-rows"></div>
+  </div>
+
+  <!-- Sales funnel -->
+  <div class="section">
+    <div class="section-head">
+      <span class="title">Sales funnel (close → call 1 booked)</span>
+      <span class="summary" id="sales-summary">—</span>
+    </div>
+    <div id="sales-rows"></div>
+  </div>
+
+  <!-- Channel mix -->
+  <div class="section">
+    <div class="section-head">
+      <span class="title">Channel mix · % of bookings from each channel</span>
+      <span class="summary" id="mix-summary">—</span>
+    </div>
+    <div id="mix-warning-host"></div>
+    <div id="mix-rows"></div>
+  </div>
+
+  <!-- Per-channel cards -->
+  <div class="section">
+    <div class="section-head">
+      <span class="title">Channels — outreach you need</span>
+      <span class="summary"></span>
+    </div>
+    <div id="channels-host"></div>
+  </div>
+
+  <div class="footer">
+    Revenue → closes → call 1s booked → split by channel → top-of-funnel actions → infrastructure.<br>
+    Cash + contract values per close, funnel rates, channel mix, and per-channel conversion rates all autosave.
+  </div>
+</div>
+
+<script>
+// ============================================================
+// State
+// ============================================================
+const STORAGE_KEY = 'reverseEngineering_v1';
+
+function defaults() {
+  return {
+    revenueTarget: 100000,
+    cashPerClose: 3000,
+    contractPerClose: 3000,
+    workingDaysPerMonth: 22,
+    workingDaysPerWeek: 5,
+    sales: {
+      closeRate: 35,
+      offerRate: 90,
+      show2Rate: 80,
+      sched2Rate: 80,
+      book2Rate: 70,
+      qual1Rate: 70,
+      show1Rate: 65,
+    },
+    channels: {
+      linkedin: {
+        enabled: true, mix: 50, label: 'LinkedIn', open: true,
+        connectsPerProfilePerDay: 30,
+        acceptRate: 20, prr: 6.24, csr: 80, abr: 50,
+      },
+      email: {
+        enabled: true, mix: 30, label: 'Email', open: true,
+        sendsPerInboxPerDay: 30, inboxesPerDomain: 3,
+        replyRate: 2, prr: 25, abr: 30,
+      },
+      direct: {
+        enabled: true, mix: 20, label: 'Direct / Referrals', open: false,
+      },
+    },
+  };
+}
+
+let state = loadState() || defaults();
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const s = JSON.parse(raw);
+    const d = defaults();
+    s.sales = { ...d.sales, ...(s.sales || {}) };
+    Object.keys(d.channels).forEach(k => {
+      s.channels[k] = { ...d.channels[k], ...(s.channels && s.channels[k] || {}) };
+    });
+    return s;
+  } catch (e) { console.error(e); return null; }
+}
+
+let saveTimer;
+function saveState() {
+  setStatus('Saving…');
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      setStatus('Saved');
+    } catch (e) { setStatus('Save error'); console.error(e); }
+  }, 200);
+}
+function setStatus(t) { document.getElementById('save-status').textContent = t; }
+
+// ============================================================
+// Math
+// ============================================================
+function money(n) {
+  if (n == null || !isFinite(n)) return '—';
+  return '£' + n.toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
+function moneyDecimal(n) {
+  if (n == null || !isFinite(n)) return '—';
+  return '£' + n.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+}
+function num(n, decimals = 0) {
+  if (n == null || !isFinite(n)) return '—';
+  return n.toLocaleString('en-GB', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
+function pct(n) { return (n == null || !isFinite(n)) ? '—' : n.toFixed(1) + '%'; }
+
+function compute() {
+  const s = state;
+  const revPerClose = (s.cashPerClose || 0) + (s.contractPerClose || 0);
+  const closesPerMonth = revPerClose > 0 ? s.revenueTarget / revPerClose : 0;
+  const r = s.sales;
+  // Cumulative conversion from booking to close
+  const bookingToClose = (r.show1Rate / 100) * (r.qual1Rate / 100) * (r.book2Rate / 100) * (r.sched2Rate / 100) * (r.show2Rate / 100) * (r.offerRate / 100) * (r.closeRate / 100);
+  const bookingsPerMonth = bookingToClose > 0 ? closesPerMonth / bookingToClose : 0;
+  // Each funnel stage backward from closes
+  const offers = r.closeRate > 0 ? closesPerMonth / (r.closeRate / 100) : 0;
+  const showed2 = r.offerRate > 0 ? offers / (r.offerRate / 100) : 0;
+  const sched2 = r.show2Rate > 0 ? showed2 / (r.show2Rate / 100) : 0;
+  const book2 = r.sched2Rate > 0 ? sched2 / (r.sched2Rate / 100) : 0;
+  const qual1 = r.book2Rate > 0 ? book2 / (r.book2Rate / 100) : 0;
+  const showed1 = r.qual1Rate > 0 ? qual1 / (r.qual1Rate / 100) : 0;
+  // bookings = showed1 / show1Rate
+
+  // Channel splits
+  const channelBookings = {};
+  Object.keys(s.channels).forEach(k => {
+    const c = s.channels[k];
+    if (!c.enabled) { channelBookings[k] = 0; return; }
+    channelBookings[k] = bookingsPerMonth * (c.mix / 100);
+  });
+
+  // Per-channel outreach math
+  const channelOutputs = {};
+  // LinkedIn
+  const li = s.channels.linkedin;
+  if (li.enabled) {
+    const bk = channelBookings.linkedin;
+    const csr = li.csr / 100, abr = li.abr / 100, prr = li.prr / 100, ar = li.acceptRate / 100;
+    const calendlyClicks = abr > 0 ? bk / abr : 0;
+    const positives = csr > 0 ? calendlyClicks / csr : 0;
+    const accepts = prr > 0 ? positives / prr : 0;
+    const connections = ar > 0 ? accepts / ar : 0;
+    const connectionsPerWeek = connections / (s.workingDaysPerMonth / s.workingDaysPerWeek);
+    const connectionsPerDay = connections / s.workingDaysPerMonth;
+    const profilesNeeded = Math.ceil(connectionsPerDay / (li.connectsPerProfilePerDay || 30));
+    channelOutputs.linkedin = { bk, calendlyClicks, positives, accepts, connections, connectionsPerWeek, connectionsPerDay, profilesNeeded };
+  }
+  // Email
+  const em = s.channels.email;
+  if (em.enabled) {
+    const bk = channelBookings.email;
+    const abr = em.abr / 100, prr = em.prr / 100, rr = em.replyRate / 100;
+    const positives = abr > 0 ? bk / abr : 0;
+    const replies = prr > 0 ? positives / prr : 0;
+    const sends = rr > 0 ? replies / rr : 0;
+    const sendsPerWeek = sends / (s.workingDaysPerMonth / s.workingDaysPerWeek);
+    const sendsPerDay = sends / s.workingDaysPerMonth;
+    const inboxesNeeded = Math.ceil(sendsPerDay / (em.sendsPerInboxPerDay || 30));
+    const domainsNeeded = Math.ceil(inboxesNeeded / (em.inboxesPerDomain || 3));
+    channelOutputs.email = { bk, positives, replies, sends, sendsPerWeek, sendsPerDay, inboxesNeeded, domainsNeeded };
+  }
+  // Direct
+  const dr = s.channels.direct;
+  if (dr.enabled) {
+    const bk = channelBookings.direct;
+    channelOutputs.direct = { bk, perWeek: bk / (s.workingDaysPerMonth / s.workingDaysPerWeek), perDay: bk / s.workingDaysPerMonth };
+  }
+
+  return {
+    revPerClose, closesPerMonth, bookingsPerMonth, bookingToClose,
+    offers, showed2, sched2, book2, qual1, showed1,
+    channelBookings, channelOutputs,
+    closesPerWeek: closesPerMonth / (s.workingDaysPerMonth / s.workingDaysPerWeek),
+    closesPerDay: closesPerMonth / s.workingDaysPerMonth,
+    bookingsPerWeek: bookingsPerMonth / (s.workingDaysPerMonth / s.workingDaysPerWeek),
+    bookingsPerDay: bookingsPerMonth / s.workingDaysPerMonth,
+  };
+}
+
+// ============================================================
+// Render
+// ============================================================
+function render() {
+  const c = compute();
+  renderHero(c);
+  renderRevRows();
+  renderSalesRows(c);
+  renderMixRows(c);
+  renderChannels(c);
+}
+
+function renderHero(c) {
+  document.getElementById('hero').innerHTML = `
+    <div class="target-field">
+      <div class="lbl">Revenue target</div>
+      <div class="input-wrap">
+        <span class="currency">£</span>
+        <input id="rev-target" type="number" min="0" step="1000" value="${state.revenueTarget}" />
+        <span class="period">/ month</span>
+      </div>
+    </div>
+    <div class="hero-stat">
+      <div class="lbl">Closes needed</div>
+      <div class="val">${num(Math.ceil(c.closesPerMonth))}</div>
+      <div class="sub">${num(c.closesPerWeek, 1)} /wk · ${num(c.closesPerDay, 2)} /day</div>
+    </div>
+    <div class="hero-stat">
+      <div class="lbl">Calls booked (call 1)</div>
+      <div class="val">${num(Math.ceil(c.bookingsPerMonth))}</div>
+      <div class="sub">${num(c.bookingsPerWeek, 1)} /wk · ${num(c.bookingsPerDay, 1)} /day</div>
+    </div>
+  `;
+  document.getElementById('rev-target').addEventListener('input', e => {
+    state.revenueTarget = parseFloat(e.target.value) || 0;
+    saveState();
+    render();
+  });
+}
+
+function makeRow(opts) {
+  // opts: { key, label, hint, value, min, max, step, unit, onChange }
+  const id = 'row_' + Math.random().toString(36).slice(2, 8);
+  return `<div class="row" data-row="${id}">
+    <div class="lbl">${opts.label}${opts.hint ? `<span class="hint">${opts.hint}</span>` : ''}</div>
+    <div class="slider-wrap">
+      <input type="range" min="${opts.min}" max="${opts.max}" step="${opts.step}" value="${opts.value}" data-role="slider" />
+    </div>
+    <input type="number" min="${opts.min}" max="${opts.max * 5}" step="${opts.step}" value="${opts.value}" data-role="input" />
+    <span class="unit">${opts.unit || ''}</span>
+  </div>`;
+}
+
+function wireRow(rowEl, get, set, onAfter) {
+  const slider = rowEl.querySelector('input[type="range"]');
+  const input = rowEl.querySelector('input[type="number"]');
+  const updatePct = () => {
+    const max = parseFloat(slider.max) || 1;
+    slider.style.setProperty('--pct', ((slider.value / max) * 100).toFixed(1) + '%');
+  };
+  updatePct();
+  const apply = (v, src) => {
+    const n = parseFloat(v) || 0;
+    set(n);
+    if (src !== 'slider') slider.value = Math.min(n, parseFloat(slider.max));
+    if (src !== 'input') input.value = n;
+    updatePct();
+    saveState();
+    onAfter && onAfter();
+  };
+  slider.addEventListener('input', e => apply(e.target.value, 'slider'));
+  input.addEventListener('input', e => apply(e.target.value, 'input'));
+}
+
+function renderRevRows() {
+  const host = document.getElementById('rev-rows');
+  host.innerHTML =
+    makeRow({ label: 'Cash per close', value: state.cashPerClose, min: 0, max: 10000, step: 50, unit: '£' }) +
+    makeRow({ label: 'Contract per close', hint: 'remainder/cash flow', value: state.contractPerClose, min: 0, max: 20000, step: 100, unit: '£' }) +
+    makeRow({ label: 'Working days / month', value: state.workingDaysPerMonth, min: 1, max: 31, step: 1, unit: '' }) +
+    makeRow({ label: 'Working days / week', value: state.workingDaysPerWeek, min: 1, max: 7, step: 1, unit: '' });
+  const rows = host.querySelectorAll('.row');
+  wireRow(rows[0], () => state.cashPerClose, v => state.cashPerClose = v, render);
+  wireRow(rows[1], () => state.contractPerClose, v => state.contractPerClose = v, render);
+  wireRow(rows[2], () => state.workingDaysPerMonth, v => state.workingDaysPerMonth = v, render);
+  wireRow(rows[3], () => state.workingDaysPerWeek, v => state.workingDaysPerWeek = v, render);
+  const c = compute();
+  document.getElementById('rev-per-close-summary').textContent = `${money(c.revPerClose)} per close · ${num(Math.ceil(c.closesPerMonth))} closes/mo`;
+}
+
+function renderSalesRows(c) {
+  const fields = [
+    ['show1Rate', 'Call 1 show rate', '% of bookings that show up'],
+    ['qual1Rate', 'Call 1 qualification', '% of shows that qualify'],
+    ['book2Rate', 'Call 2 booking', '% of qualified that book call 2'],
+    ['sched2Rate', 'Call 2 scheduled', '% of booked that confirm a slot'],
+    ['show2Rate', 'Call 2 show rate', '% of scheduled that show up'],
+    ['offerRate', 'Offer rate', '% of call 2 shows that get an offer'],
+    ['closeRate', 'Close rate', '% of offers that close'],
+  ];
+  const host = document.getElementById('sales-rows');
+  host.innerHTML = fields.map(([k, label, hint]) =>
+    makeRow({ label, hint, value: state.sales[k], min: 0, max: 100, step: 1, unit: '%' })
+  ).join('');
+  const rows = host.querySelectorAll('.row');
+  fields.forEach(([k], i) => wireRow(rows[i], () => state.sales[k], v => state.sales[k] = v, render));
+  document.getElementById('sales-summary').textContent =
+    `${pct(c.bookingToClose * 100)} booking→close · ${num(Math.ceil(c.bookingsPerMonth))} bookings/mo`;
+}
+
+function renderMixRows(c) {
+  const channelKeys = Object.keys(state.channels);
+  const host = document.getElementById('mix-rows');
+  host.innerHTML = channelKeys.map(k => {
+    const ch = state.channels[k];
+    return `<div class="row" data-channel="${k}">
+      <div class="lbl">
+        <label class="channel-enabled-toggle"><input type="checkbox" ${ch.enabled ? 'checked' : ''} data-role="enabled" />&nbsp;</label>
+        ${ch.label}
+      </div>
+      <div class="slider-wrap">
+        <input type="range" min="0" max="100" step="1" value="${ch.mix}" data-role="slider" ${!ch.enabled ? 'disabled' : ''} />
+      </div>
+      <input type="number" min="0" max="100" step="1" value="${ch.mix}" data-role="input" ${!ch.enabled ? 'disabled' : ''} />
+      <span class="unit">%</span>
+    </div>`;
+  }).join('');
+  // Wire
+  host.querySelectorAll('.row').forEach(rowEl => {
+    const k = rowEl.dataset.channel;
+    const ch = state.channels[k];
+    const slider = rowEl.querySelector('input[type="range"]');
+    const input = rowEl.querySelector('input[type="number"]');
+    const cb = rowEl.querySelector('input[type="checkbox"]');
+    const updatePct = () => {
+      slider.style.setProperty('--pct', ((slider.value / 100) * 100).toFixed(1) + '%');
+    };
+    updatePct();
+    const apply = (v, src) => {
+      const n = parseFloat(v) || 0;
+      ch.mix = n;
+      if (src !== 'slider') slider.value = n;
+      if (src !== 'input') input.value = n;
+      updatePct();
+      saveState();
+      render();
+    };
+    slider.addEventListener('input', e => apply(e.target.value, 'slider'));
+    input.addEventListener('input', e => apply(e.target.value, 'input'));
+    cb.addEventListener('change', e => {
+      ch.enabled = e.target.checked;
+      saveState();
+      render();
+    });
+  });
+  // Mix total + warning
+  const totalMix = channelKeys.filter(k => state.channels[k].enabled).reduce((s, k) => s + (state.channels[k].mix || 0), 0);
+  document.getElementById('mix-summary').textContent = `mix total ${totalMix}%`;
+  const warnHost = document.getElementById('mix-warning-host');
+  if (Math.abs(totalMix - 100) > 1) {
+    warnHost.innerHTML = `<div class="mix-warning">
+      Mix sums to ${totalMix}% — should be 100%.
+      <button id="rebalance-btn" style="margin-left:auto">Rebalance proportionally</button>
+    </div>`;
+    document.getElementById('rebalance-btn').addEventListener('click', () => {
+      const enabledKeys = channelKeys.filter(k => state.channels[k].enabled);
+      const sum = enabledKeys.reduce((s, k) => s + state.channels[k].mix, 0);
+      if (sum === 0) {
+        // Even split
+        const each = 100 / enabledKeys.length;
+        enabledKeys.forEach(k => state.channels[k].mix = Math.round(each));
+      } else {
+        enabledKeys.forEach(k => state.channels[k].mix = Math.round((state.channels[k].mix / sum) * 100));
+      }
+      saveState();
+      render();
+    });
+  } else {
+    warnHost.innerHTML = '';
+  }
+}
+
+function renderChannels(c) {
+  const host = document.getElementById('channels-host');
+  host.innerHTML = Object.keys(state.channels).map(k => renderChannel(k, c)).join('');
+  // Wire toggles + sliders
+  host.querySelectorAll('.channel').forEach(el => {
+    const k = el.dataset.key;
+    el.querySelector('.channel-head').addEventListener('click', e => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
+      state.channels[k].open = !state.channels[k].open;
+      saveState();
+      el.classList.toggle('open', state.channels[k].open);
+    });
+    el.querySelectorAll('.row').forEach(rowEl => {
+      const key = rowEl.dataset.field;
+      wireRow(rowEl, () => state.channels[k][key], v => state.channels[k][key] = v, render);
+    });
+  });
+}
+
+function renderChannel(k, c) {
+  const ch = state.channels[k];
+  const out = c.channelOutputs[k];
+  const bookings = c.channelBookings[k];
+  let body = '';
+  let summary = '';
+  if (!ch.enabled) {
+    summary = 'Disabled';
+    body = '<div style="color:var(--text-tertiary);padding:14px 0">Channel disabled. Enable it in the mix above to include in calculations.</div>';
+  } else if (k === 'linkedin') {
+    summary = `${num(Math.ceil(out.connections))} connects/mo · ${out.profilesNeeded} profile${out.profilesNeeded === 1 ? '' : 's'}`;
+    const fields = [
+      ['acceptRate', 'Acceptance rate', '% of connections that accept'],
+      ['prr', 'Positive reply rate', '% of accepts that reply positively'],
+      ['csr', 'Calendly schedule rate', '% of positives that click Calendly'],
+      ['abr', 'Appointment book rate', '% of Calendly clicks that book'],
+    ];
+    body = `
+      <div class="outputs">
+        <div class="out"><div class="lbl">Bookings target</div><div class="val">${num(Math.ceil(bookings))}</div><div class="sub">${num(bookings / (state.workingDaysPerMonth / state.workingDaysPerWeek), 1)} /wk</div></div>
+        <div class="out hero"><div class="lbl">Connections / month</div><div class="val">${num(Math.ceil(out.connections))}</div><div class="sub">${num(Math.ceil(out.connectionsPerWeek))} /wk · ${num(Math.ceil(out.connectionsPerDay))} /day</div></div>
+        <div class="out hero"><div class="lbl">Sender profiles</div><div class="val">${out.profilesNeeded}</div><div class="sub">${ch.connectsPerProfilePerDay}/day each</div></div>
+        <div class="out"><div class="lbl">Accepts</div><div class="val">${num(Math.ceil(out.accepts))}</div></div>
+        <div class="out"><div class="lbl">Positive replies</div><div class="val">${num(Math.ceil(out.positives))}</div></div>
+        <div class="out"><div class="lbl">Calendly clicks</div><div class="val">${num(Math.ceil(out.calendlyClicks))}</div></div>
+      </div>
+      ${fields.map(([key, label, hint]) =>
+        `<div class="row" data-field="${key}">
+          <div class="lbl">${label}<span class="hint">${hint}</span></div>
+          <div class="slider-wrap"><input type="range" min="0" max="100" step="0.1" value="${ch[key]}" data-role="slider" /></div>
+          <input type="number" min="0" max="100" step="0.1" value="${ch[key]}" data-role="input" />
+          <span class="unit">%</span>
+        </div>`
+      ).join('')}
+    `;
+  } else if (k === 'email') {
+    summary = `${num(Math.ceil(out.sends))} sends/mo · ${out.inboxesNeeded} inbox${out.inboxesNeeded === 1 ? '' : 'es'} · ${out.domainsNeeded} domain${out.domainsNeeded === 1 ? '' : 's'}`;
+    const fields = [
+      ['replyRate', 'Reply rate', '% of sends that reply (any reply)'],
+      ['prr', 'Positive reply rate', '% of replies that are positive'],
+      ['abr', 'Appointment book rate', '% of positives that book'],
+    ];
+    body = `
+      <div class="outputs">
+        <div class="out"><div class="lbl">Bookings target</div><div class="val">${num(Math.ceil(bookings))}</div><div class="sub">${num(bookings / (state.workingDaysPerMonth / state.workingDaysPerWeek), 1)} /wk</div></div>
+        <div class="out hero"><div class="lbl">Sends / month</div><div class="val">${num(Math.ceil(out.sends))}</div><div class="sub">${num(Math.ceil(out.sendsPerWeek))} /wk · ${num(Math.ceil(out.sendsPerDay))} /day</div></div>
+        <div class="out hero"><div class="lbl">Inboxes / Domains</div><div class="val">${out.inboxesNeeded} / ${out.domainsNeeded}</div><div class="sub">${ch.sendsPerInboxPerDay}/inbox · ${ch.inboxesPerDomain} inboxes/domain</div></div>
+        <div class="out"><div class="lbl">Replies</div><div class="val">${num(Math.ceil(out.replies))}</div></div>
+        <div class="out"><div class="lbl">Positive replies</div><div class="val">${num(Math.ceil(out.positives))}</div></div>
+      </div>
+      ${fields.map(([key, label, hint]) =>
+        `<div class="row" data-field="${key}">
+          <div class="lbl">${label}<span class="hint">${hint}</span></div>
+          <div class="slider-wrap"><input type="range" min="0" max="100" step="0.1" value="${ch[key]}" data-role="slider" /></div>
+          <input type="number" min="0" max="100" step="0.1" value="${ch[key]}" data-role="input" />
+          <span class="unit">%</span>
+        </div>`
+      ).join('')}
+    `;
+  } else if (k === 'direct') {
+    summary = `${num(Math.ceil(out.bk))} bookings/mo, no outreach math`;
+    body = `
+      <div class="outputs">
+        <div class="out hero"><div class="lbl">Bookings / month</div><div class="val">${num(Math.ceil(out.bk))}</div><div class="sub">${num(out.perWeek, 1)} /wk · ${num(out.perDay, 1)} /day</div></div>
+      </div>
+      <div style="color:var(--text-tertiary);font-size:13px;padding:8px 0">Direct/referral bookings have no funnel — they come in from existing relationships, word of mouth, or inbound. Slide the mix above to set how many bookings you expect from this channel.</div>
+    `;
+  }
+  return `<div class="channel ${k} ${ch.open ? 'open' : ''} ${!ch.enabled ? 'disabled' : ''}" data-key="${k}">
+    <div class="channel-head">
+      <div class="swatch"></div>
+      <div class="name">${ch.label}</div>
+      <div class="summary">${summary}</div>
+      <div style="display:flex;align-items:center;gap:10px"><span class="mix-pct">${ch.mix}% mix</span><span class="toggle">›</span></div>
+    </div>
+    <div class="channel-body">${body}</div>
+  </div>`;
+}
+
+// ============================================================
+// Boot
+// ============================================================
+document.getElementById('reset-btn').addEventListener('click', () => {
+  if (!confirm('Reset all values to defaults?')) return;
+  state = defaults();
+  saveState();
+  render();
+});
+
+render();
+</script>
+</body>
+</html>

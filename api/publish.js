@@ -182,6 +182,39 @@ async function createNotionPage({ title, markdown, periodStartDate }) {
 }
 
 // ────────────────────────────────────────────────────────────────────
+// Update existing page in place (idempotent re-publish)
+// Mirrors team-tracker's updateScorecardPage: rename, wipe children,
+// re-append fresh blocks in 95-sized chunks.
+// ────────────────────────────────────────────────────────────────────
+async function updateNotionPage({ pageId, title, markdown }) {
+  // 1. Update the title
+  await notion(`/pages/${pageId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ properties: { title: { title: toRichText(title) } } }),
+  });
+  // 2. Delete all current children (paginate just in case)
+  let cursor;
+  do {
+    const path = `/blocks/${pageId}/children?page_size=100${cursor ? `&start_cursor=${cursor}` : ''}`;
+    const { results, next_cursor, has_more } = await notion(path);
+    for (const c of results || []) {
+      await notion(`/blocks/${c.id}`, { method: "DELETE" });
+    }
+    cursor = has_more ? next_cursor : undefined;
+  } while (cursor);
+  // 3. Append fresh blocks in 95-sized chunks
+  const blocks = markdownToNotionBlocks(markdown);
+  for (let off = 0; off < blocks.length; off += 95) {
+    await notion(`/blocks/${pageId}/children`, {
+      method: "PATCH",
+      body: JSON.stringify({ children: blocks.slice(off, off + 95) }),
+    });
+  }
+  const page = await notion(`/pages/${pageId}`);
+  return { id: page.id, url: page.url };
+}
+
+// ────────────────────────────────────────────────────────────────────
 // Handler
 // ────────────────────────────────────────────────────────────────────
 module.exports = async (req, res) => {
@@ -212,12 +245,29 @@ module.exports = async (req, res) => {
   if (String(body.markdown).length > 200_000) return res.status(400).json({ error: "markdown too long (max 200kb)" });
 
   try {
+    // Idempotent: if caller passed a pageId from a previous publish, update
+    // it in place instead of creating a duplicate. Same pattern team-tracker
+    // uses for scorecard re-publishes (same period_key -> same Notion page).
+    if (body.pageId) {
+      try {
+        const updated = await updateNotionPage({
+          pageId: String(body.pageId),
+          title: String(body.title),
+          markdown: String(body.markdown),
+        });
+        return res.status(200).json({ ok: true, page_id: updated.id, page_url: updated.url, updated: true });
+      } catch (e) {
+        // Page may have been archived/deleted in Notion since we saved its id.
+        // Fall through and create a fresh one rather than fail the publish.
+        if (!/404|not found|archived/i.test(e.message || '')) throw e;
+      }
+    }
     const created = await createNotionPage({
       title: String(body.title),
       markdown: String(body.markdown),
       periodStartDate: new Date().toISOString().slice(0, 10),
     });
-    return res.status(200).json({ ok: true, page_id: created.id, page_url: created.url });
+    return res.status(200).json({ ok: true, page_id: created.id, page_url: created.url, updated: false });
   } catch (e) {
     return res.status(500).json({ error: e.message || String(e) });
   }

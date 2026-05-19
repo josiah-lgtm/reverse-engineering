@@ -1016,6 +1016,7 @@ function defaultPlan() {
       ideas: '',
     },
     notionPageUrl: '',  // optional: paste your Notion plan page URL here for one-click open
+    notionPageId: '',   // set automatically after first publish — enables idempotent re-publish
   };
 }
 
@@ -1070,6 +1071,7 @@ function loadState() {
       p.team = { ...dp.team, ...(p.team || {}) };
       p.notes = { ...dp.notes, ...(p.notes || {}) };
       if (p.notionPageUrl === undefined) p.notionPageUrl = '';
+      if (p.notionPageId === undefined) p.notionPageId = '';
     });
     if (!s.activeMonth || !s.months[s.activeMonth]) {
       s.activeMonth = Object.keys(s.months || {})[0] || currentMonthId();
@@ -1758,6 +1760,15 @@ function openModal() {
   document.getElementById('plan-modal-title').textContent = `${fmtMonth(state.activeMonth)} — plan markdown`;
   modalStatus.textContent = '';
   modalStatus.classList.remove('ok');
+  modalStatus.style.color = '';
+  // Button label reflects whether we'll create or update
+  const p = plan();
+  const hasPrior = !!(p.notionPageId || '').trim();
+  const btn = document.getElementById('plan-publish-btn');
+  btn.textContent = hasPrior ? 'Re-publish to Notion ↻' : 'Publish to Notion →';
+  if (hasPrior) {
+    modalStatus.innerHTML = `<span style="color:var(--text-tertiary)">Last published — <a href="${p.notionPageUrl}" target="_blank" rel="noopener" style="color:var(--accent-hover);text-decoration:underline">open</a>. Re-publish overwrites that page.</span>`;
+  }
   modal.classList.add('open');
 }
 function closeModal() { modal.classList.remove('open'); }
@@ -1809,19 +1820,30 @@ document.getElementById('plan-publish-btn').addEventListener('click', async () =
   const btn = document.getElementById('plan-publish-btn');
   const md = document.getElementById('plan-markdown').textContent;
   const title = `${fmtMonth(state.activeMonth)} — Plan`;
-  modalStatus.textContent = 'Publishing…';
+  const p = plan();
+  const existingPageId = (p.notionPageId || '').trim() || undefined;
+  modalStatus.textContent = existingPageId ? 'Updating Notion page…' : 'Creating Notion page…';
   modalStatus.classList.remove('ok');
+  modalStatus.style.color = '';
   btn.disabled = true;
   try {
     const res = await fetch(PUBLISH_API_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title, markdown: md }),
+      body: JSON.stringify({ title, markdown: md, pageId: existingPageId }),
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status}`);
-    modalStatus.innerHTML = `Published — <a href="${data.page_url}" target="_blank" rel="noopener" style="color:var(--accent-hover);text-decoration:underline">open in Notion</a>`;
+    // Remember the page id + url so the next publish for THIS month updates
+    // the same Notion page instead of creating a duplicate.
+    p.notionPageId = data.page_id;
+    p.notionPageUrl = data.page_url;
+    document.getElementById('notion-page-url').value = data.page_url;
+    saveState();
+    const verb = data.updated ? 'Updated' : 'Published';
+    modalStatus.innerHTML = `${verb} — <a href="${data.page_url}" target="_blank" rel="noopener" style="color:var(--accent-hover);text-decoration:underline">open in Notion</a>`;
     modalStatus.classList.add('ok');
+    btn.textContent = 'Re-publish to Notion ↻';
   } catch (err) {
     modalStatus.textContent = `Publish failed: ${err.message}. (Falling back: copy markdown manually.)`;
     modalStatus.style.color = 'var(--bad)';

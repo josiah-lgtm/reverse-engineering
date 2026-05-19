@@ -398,26 +398,45 @@
     padding: 0;
     margin: 0;
     border: none;
+    cursor: grab;
   }
+  .row input[type="range"]:active { cursor: grabbing; }
   .row input[type="range"]:focus { outline: none; }
   .row input[type="range"]::-webkit-slider-runnable-track {
     height: 6px;
-    border-radius: 3px;
+    border-radius: 999px;
     background: linear-gradient(to right,
       var(--accent) 0%, var(--accent) var(--pct, 0%),
       var(--surface-input) var(--pct, 0%), var(--surface-input) 100%);
   }
+  .row input[type="range"]::-moz-range-track {
+    height: 6px; border-radius: 999px; background: var(--surface-input);
+  }
+  .row input[type="range"]::-moz-range-progress {
+    height: 6px; border-radius: 999px; background: var(--accent);
+  }
   .row input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 20px;
-    height: 20px;
+    width: 22px;
+    height: 22px;
     background: #fff;
     border-radius: 50%;
-    margin-top: -7px;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.5);
-    cursor: pointer;
+    margin-top: -8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4), 0 0 0 0.5px rgba(0,0,0,0.15), 0 4px 12px rgba(0,0,0,0.15);
+    cursor: grab;
+    transition: transform 0.08s ease, box-shadow 0.12s ease;
   }
-  .row input[type="range"]::-webkit-slider-thumb:active { box-shadow: 0 2px 10px var(--accent-shadow); }
+  .row input[type="range"]:active::-webkit-slider-thumb {
+    transform: scale(1.10);
+    box-shadow: 0 2px 12px var(--accent-shadow), 0 0 0 0.5px rgba(0,0,0,0.2), 0 6px 18px rgba(0,0,0,0.25);
+    cursor: grabbing;
+  }
+  .row input[type="range"]::-moz-range-thumb {
+    width: 22px; height: 22px;
+    background: #fff; border: none; border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.15);
+    cursor: grab;
+  }
   .row input[type="number"] {
     padding: 8px 11px;
     background: var(--surface-input);
@@ -528,16 +547,67 @@
      ============================== */
   .capacity-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 14px;
+    grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+    gap: 16px;
     margin-bottom: 18px;
   }
   .cap-card {
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 12px;
-    padding: 20px 22px;
+    border-radius: 14px;
+    padding: 22px 24px;
   }
+  .cap-role-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 14px;
+  }
+  .cap-headcount {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    background: var(--surface-input);
+    padding: 4px 11px;
+    border-radius: 999px;
+    font-weight: 500;
+  }
+  .cap-periods {
+    margin-top: 16px;
+    border-collapse: collapse;
+    width: 100%;
+    font-size: 13.5px;
+  }
+  .cap-periods th {
+    text-align: right;
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    padding: 6px 4px;
+    border-bottom: 1px solid var(--separator);
+  }
+  .cap-periods th:first-child { text-align: left; }
+  .cap-periods td {
+    padding: 8px 4px;
+    font-variant-numeric: tabular-nums;
+    border-bottom: 1px solid var(--separator);
+  }
+  .cap-periods tr:last-child td { border-bottom: none; }
+  .cap-periods td:first-child { color: var(--text-secondary); }
+  .cap-periods td.num { text-align: right; color: var(--text); font-weight: 500; }
+  .cap-periods .slack-row.ok td.num { color: var(--good); }
+  .cap-periods .slack-row.short td.num { color: var(--bad); font-weight: 600; }
+  .cap-periods .slack-row td:first-child { color: var(--text); font-weight: 500; }
+  .cap-rec {
+    margin-top: 14px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 12.5px;
+    background: var(--good-tint);
+    color: var(--good);
+  }
+  .cap-rec.warn { background: var(--warn-tint); color: var(--warn); }
   .cap-card .lbl {
     font-size: 11px;
     color: var(--text-tertiary);
@@ -797,6 +867,144 @@
   }
   button.ghost:hover { background: var(--surface-raised); color: var(--text); }
 
+  .settings-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 28px;
+  }
+  .settings-card h3 {
+    font-size: 13px;
+    margin: 0 0 6px;
+    color: var(--text);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+  }
+  .settings-card .settings-sub {
+    color: var(--text-tertiary);
+    font-size: 13px;
+    margin: 0 0 14px;
+    line-height: 1.55;
+  }
+  .settings-card .settings-sub code {
+    background: var(--surface-input);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-family: "SF Mono", ui-monospace, monospace;
+  }
+  .setting-row {
+    display: grid;
+    grid-template-columns: 200px 1fr;
+    gap: 16px;
+    align-items: center;
+    margin-bottom: 12px;
+  }
+  .setting-row > label {
+    font-size: 13.5px;
+    color: var(--text);
+    margin: 0;
+  }
+  .setting-row input[type="url"], .setting-row input[type="text"] {
+    background: var(--surface-input);
+    border: 1px solid var(--border-input);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 13.5px;
+    padding: 9px 13px;
+    font-family: inherit;
+  }
+  .setting-row input[type="url"]:focus, .setting-row input[type="text"]:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  .setting-slider-wrap {
+    display: grid;
+    grid-template-columns: 1fr 80px auto;
+    gap: 12px;
+    align-items: center;
+  }
+  .setting-slider-wrap input[type="range"] {
+    -webkit-appearance: none; appearance: none;
+    background: transparent; width: 100%; height: 30px; padding: 0; margin: 0; border: none;
+    cursor: grab;
+  }
+  .setting-slider-wrap input[type="range"]:focus { outline: none; }
+  .setting-slider-wrap input[type="range"]::-webkit-slider-runnable-track {
+    height: 6px; border-radius: 999px;
+    background: linear-gradient(to right,
+      var(--accent) 0%, var(--accent) var(--pct, 0%),
+      var(--surface-input) var(--pct, 0%), var(--surface-input) 100%);
+  }
+  .setting-slider-wrap input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 22px; height: 22px;
+    background: #fff; border-radius: 50%; margin-top: -8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.15);
+    cursor: grab;
+  }
+  .setting-slider-wrap input[type="number"] {
+    text-align: right;
+    background: var(--surface-input);
+    border: 1px solid var(--border-input);
+    border-radius: 7px;
+    padding: 7px 10px;
+    color: var(--text);
+    font-size: 13.5px;
+    font-variant-numeric: tabular-nums;
+    font-family: inherit;
+  }
+  .settings-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 8px;
+  }
+  .onboard-steps {
+    margin-top: 14px;
+    background: var(--surface-input);
+    border-radius: 9px;
+    padding: 14px 18px;
+  }
+  .onboard-steps summary {
+    cursor: pointer;
+    color: var(--text-secondary);
+    font-size: 13px;
+    font-weight: 500;
+    list-style: none;
+    user-select: none;
+  }
+  .onboard-steps summary::-webkit-details-marker { display: none; }
+  .onboard-steps summary::before { content: '› '; color: var(--text-tertiary); }
+  .onboard-steps[open] summary::before { content: '⌄ '; color: var(--accent); }
+  .onboard-steps ol {
+    margin: 14px 0 0;
+    padding-left: 22px;
+    color: var(--text-secondary);
+    font-size: 13.5px;
+    line-height: 1.7;
+  }
+  .onboard-steps ol li { margin-bottom: 8px; }
+  .onboard-steps code {
+    background: var(--bg);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-family: "SF Mono", ui-monospace, monospace;
+  }
+  .onboard-steps a { color: var(--accent-hover); }
+
+  /* Error margin chip */
+  .err-chip {
+    display: inline-block;
+    margin-left: 6px;
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-weight: 500;
+    font-variant-numeric: tabular-nums;
+  }
+
   .footer {
     margin-top: 48px;
     padding-top: 28px;
@@ -929,10 +1137,57 @@
     <div class="publish-bar">
       <div class="text">
         <b>Publish to Notion</b>
-        <span class="small">Build the full plan as Markdown — funnel numbers, sliders, channel breakdown, team capacity, all your notes — then paste into your Notion weekly/monthly page.</span>
+        <span class="small">Build the full plan as Markdown — funnel numbers, sliders, channel breakdown, team capacity, all your notes — then push directly into your Notion page.</span>
       </div>
       <input id="notion-page-url" type="url" class="field" placeholder="Optional: your Notion plan URL" />
       <button id="generate-plan-btn" class="primary">Generate plan →</button>
+    </div>
+  </div>
+
+  <!-- Settings -->
+  <div class="section">
+    <div class="section-head">
+      <span class="title">Settings — API config &amp; presets</span>
+      <span class="summary" id="settings-summary">autosaves locally</span>
+    </div>
+    <div class="settings-card">
+      <h3>Notion API</h3>
+      <p class="settings-sub">Where the <b>Publish to Notion</b> button POSTs the markdown. Deploy <code>api/publish.js</code> to Vercel (see README), then paste the URL here.</p>
+      <div class="setting-row">
+        <label for="set-api-url">Publish endpoint</label>
+        <input id="set-api-url" type="url" placeholder="https://reverse-engineering.vercel.app/api/publish" />
+      </div>
+      <details class="onboard-steps">
+        <summary>Step-by-step onboarding (Vercel + Notion integration)</summary>
+        <ol>
+          <li>Create a Notion <b>internal integration</b> at <a href="https://www.notion.so/my-integrations" target="_blank" rel="noopener">notion.so/my-integrations</a>. Copy the <b>Internal Integration Secret</b> — that's your <code>NOTION_TOKEN</code>.</li>
+          <li>In Notion, open the parent page (or database) where you want plans to live. Click <b>···</b> → <b>Add connections</b> → pick the integration you just made. Copy the page/database ID from the URL.</li>
+          <li>Sign in to <a href="https://vercel.com" target="_blank" rel="noopener">vercel.com</a> with GitHub → <b>Add New → Project</b> → import <code>josiah-lgtm/reverse-engineering</code>. Framework preset <b>Other</b>, output directory <code>.</code></li>
+          <li>In Vercel <b>Project Settings → Environment Variables</b>, add: <code>NOTION_TOKEN</code> and <code>NOTION_PARENT_DATABASE_ID</code> (or <code>NOTION_PARENT_PAGE_ID</code>).</li>
+          <li>Deploy. Copy the assigned URL like <code>reverse-engineering-xyz.vercel.app</code>.</li>
+          <li>Paste <code>https://reverse-engineering-xyz.vercel.app/api/publish</code> into the <b>Publish endpoint</b> field above.</li>
+        </ol>
+      </details>
+
+      <h3 style="margin-top:24px">Forecast uncertainty</h3>
+      <p class="settings-sub">How much you trust each conversion rate. Compounds through the funnel — bookings will show ±X% margin of error using this value.</p>
+      <div class="setting-row">
+        <label>Per-stage variance</label>
+        <div class="setting-slider-wrap">
+          <input id="set-error-pct" type="range" min="0" max="30" step="1" />
+          <input id="set-error-pct-num" type="number" min="0" max="100" step="1" />
+          <span class="unit">%</span>
+        </div>
+      </div>
+
+      <h3 style="margin-top:24px">Data</h3>
+      <div class="settings-actions">
+        <button id="set-reset-month" class="ghost">Reset this month to defaults</button>
+        <button id="set-reset-all" class="ghost">Wipe ALL months &amp; start fresh</button>
+        <button id="set-export-btn" class="ghost">Export JSON</button>
+        <input id="set-import-file" type="file" accept="application/json" style="display:none" />
+        <button id="set-import-btn" class="ghost">Import JSON</button>
+      </div>
     </div>
   </div>
 
@@ -1025,6 +1280,14 @@ function defaultState() {
   return {
     activeMonth: monthId,
     months: { [monthId]: defaultPlan() },
+    settings: defaultSettings(),
+  };
+}
+
+function defaultSettings() {
+  return {
+    apiUrl: '',          // user fills in after Vercel deploy
+    errorPct: 10,        // per-stage variance %, default ±10
   };
 }
 
@@ -1076,6 +1339,7 @@ function loadState() {
     if (!s.activeMonth || !s.months[s.activeMonth]) {
       s.activeMonth = Object.keys(s.months || {})[0] || currentMonthId();
     }
+    s.settings = { ...defaultSettings(), ...(s.settings || {}) };
     return s;
   } catch (e) { console.error(e); return null; }
 }
@@ -1218,6 +1482,7 @@ function render() {
   renderChannels(c);
   renderTeamCapacity(c);
   renderPlanFields();
+  renderSettings();
 }
 
 function renderPlanFields() {
@@ -1251,17 +1516,28 @@ let notesShown = false;  // global UI toggle for inline funnel notes
 function renderFunnelSnapshot(c) {
   const p = plan();
   const wkDivisor = p.workingDaysPerMonth / p.workingDaysPerWeek;
+  const mDivisor = p.workingDaysPerMonth;
   const host = document.getElementById('funnel-stages');
   host.classList.toggle('notes-on', notesShown);
+  // Compound the per-stage variance through the funnel. We use sqrt-of-sum-of-squares
+  // (independent errors propagate quadratically). 7 stages × σ_each → larger σ at closes.
+  const epsPerStage = (state.settings.errorPct || 0) / 100;
+  const errorAtStage = i => epsPerStage > 0 ? Math.sqrt(i + 1) * epsPerStage : 0;
   host.innerHTML = FUNNEL_STAGES.map((s, i) => {
     const note = (p.notes[s.noteKey] || '').trim();
     const escaped = note.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    // Stage 0 = call-1 booked is at the bottom (furthest from closes). Compounding
+    // count rises as you move UP the funnel from closes. Bookings is index 0,
+    // closes is index 6 (last). For UX we display variance only on the hero
+    // tiles (call 1 booked + closes) since they're the headline numbers.
+    const err = errorAtStage(s.hero ? (i === 0 ? FUNNEL_STAGES.length - 1 : 0) : 0);
+    const errChip = (s.hero && err > 0) ? `<div class="err-chip">±${(err * 100).toFixed(0)}%</div>` : '';
     return `
       <div class="funnel-stage ${s.hero ? 'hero' : ''} ${note ? 'has-note' : ''}" data-note-key="${s.noteKey}">
         <span class="note-dot"></span>
         <div class="lbl">${s.lbl}</div>
-        <div class="val">${num(ceil(c[s.valKey]))}</div>
-        <div class="sub">${num(c[s.valKey] / wkDivisor, 1)} /wk</div>
+        <div class="val">${num(ceil(c[s.valKey]))}${errChip}</div>
+        <div class="sub">${num(c[s.valKey] / wkDivisor, 1)} /wk · ${num(c[s.valKey] / mDivisor, 1)} /day</div>
         <div class="note-input-wrap">
           <textarea class="note-input" placeholder="note…" data-note-key="${s.noteKey}">${escaped}</textarea>
         </div>
@@ -1324,6 +1600,10 @@ function makeRow(opts) {
   </div>`;
 }
 
+// Slider/number pair. Drag = live cheap updates (text only, no DOM rebuild).
+// Release / blur / Enter = full re-render (rebuilds slider rows). This keeps
+// the slider element stable while you're dragging so the browser's native
+// drag tracking isn't broken.
 function wireRow(rowEl, get, set, onAfter) {
   const slider = rowEl.querySelector('input[type="range"]');
   const input = rowEl.querySelector('input[type="number"]');
@@ -1332,17 +1612,144 @@ function wireRow(rowEl, get, set, onAfter) {
     slider.style.setProperty('--pct', ((slider.value / max) * 100).toFixed(1) + '%');
   };
   updatePct();
-  const apply = (v, src) => {
+  let rafQueued = false;
+  const live = (v, src) => {
     const n = parseFloat(v) || 0;
     set(n);
     if (src !== 'slider') slider.value = Math.min(n, parseFloat(slider.max));
     if (src !== 'input') input.value = n;
     updatePct();
-    saveState();
-    onAfter && onAfter();
+    // Coalesce expensive number-recompute into one per animation frame.
+    if (!rafQueued) {
+      rafQueued = true;
+      requestAnimationFrame(() => {
+        rafQueued = false;
+        updateLiveOutputs();
+      });
+    }
   };
-  slider.addEventListener('input', e => apply(e.target.value, 'slider'));
-  input.addEventListener('input', e => apply(e.target.value, 'input'));
+  const commit = () => {
+    saveState();
+    if (onAfter) onAfter();
+  };
+  slider.addEventListener('input', e => live(e.target.value, 'slider'));
+  slider.addEventListener('change', commit);
+  input.addEventListener('input', e => live(e.target.value, 'input'));
+  input.addEventListener('change', commit);
+  input.addEventListener('blur', commit);
+}
+
+// Cheap text-only refresh of every derived number on the page.
+// Does NOT rebuild any input/slider DOM — safe to call mid-drag.
+function updateLiveOutputs() {
+  const c = compute();
+  const p = plan();
+  const wkDiv = p.workingDaysPerMonth / p.workingDaysPerWeek;
+  const mDiv = p.workingDaysPerMonth;
+
+  // Funnel snapshot tiles
+  document.querySelectorAll('.funnel-stage').forEach(el => {
+    const key = el.dataset.noteKey;
+    const stage = FUNNEL_STAGES.find(s => s.noteKey === key);
+    if (!stage) return;
+    const v = c[stage.valKey];
+    const valEl = el.querySelector('.val');
+    const subEl = el.querySelector('.sub');
+    if (valEl) valEl.textContent = num(ceil(v));
+    if (subEl) subEl.textContent = `${num(v / wkDiv, 1)} /wk · ${num(v / mDiv, 1)} /day`;
+  });
+  setText('funnel-summary', `${pct(c.bookingToClose * 100)} booking→close · ${money(c.revPerClose)}/close · ${money(p.revenueTarget)} target`);
+  setText('rev-per-close-summary', `${money(c.revPerClose)} per close · ${num(Math.ceil(c.closes))} closes/mo`);
+  setText('sales-summary', `${pct(c.bookingToClose * 100)} booking→close · ${num(Math.ceil(c.bookings))} bookings/mo`);
+
+  // Mix total
+  const channelKeys = Object.keys(p.channels);
+  const totalMix = channelKeys.filter(k => p.channels[k].enabled).reduce((s, k) => s + (p.channels[k].mix || 0), 0);
+  setText('mix-summary', `mix total ${totalMix}% (should be 100%)`);
+  channelKeys.forEach(k => {
+    const headEl = document.querySelector(`.channel[data-key="${k}"] .channel-head .mix-pct`);
+    if (headEl) headEl.textContent = `${p.channels[k].mix}% mix`;
+  });
+
+  // Team summary
+  setText('cap-summary', `${num(ceil(c.shows1))} call 1s + ${num(ceil(c.shows2))} call 2s needed this month`);
+
+  // Channel summary text on each card head + each output tile in channel body
+  channelKeys.forEach(k => {
+    const card = document.querySelector(`.channel[data-key="${k}"]`);
+    if (!card) return;
+    const out = c.channelOutputs[k];
+    const ch = p.channels[k];
+    const summaryEl = card.querySelector('.channel-head .summary');
+    if (summaryEl && out) {
+      if (k === 'linkedin') summaryEl.textContent = `${num(ceil(out.connections))} connects/mo · ${out.profilesNeeded} profile${out.profilesNeeded === 1 ? '' : 's'}`;
+      else if (k === 'email') summaryEl.textContent = `${num(ceil(out.sends))} sends/mo · ${out.inboxesNeeded} inbox${out.inboxesNeeded === 1 ? '' : 'es'} · ${out.domainsNeeded} domain${out.domainsNeeded === 1 ? '' : 's'}`;
+    }
+    // Output tiles inside channel body — re-render their VALUES only (not the DOM around inputs).
+    // This is best-effort: each .out div has .val + .sub spans we can text-update.
+    const outs = card.querySelectorAll('.outputs .out');
+    if (k === 'linkedin' && out && outs.length >= 6) {
+      outs[0].querySelector('.val').textContent = num(ceil(out.bk));
+      outs[0].querySelector('.sub').textContent = `${num(out.bk / wkDiv, 1)} /wk · ${num(out.bk / mDiv, 1)} /day`;
+      outs[1].querySelector('.val').textContent = num(ceil(out.connections));
+      outs[1].querySelector('.sub').textContent = `${num(ceil(out.connectionsPerWeek))} /wk · ${num(ceil(out.connectionsPerDay))} /day`;
+      outs[2].querySelector('.val').textContent = out.profilesNeeded;
+      outs[3].querySelector('.val').textContent = num(ceil(out.accepts));
+      outs[4].querySelector('.val').textContent = num(ceil(out.positives));
+      outs[5].querySelector('.val').textContent = num(ceil(out.calendlyClicks));
+    } else if (k === 'email' && out && outs.length >= 5) {
+      outs[0].querySelector('.val').textContent = num(ceil(out.bk));
+      outs[0].querySelector('.sub').textContent = `${num(out.bk / wkDiv, 1)} /wk · ${num(out.bk / mDiv, 1)} /day`;
+      outs[1].querySelector('.val').textContent = num(ceil(out.sends));
+      outs[1].querySelector('.sub').textContent = `${num(ceil(out.sendsPerWeek))} /wk · ${num(ceil(out.sendsPerDay))} /day`;
+      outs[2].querySelector('.val').textContent = `${out.inboxesNeeded} / ${out.domainsNeeded}`;
+      outs[3].querySelector('.val').textContent = num(ceil(out.replies));
+      outs[4].querySelector('.val').textContent = num(ceil(out.positives));
+    }
+  });
+
+  // Team capacity tiles
+  updateTeamCapacityLive(c);
+}
+
+function setText(id, text) { const el = document.getElementById(id); if (el) el.textContent = text; }
+
+// Live update of team capacity cards — text only, no DOM rebuild.
+function updateTeamCapacityLive(c) {
+  const p = plan();
+  const t = p.team;
+  const cap = c.team;
+  const wkDiv = p.workingDaysPerMonth / p.workingDaysPerWeek;
+  const mDiv = p.workingDaysPerMonth;
+  const cards = document.querySelectorAll('.cap-role-card');
+  cards.forEach(card => {
+    const role = card.dataset.role;
+    const isJr = role === 'junior';
+    const util = isJr ? cap.jrUtilization : cap.srUtilization;
+    const needed = isJr ? c.shows1 : c.shows2;
+    const capacity = isJr ? cap.jrCapacityCalls : cap.srCapacityCalls;
+    const remaining = capacity - needed;
+    const status = util > 100 ? 'bad' : util > 85 ? 'warn' : 'ok';
+    const utilEl = card.querySelector('[data-cap-util]');
+    utilEl.textContent = `${pct(util)} loaded`;
+    utilEl.classList.remove('bad', 'warn', 'ok'); utilEl.classList.add(status);
+    const barEl = card.querySelector('[data-cap-bar]');
+    barEl.style.width = `${Math.min(100, util).toFixed(1)}%`;
+    barEl.classList.remove('bad', 'warn', 'ok'); barEl.classList.add(status);
+    card.querySelector('[data-cap-need-d]').textContent = num(needed / mDiv, 1);
+    card.querySelector('[data-cap-need-w]').textContent = num(needed / wkDiv, 1);
+    card.querySelector('[data-cap-need-m]').textContent = num(ceil(needed));
+    card.querySelector('[data-cap-cap-d]').textContent = num(capacity / mDiv, 1);
+    card.querySelector('[data-cap-cap-w]').textContent = num(capacity / wkDiv, 1);
+    card.querySelector('[data-cap-cap-m]').textContent = num(ceil(capacity));
+    card.querySelector('[data-cap-slack-d]').textContent = num(Math.abs(remaining) / mDiv, 1);
+    card.querySelector('[data-cap-slack-w]').textContent = num(Math.abs(remaining) / wkDiv, 1);
+    card.querySelector('[data-cap-slack-m]').textContent = num(ceil(Math.abs(remaining)));
+    const slackRow = card.querySelector('.slack-row');
+    slackRow.classList.remove('short', 'ok');
+    slackRow.classList.add(remaining < 0 ? 'short' : 'ok');
+    slackRow.querySelector('td:first-child').textContent = remaining < 0 ? 'Short by' : 'Slack';
+  });
 }
 
 function renderRevRows() {
@@ -1532,38 +1939,49 @@ function renderTeamCapacity(c) {
   const p = plan();
   const t = p.team;
   const cap = c.team;
+  const wkDiv = p.workingDaysPerMonth / p.workingDaysPerWeek;
+  const mDiv = p.workingDaysPerMonth;
   function statusOf(util) {
     if (util > 100) return 'bad';
     if (util > 85) return 'warn';
     return 'ok';
   }
-  function statusLabel(shortfall, calls) {
-    if (shortfall <= 0) return `${num(-shortfall)} call slack`;
-    return `short ${num(ceil(shortfall))} calls`;
+  function capCard(role, label, needed, capacity, util, count, perRepCap, shortfall, closersNeeded) {
+    const s = statusOf(util);
+    const remaining = capacity - needed;
+    return `<div class="cap-card cap-role-card" data-role="${role}">
+      <div class="cap-role-head">
+        <div>
+          <div class="lbl">${label}</div>
+          <div class="val ${s}" data-cap-util>${pct(util)} loaded</div>
+        </div>
+        <div class="cap-headcount">${count} on team</div>
+      </div>
+      <div class="bar"><div class="bar-fill ${s}" data-cap-bar style="width:${Math.min(100, util).toFixed(1)}%"></div></div>
+      <table class="cap-periods">
+        <thead><tr><th></th><th class="num">Daily</th><th class="num">Weekly</th><th class="num">Monthly</th></tr></thead>
+        <tbody>
+          <tr><td>Calls needed</td><td class="num" data-cap-need-d>${num(needed / mDiv, 1)}</td><td class="num" data-cap-need-w>${num(needed / wkDiv, 1)}</td><td class="num" data-cap-need-m>${num(ceil(needed))}</td></tr>
+          <tr><td>Team capacity</td><td class="num" data-cap-cap-d>${num(capacity / mDiv, 1)}</td><td class="num" data-cap-cap-w>${num(capacity / wkDiv, 1)}</td><td class="num" data-cap-cap-m>${num(ceil(capacity))}</td></tr>
+          <tr class="slack-row ${remaining < 0 ? 'short' : 'ok'}">
+            <td>${remaining < 0 ? 'Short by' : 'Slack'}</td>
+            <td class="num" data-cap-slack-d>${num(Math.abs(remaining) / mDiv, 1)}</td>
+            <td class="num" data-cap-slack-w>${num(Math.abs(remaining) / wkDiv, 1)}</td>
+            <td class="num" data-cap-slack-m>${num(ceil(Math.abs(remaining)))}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="cap-rec ${shortfall > 0 ? 'warn' : 'ok'}" data-cap-rec>
+        ${shortfall > 0
+          ? `<b>Hire ${closersNeeded - count} more</b> — ${closersNeeded} total needed, you have ${count}. Each ${role} covers ${num(ceil(perRepCap))} calls/mo.`
+          : `Covered — each ${role} covers ${num(ceil(perRepCap))} calls/mo.`}
+      </div>
+    </div>`;
   }
-  const jrStatus = statusOf(cap.jrUtilization);
-  const srStatus = statusOf(cap.srUtilization);
-  document.getElementById('capacity-cards').innerHTML = `
-    <div class="cap-card">
-      <div class="lbl">Junior closer (call 1)</div>
-      <div class="val ${jrStatus}">${pct(cap.jrUtilization)} loaded</div>
-      <div class="sub">${num(ceil(c.shows1))} shows needed · ${num(ceil(cap.jrCapacityCalls))} capacity</div>
-      <div class="bar"><div class="bar-fill ${jrStatus}" style="width:${Math.min(100, cap.jrUtilization).toFixed(1)}%"></div></div>
-      <div class="sub" style="margin-top:10px">${cap.jrShortfall > 0 ? `Need ${cap.jrClosersNeeded} closer${cap.jrClosersNeeded === 1 ? '' : 's'} total (have ${t.jrCloserCount})` : `${t.jrCloserCount} closer${t.jrCloserCount === 1 ? '' : 's'} cover ${num(ceil(cap.jrCapacityCalls))} call 1s/mo`}</div>
-    </div>
-    <div class="cap-card">
-      <div class="lbl">Senior closer (call 2)</div>
-      <div class="val ${srStatus}">${pct(cap.srUtilization)} loaded</div>
-      <div class="sub">${num(ceil(c.shows2))} shows needed · ${num(ceil(cap.srCapacityCalls))} capacity</div>
-      <div class="bar"><div class="bar-fill ${srStatus}" style="width:${Math.min(100, cap.srUtilization).toFixed(1)}%"></div></div>
-      <div class="sub" style="margin-top:10px">${cap.srShortfall > 0 ? `Need ${cap.srClosersNeeded} closer${cap.srClosersNeeded === 1 ? '' : 's'} total (have ${t.srCloserCount})` : `${t.srCloserCount} closer${t.srCloserCount === 1 ? '' : 's'} cover ${num(ceil(cap.srCapacityCalls))} call 2s/mo`}</div>
-    </div>
-    <div class="cap-card">
-      <div class="lbl">Total call hours / mo</div>
-      <div class="val">${num((cap.jrMinutesNeeded + cap.srMinutesNeeded) / 60, 0)}h</div>
-      <div class="sub">${num(cap.jrMinutesNeeded / 60, 0)}h call 1 + ${num(cap.srMinutesNeeded / 60, 0)}h call 2</div>
-    </div>
-  `;
+
+  document.getElementById('capacity-cards').innerHTML =
+    capCard('junior', 'Junior closer · call 1 (' + t.jrMinPerCall + ' min)', c.shows1, cap.jrCapacityCalls, cap.jrUtilization, t.jrCloserCount, cap.jrCapacityCalls / Math.max(1, t.jrCloserCount), cap.jrShortfall, cap.jrClosersNeeded) +
+    capCard('senior', 'Senior closer · call 2 (' + t.srMinPerCall + ' min)', c.shows2, cap.srCapacityCalls, cap.srUtilization, t.srCloserCount, cap.srCapacityCalls / Math.max(1, t.srCloserCount), cap.srShortfall, cap.srClosersNeeded);
   const rows = [
     ['jrCloserCount', 'Junior closers (count)', 'people who run call 1', 1, 0, 20, 1, ''],
     ['jrMinPerCall', 'Call 1 length', 'minutes per call 1', 1, 5, 60, 5, 'min'],
@@ -1806,15 +2224,16 @@ document.getElementById('plan-open-notion').addEventListener('click', () => {
 // ============================================================
 // Publish to Notion via the serverless function
 // ============================================================
-// Edit PUBLISH_API_URL after you deploy api/publish.js to Vercel.
-// e.g. 'https://reverse-engineering-josiah-lgtm.vercel.app/api/publish'
-// During local dev this auto-resolves to the same origin so you can
-// run `vercel dev` locally to test before deploying.
-const PUBLISH_API_URL = (window.PUBLISH_API_URL_OVERRIDE) || (
-  location.hostname === 'localhost'
-    ? '/api/publish'  // local: vercel dev
-    : 'https://reverse-engineering.vercel.app/api/publish'  // <- replace after deploy
-);
+// The endpoint lives in api/publish.js. Resolved from Settings → API URL
+// (saved per-user in localStorage). Local dev falls back to /api/publish
+// so you can run `vercel dev` to test.
+function getPublishApiUrl() {
+  if (window.PUBLISH_API_URL_OVERRIDE) return window.PUBLISH_API_URL_OVERRIDE;
+  const fromSettings = (state.settings && state.settings.apiUrl || '').trim();
+  if (fromSettings) return fromSettings;
+  if (location.hostname === 'localhost') return '/api/publish';
+  return '';  // not configured
+}
 
 document.getElementById('plan-publish-btn').addEventListener('click', async () => {
   const btn = document.getElementById('plan-publish-btn');
@@ -1822,12 +2241,18 @@ document.getElementById('plan-publish-btn').addEventListener('click', async () =
   const title = `${fmtMonth(state.activeMonth)} — Plan`;
   const p = plan();
   const existingPageId = (p.notionPageId || '').trim() || undefined;
+  const apiUrl = getPublishApiUrl();
+  if (!apiUrl) {
+    modalStatus.textContent = 'Publish endpoint not configured. Set it in Settings → Notion API.';
+    modalStatus.style.color = 'var(--bad)';
+    return;
+  }
   modalStatus.textContent = existingPageId ? 'Updating Notion page…' : 'Creating Notion page…';
   modalStatus.classList.remove('ok');
   modalStatus.style.color = '';
   btn.disabled = true;
   try {
-    const res = await fetch(PUBLISH_API_URL, {
+    const res = await fetch(apiUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title, markdown: md, pageId: existingPageId }),
@@ -1857,6 +2282,81 @@ document.getElementById('notes-toggle').addEventListener('click', () => {
   notesShown = !notesShown;
   document.getElementById('notes-toggle').classList.toggle('on', notesShown);
   document.getElementById('funnel-stages').classList.toggle('notes-on', notesShown);
+});
+
+// ============================================================
+// Settings panel wiring
+// ============================================================
+function renderSettings() {
+  document.getElementById('set-api-url').value = state.settings.apiUrl || '';
+  const eSlider = document.getElementById('set-error-pct');
+  const eNum = document.getElementById('set-error-pct-num');
+  eSlider.value = state.settings.errorPct;
+  eNum.value = state.settings.errorPct;
+  eSlider.style.setProperty('--pct', (state.settings.errorPct / 30 * 100).toFixed(1) + '%');
+}
+
+document.getElementById('set-api-url').addEventListener('input', e => {
+  state.settings.apiUrl = e.target.value.trim();
+  saveState();
+});
+
+(() => {
+  const slider = document.getElementById('set-error-pct');
+  const num = document.getElementById('set-error-pct-num');
+  const apply = v => {
+    const n = parseFloat(v) || 0;
+    state.settings.errorPct = n;
+    slider.value = Math.min(n, parseFloat(slider.max));
+    num.value = n;
+    slider.style.setProperty('--pct', (n / 30 * 100).toFixed(1) + '%');
+    saveState();
+    updateLiveOutputs();
+  };
+  slider.addEventListener('input', e => apply(e.target.value));
+  num.addEventListener('input', e => apply(e.target.value));
+})();
+
+document.getElementById('set-reset-month').addEventListener('click', () => {
+  if (!confirm(`Reset ${fmtMonth(state.activeMonth)} to defaults?`)) return;
+  state.months[state.activeMonth] = defaultPlan();
+  saveState();
+  render();
+});
+document.getElementById('set-reset-all').addEventListener('click', () => {
+  if (!confirm('Wipe ALL months and settings — start completely fresh? This cannot be undone.')) return;
+  state = defaultState();
+  saveState();
+  render();
+});
+document.getElementById('set-export-btn').addEventListener('click', () => {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `reverse-engineering-${new Date().toISOString().slice(0, 10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+});
+document.getElementById('set-import-btn').addEventListener('click', () => document.getElementById('set-import-file').click());
+document.getElementById('set-import-file').addEventListener('change', e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (!data.months) throw new Error('not a reverse-engineering export');
+      if (!confirm('Replace ALL current data with imported file?')) return;
+      state = data;
+      state.settings = { ...defaultSettings(), ...(state.settings || {}) };
+      saveState();
+      render();
+    } catch (err) {
+      alert('Import failed: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
 });
 
 document.getElementById('add-month-btn').addEventListener('click', () => {

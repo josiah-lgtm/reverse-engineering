@@ -148,45 +148,101 @@
     margin-bottom: 28px;
     box-shadow: 0 4px 30px rgba(0,0,0,0.25), 0 0 60px rgba(212,160,23,0.06);
   }
-  .target-grid {
-    display: grid;
-    grid-template-columns: 1.4fr 1fr 1fr;
-    gap: 36px;
-    align-items: center;
-  }
-  @media (max-width: 900px) {
-    .target-grid { grid-template-columns: 1fr; gap: 22px; }
-  }
-  .rev-stat {
-    padding-left: 24px;
-    border-left: 1px solid var(--separator);
-    transition: opacity 0.15s;
-  }
-  @media (max-width: 900px) { .rev-stat { border-left: none; padding-left: 0; border-top: 1px solid var(--separator); padding-top: 22px; } }
-  .rev-stat-lbl {
+  .target-month-lbl {
     font-size: 11.5px;
     color: var(--text-tertiary);
     text-transform: uppercase;
     letter-spacing: 0.10em;
     font-weight: 600;
+    margin-bottom: 14px;
+  }
+  .target-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--separator);
+  }
+  @media (max-width: 800px) {
+    .target-inputs { grid-template-columns: 1fr; gap: 20px; }
+  }
+  .target-input-col .lbl {
+    font-size: 12px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .target-input-col .lbl .hint {
+    text-transform: none;
+    letter-spacing: -0.005em;
+    color: var(--text-quaternary);
+    font-weight: 500;
+    font-size: 11.5px;
+    margin-left: 4px;
+  }
+  .target-input-col.cash .input-wrap .currency,
+  .target-input-col.cash .input-wrap input {
+    color: var(--accent-hover);
+  }
+  .target-input-col.revenue .input-wrap .currency,
+  .target-input-col.revenue .input-wrap input {
+    color: var(--good);
+  }
+  .target-sub {
+    color: var(--text-tertiary);
+    font-size: 12px;
+    margin-top: 8px;
+    font-variant-numeric: tabular-nums;
+  }
+  .target-derived {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    padding-top: 22px;
+  }
+  @media (max-width: 800px) { .target-derived { grid-template-columns: 1fr; gap: 20px; } }
+  .rev-stat-lbl {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
     margin-bottom: 8px;
   }
   .rev-stat-val {
-    font-size: 32px;
-    font-weight: 700;
+    font-size: 28px;
+    font-weight: 600;
     font-variant-numeric: tabular-nums;
-    letter-spacing: -0.028em;
+    letter-spacing: -0.025em;
     line-height: 1.05;
     color: var(--text);
   }
   .rev-stat#rev-stat-cash .rev-stat-val { color: var(--accent-hover); }
   .rev-stat#rev-stat-contract .rev-stat-val { color: var(--good); }
   .rev-stat-sub {
-    font-size: 12.5px;
+    font-size: 12px;
     color: var(--text-tertiary);
     margin-top: 6px;
     font-variant-numeric: tabular-nums;
   }
+  .rev-stat-variance {
+    margin-top: 8px;
+    font-size: 11.5px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 10px;
+    border-radius: 999px;
+  }
+  .rev-stat-variance.ok { background: var(--good-tint); color: var(--good); }
+  .rev-stat-variance.warn { background: var(--warn-tint); color: var(--warn); }
+  .rev-stat-variance.bad { background: var(--bad-tint); color: var(--bad); }
+  .rev-stat-variance.ok::before { content: '✓'; }
+  .rev-stat-variance.warn::before { content: '!'; font-weight: 700; }
+  .rev-stat-variance.bad::before { content: '⚠'; }
   .target-card .lbl {
     font-size: 12px;
     color: var(--text-tertiary);
@@ -1258,22 +1314,36 @@
   </div>
 
   <div class="target-card">
-    <div class="target-grid">
-      <div class="target-input-col">
-        <div class="lbl">Revenue target · <span id="active-month-label">—</span></div>
+    <div class="target-month-lbl"><span id="active-month-label">—</span></div>
+    <div class="target-inputs">
+      <div class="target-input-col cash">
+        <div class="lbl">Cash collected target</div>
+        <div class="input-wrap">
+          <span class="currency">£</span>
+          <input id="cash-target" type="number" min="0" step="1000" />
+          <span class="period">/ month</span>
+        </div>
+        <div class="target-sub" id="cash-target-sub">— upfront cash from new sales</div>
+      </div>
+      <div class="target-input-col revenue">
+        <div class="lbl">Revenue target <span class="hint">(total contracted)</span></div>
         <div class="input-wrap">
           <span class="currency">£</span>
           <input id="rev-target" type="number" min="0" step="1000" />
           <span class="period">/ month</span>
         </div>
+        <div class="target-sub" id="rev-target-sub">— total contracted value sold</div>
       </div>
+    </div>
+    <div class="target-derived">
       <div class="rev-stat" id="rev-stat-cash">
-        <div class="rev-stat-lbl">Cash collected goal</div>
+        <div class="rev-stat-lbl">Cash collected · derived from closes</div>
         <div class="rev-stat-val">—</div>
         <div class="rev-stat-sub">— /wk · — /day</div>
+        <div class="rev-stat-variance" id="cash-variance"></div>
       </div>
       <div class="rev-stat" id="rev-stat-contract">
-        <div class="rev-stat-lbl">Contracted revenue</div>
+        <div class="rev-stat-lbl">Contracted revenue · derived from closes</div>
         <div class="rev-stat-val">—</div>
         <div class="rev-stat-sub">— /wk · — /day</div>
       </div>
@@ -1464,9 +1534,10 @@ const STORAGE_KEY = 'reverseEngineering_v2';
 
 function defaultPlan() {
   return {
-    revenueTarget: 100000,
-    cashPerClose: 3000,
-    contractPerClose: 3000,
+    revenueTarget: 100000,         // total contracted revenue this month (e.g. closes × $15k)
+    cashCollectedTarget: 50000,    // upfront cash hitting bank this month (e.g. closes × upfront portion)
+    cashPerClose: 7500,            // avg upfront cash per close (half of $15k package)
+    contractPerClose: 7500,        // avg deferred / payment-plan portion per close
     workingDaysPerMonth: 22,
     workingDaysPerWeek: 5,
     sales: {
@@ -1593,6 +1664,12 @@ function loadState() {
       if (p.notionPageUrl === undefined) p.notionPageUrl = '';
       if (p.notionPageId === undefined) p.notionPageId = '';
       if (p.contractMonths === undefined) p.contractMonths = dp.contractMonths;
+      // New: cash collected target (default = revenue × cashShare to seed plausibly)
+      if (p.cashCollectedTarget === undefined) {
+        const total = (p.cashPerClose || 0) + (p.contractPerClose || 0);
+        const cashShare = total > 0 ? (p.cashPerClose || 0) / total : 0.5;
+        p.cashCollectedTarget = Math.round((p.revenueTarget || 0) * cashShare);
+      }
     });
     if (!s.activeMonth || !s.months[s.activeMonth]) {
       s.activeMonth = Object.keys(s.months || {})[0] || currentMonthId();
@@ -1787,6 +1864,7 @@ function render() {
   document.querySelectorAll('.currency').forEach(el => el.textContent = currencySymbol());
   document.getElementById('active-month-label').textContent = fmtMonth(state.activeMonth);
   document.getElementById('rev-target').value = plan().revenueTarget;
+  document.getElementById('cash-target').value = plan().cashCollectedTarget;
   const c = compute();
   updateRevenueStats(c);
   renderFunnelSnapshot(c);
@@ -1912,11 +1990,32 @@ function updateRevenueStats(c) {
   const p = plan();
   const wkDiv = p.workingDaysPerMonth / p.workingDaysPerWeek;
   const mDiv = p.workingDaysPerMonth;
+  // Sub-lines under inputs
+  setText('cash-target-sub', `${money((p.cashCollectedTarget || 0) / wkDiv)} /wk · ${money((p.cashCollectedTarget || 0) / mDiv)} /day · upfront cash from new sales`);
+  setText('rev-target-sub', `${money((p.revenueTarget || 0) / wkDiv)} /wk · ${money((p.revenueTarget || 0) / mDiv)} /day · total contracted value sold`);
+  // Derived stats
   const cashEl = document.getElementById('rev-stat-cash');
   const contractEl = document.getElementById('rev-stat-contract');
   if (cashEl) {
     cashEl.querySelector('.rev-stat-val').textContent = money(c.cashCollectedMo);
     cashEl.querySelector('.rev-stat-sub').textContent = `${money(c.cashCollectedMo / wkDiv)} /wk · ${money(c.cashCollectedMo / mDiv)} /day`;
+    // Variance vs cashCollectedTarget
+    const target = p.cashCollectedTarget || 0;
+    const varEl = cashEl.querySelector('#cash-variance');
+    if (varEl) {
+      if (target <= 0) {
+        varEl.textContent = '';
+        varEl.className = 'rev-stat-variance';
+      } else {
+        const variance = c.cashCollectedMo - target;
+        const absVar = Math.abs(variance);
+        const pctVar = (absVar / target) * 100;
+        const status = pctVar <= 2 ? 'ok' : pctVar <= 10 ? 'warn' : 'bad';
+        varEl.className = `rev-stat-variance ${status}`;
+        if (status === 'ok') varEl.textContent = `On target (within 2%)`;
+        else varEl.textContent = `${variance >= 0 ? 'Over' : 'Under'} cash target by ${money(absVar)} (${pctVar.toFixed(0)}%) — adjust cash collected per close or revenue target to reconcile`;
+      }
+    }
   }
   if (contractEl) {
     contractEl.querySelector('.rev-stat-val').textContent = money(c.contractedRevenueMo);
@@ -2536,8 +2635,15 @@ document.getElementById('reset-btn').addEventListener('click', () => {
 document.getElementById('rev-target').addEventListener('input', e => {
   plan().revenueTarget = parseFloat(e.target.value) || 0;
   saveState();
-  render();
+  updateLiveOutputs();
 });
+document.getElementById('rev-target').addEventListener('change', () => render());
+document.getElementById('cash-target').addEventListener('input', e => {
+  plan().cashCollectedTarget = parseFloat(e.target.value) || 0;
+  saveState();
+  updateLiveOutputs();
+});
+document.getElementById('cash-target').addEventListener('change', () => render());
 document.getElementById('month-select').addEventListener('change', e => {
   state.activeMonth = e.target.value;
   saveState();

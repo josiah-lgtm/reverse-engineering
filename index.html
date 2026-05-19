@@ -138,11 +138,54 @@
      Revenue input hero
      ============================== */
   .target-card {
-    background: linear-gradient(135deg, var(--surface-raised), var(--surface));
+    background:
+      radial-gradient(ellipse at top left, rgba(212,160,23,0.12), transparent 50%),
+      radial-gradient(ellipse at bottom right, rgba(48,209,88,0.08), transparent 50%),
+      linear-gradient(135deg, var(--surface-raised), var(--surface));
     border: 1px solid var(--border-strong);
-    border-radius: 18px;
+    border-radius: 20px;
     padding: 36px 40px;
     margin-bottom: 28px;
+    box-shadow: 0 4px 30px rgba(0,0,0,0.25), 0 0 60px rgba(212,160,23,0.06);
+  }
+  .target-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr 1fr;
+    gap: 36px;
+    align-items: center;
+  }
+  @media (max-width: 900px) {
+    .target-grid { grid-template-columns: 1fr; gap: 22px; }
+  }
+  .rev-stat {
+    padding-left: 24px;
+    border-left: 1px solid var(--separator);
+    transition: opacity 0.15s;
+  }
+  @media (max-width: 900px) { .rev-stat { border-left: none; padding-left: 0; border-top: 1px solid var(--separator); padding-top: 22px; } }
+  .rev-stat-lbl {
+    font-size: 11.5px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.10em;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .rev-stat-val {
+    font-size: 32px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.028em;
+    line-height: 1.05;
+    color: var(--text);
+  }
+  .rev-stat#rev-stat-cash .rev-stat-val { color: var(--accent-hover); }
+  .rev-stat#rev-stat-contract .rev-stat-val { color: var(--good); }
+  .rev-stat-sub {
+    font-size: 12.5px;
+    color: var(--text-tertiary);
+    margin-top: 6px;
+    font-variant-numeric: tabular-nums;
   }
   .target-card .lbl {
     font-size: 12px;
@@ -1195,6 +1238,14 @@
     <select id="month-select"></select>
     <button id="add-month-btn" title="New month">+</button>
   </div>
+  <div class="month-picker">
+    <label for="currency-select">Currency</label>
+    <select id="currency-select">
+      <option value="GBP">£ GBP</option>
+      <option value="USD">$ USD</option>
+      <option value="EUR">€ EUR</option>
+    </select>
+  </div>
   <div class="spacer"></div>
   <span class="save-status" id="save-status">Saved</span>
   <button id="reset-btn" class="ghost">Reset month</button>
@@ -1207,11 +1258,25 @@
   </div>
 
   <div class="target-card">
-    <div class="lbl">Revenue target · <span id="active-month-label">—</span></div>
-    <div class="input-wrap">
-      <span class="currency">£</span>
-      <input id="rev-target" type="number" min="0" step="1000" />
-      <span class="period">/ month</span>
+    <div class="target-grid">
+      <div class="target-input-col">
+        <div class="lbl">Revenue target · <span id="active-month-label">—</span></div>
+        <div class="input-wrap">
+          <span class="currency">£</span>
+          <input id="rev-target" type="number" min="0" step="1000" />
+          <span class="period">/ month</span>
+        </div>
+      </div>
+      <div class="rev-stat" id="rev-stat-cash">
+        <div class="rev-stat-lbl">Cash collected goal</div>
+        <div class="rev-stat-val">—</div>
+        <div class="rev-stat-sub">— /wk · — /day</div>
+      </div>
+      <div class="rev-stat" id="rev-stat-contract">
+        <div class="rev-stat-lbl">Contracted revenue</div>
+        <div class="rev-stat-val">—</div>
+        <div class="rev-stat-sub">— /wk · — /day</div>
+      </div>
     </div>
   </div>
 
@@ -1476,8 +1541,12 @@ function defaultSettings() {
   return {
     apiUrl: '',          // user fills in after Vercel deploy
     errorPct: 10,        // per-stage variance %, default ±10
+    currency: 'GBP',     // GBP | USD | EUR
   };
 }
+
+const CURRENCY_SYMBOLS = { GBP: '£', USD: '$', EUR: '€' };
+function currencySymbol() { return CURRENCY_SYMBOLS[(state.settings && state.settings.currency) || 'GBP']; }
 
 function currentMonthId() {
   const d = new Date();
@@ -1558,7 +1627,7 @@ function num(n, decimals = 0) {
 }
 function money(n) {
   if (n == null || !isFinite(n)) return '—';
-  return '£' + n.toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+  return currencySymbol() + n.toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 function pct(n) { return (n == null || !isFinite(n)) ? '—' : n.toFixed(1) + '%'; }
 function ceil(n) { return isFinite(n) ? Math.ceil(n) : 0; }
@@ -1643,25 +1712,27 @@ function compute() {
     };
   }
 
-  // Team capacity
+  // Team capacity — measured against BOOKINGS not shows. Each booking takes
+  // a calendar slot even if it no-shows; the team needs that time blocked off.
   const t = p.team;
-  // Call 1 = junior closer, 20 min each (default)
-  // Call 2 = senior closer, 45 min each (default)
+  // Call 1 bookings = bookings (top of funnel). Call 2 bookings = book2.
+  const jrBookingsNeeded = bookings;
+  const srBookingsNeeded = book2;
   const jrMinutesAvailable = t.jrCloserCount * t.jrHoursPerDay * 60 * p.workingDaysPerMonth;
   const srMinutesAvailable = t.srCloserCount * t.srHoursPerDay * 60 * p.workingDaysPerMonth;
-  const jrMinutesNeeded = shows1 * t.jrMinPerCall;   // each call 1 show takes jrMinPerCall
-  const srMinutesNeeded = shows2 * t.srMinPerCall;   // each call 2 show takes srMinPerCall
+  const jrMinutesNeeded = jrBookingsNeeded * t.jrMinPerCall;
+  const srMinutesNeeded = srBookingsNeeded * t.srMinPerCall;
   const jrCapacityCalls = t.jrMinPerCall > 0 ? jrMinutesAvailable / t.jrMinPerCall : 0;
   const srCapacityCalls = t.srMinPerCall > 0 ? srMinutesAvailable / t.srMinPerCall : 0;
-  const jrUtilization = jrCapacityCalls > 0 ? (shows1 / jrCapacityCalls) * 100 : 0;
-  const srUtilization = srCapacityCalls > 0 ? (shows2 / srCapacityCalls) * 100 : 0;
-  const jrShortfall = shows1 - jrCapacityCalls;
-  const srShortfall = shows2 - srCapacityCalls;
+  const jrUtilization = jrCapacityCalls > 0 ? (jrBookingsNeeded / jrCapacityCalls) * 100 : 0;
+  const srUtilization = srCapacityCalls > 0 ? (srBookingsNeeded / srCapacityCalls) * 100 : 0;
+  const jrShortfall = jrBookingsNeeded - jrCapacityCalls;
+  const srShortfall = srBookingsNeeded - srCapacityCalls;
   // How many more closers needed to cover?
   const jrCloserCapacityPerRep = (t.jrHoursPerDay * 60 * p.workingDaysPerMonth) / t.jrMinPerCall;
   const srCloserCapacityPerRep = (t.srHoursPerDay * 60 * p.workingDaysPerMonth) / t.srMinPerCall;
-  const jrClosersNeeded = jrCloserCapacityPerRep > 0 ? Math.ceil(shows1 / jrCloserCapacityPerRep) : 0;
-  const srClosersNeeded = srCloserCapacityPerRep > 0 ? Math.ceil(shows2 / srCloserCapacityPerRep) : 0;
+  const jrClosersNeeded = jrCloserCapacityPerRep > 0 ? Math.ceil(jrBookingsNeeded / jrCloserCapacityPerRep) : 0;
+  const srClosersNeeded = srCloserCapacityPerRep > 0 ? Math.ceil(srBookingsNeeded / srCloserCapacityPerRep) : 0;
 
   // Team commissions
   const jrCommissionTotal = qual1 * (t.jrCommissionPerCall || 0);
@@ -1677,8 +1748,13 @@ function compute() {
   const profitAfterSM = (p.revenueTarget || 0) - totalSalesAndMarketing;
   const profitMarginAfterSM = p.revenueTarget > 0 ? (profitAfterSM / p.revenueTarget) * 100 : 0;
 
+  // Monthly revenue split
+  const cashCollectedMo = closes * (p.cashPerClose || 0);
+  const contractedRevenueMo = closes * (p.contractPerClose || 0);
+
   return {
     revPerClose, closes, bookings, bookingToClose,
+    cashCollectedMo, contractedRevenueMo,
     bookingsPerWeek: bookings / (p.workingDaysPerMonth / p.workingDaysPerWeek),
     bookingsPerDay: bookings / p.workingDaysPerMonth,
     closesPerWeek: closes / (p.workingDaysPerMonth / p.workingDaysPerWeek),
@@ -1706,9 +1782,13 @@ function compute() {
 // ============================================================
 function render() {
   populateMonthSelect();
+  document.getElementById('currency-select').value = state.settings.currency;
+  // Update target hero currency symbol everywhere
+  document.querySelectorAll('.currency').forEach(el => el.textContent = currencySymbol());
   document.getElementById('active-month-label').textContent = fmtMonth(state.activeMonth);
   document.getElementById('rev-target').value = plan().revenueTarget;
   const c = compute();
+  updateRevenueStats(c);
   renderFunnelSnapshot(c);
   renderEconomics(c);
   renderRevRows();
@@ -1827,6 +1907,22 @@ const FUNNEL_STAGES = [
 ];
 
 let notesShown = false;  // global UI toggle for inline funnel notes
+
+function updateRevenueStats(c) {
+  const p = plan();
+  const wkDiv = p.workingDaysPerMonth / p.workingDaysPerWeek;
+  const mDiv = p.workingDaysPerMonth;
+  const cashEl = document.getElementById('rev-stat-cash');
+  const contractEl = document.getElementById('rev-stat-contract');
+  if (cashEl) {
+    cashEl.querySelector('.rev-stat-val').textContent = money(c.cashCollectedMo);
+    cashEl.querySelector('.rev-stat-sub').textContent = `${money(c.cashCollectedMo / wkDiv)} /wk · ${money(c.cashCollectedMo / mDiv)} /day`;
+  }
+  if (contractEl) {
+    contractEl.querySelector('.rev-stat-val').textContent = money(c.contractedRevenueMo);
+    contractEl.querySelector('.rev-stat-sub').textContent = `${money(c.contractedRevenueMo / wkDiv)} /wk · ${money(c.contractedRevenueMo / mDiv)} /day`;
+  }
+}
 
 function renderFunnelSnapshot(c) {
   const p = plan();
@@ -1962,6 +2058,9 @@ function updateLiveOutputs() {
   const wkDiv = p.workingDaysPerMonth / p.workingDaysPerWeek;
   const mDiv = p.workingDaysPerMonth;
 
+  // Revenue stats (cash collected + contracted per month)
+  updateRevenueStats(c);
+
   // Funnel snapshot tiles
   document.querySelectorAll('.funnel-stage').forEach(el => {
     const key = el.dataset.noteKey;
@@ -2096,7 +2195,7 @@ function updateLiveOutputs() {
     });
   }
   // Team capacity summary line with commission total
-  setText('cap-summary', `${num(ceil(c.shows1))} call 1s + ${num(ceil(c.shows2))} call 2s · ${money(c.team.totalCommissions)} commissions/mo`);
+  setText('cap-summary', `${num(ceil(c.bookings))} call 1 bookings + ${num(ceil(c.book2))} call 2 bookings · ${money(c.team.totalCommissions)} commissions/mo`);
 }
 
 function setText(id, text) { const el = document.getElementById(id); if (el) el.textContent = text; }
@@ -2113,7 +2212,7 @@ function updateTeamCapacityLive(c) {
     const role = card.dataset.role;
     const isJr = role === 'junior';
     const util = isJr ? cap.jrUtilization : cap.srUtilization;
-    const needed = isJr ? c.shows1 : c.shows2;
+    const needed = isJr ? c.bookings : c.book2;
     const capacity = isJr ? cap.jrCapacityCalls : cap.srCapacityCalls;
     const remaining = capacity - needed;
     const status = util > 100 ? 'bad' : util > 85 ? 'warn' : 'ok';
@@ -2143,8 +2242,8 @@ function renderRevRows() {
   const p = plan();
   const host = document.getElementById('rev-rows');
   host.innerHTML =
-    makeRow({ label: 'Cash per close', value: p.cashPerClose, min: 0, max: 10000, step: 50, unit: '£' }) +
-    makeRow({ label: 'Contract per close', hint: 'remainder/recurring', value: p.contractPerClose, min: 0, max: 20000, step: 100, unit: '£' }) +
+    makeRow({ label: 'Cash collected', hint: 'per close — upfront cash', value: p.cashPerClose, min: 0, max: 10000, step: 50, unit: currencySymbol() }) +
+    makeRow({ label: 'Contracted revenue', hint: 'per close — total recurring/contract value', value: p.contractPerClose, min: 0, max: 20000, step: 100, unit: currencySymbol() }) +
     makeRow({ label: 'Working days / month', value: p.workingDaysPerMonth, min: 1, max: 31, step: 1, unit: '' }) +
     makeRow({ label: 'Working days / week', value: p.workingDaysPerWeek, min: 1, max: 7, step: 1, unit: '' });
   const rows = host.querySelectorAll('.row');
@@ -2349,7 +2448,6 @@ function renderChannel(k, c) {
     </div>
     <div class="channel-body">
       ${body}
-      ${inlineNoteHtml(k, `Note for ${ch.label}`)}
     </div>
   </div>`;
 }
@@ -2380,8 +2478,8 @@ function renderTeamCapacity(c) {
       <table class="cap-periods">
         <thead><tr><th></th><th class="num">Daily</th><th class="num">Weekly</th><th class="num">Monthly</th></tr></thead>
         <tbody>
-          <tr><td>Calls needed</td><td class="num" data-cap-need-d>${num(needed / mDiv, 1)}</td><td class="num" data-cap-need-w>${num(needed / wkDiv, 1)}</td><td class="num" data-cap-need-m>${num(ceil(needed))}</td></tr>
-          <tr><td>Team capacity</td><td class="num" data-cap-cap-d>${num(capacity / mDiv, 1)}</td><td class="num" data-cap-cap-w>${num(capacity / wkDiv, 1)}</td><td class="num" data-cap-cap-m>${num(ceil(capacity))}</td></tr>
+          <tr><td>Bookings to cover</td><td class="num" data-cap-need-d>${num(needed / mDiv, 1)}</td><td class="num" data-cap-need-w>${num(needed / wkDiv, 1)}</td><td class="num" data-cap-need-m>${num(ceil(needed))}</td></tr>
+          <tr><td>Booking capacity</td><td class="num" data-cap-cap-d>${num(capacity / mDiv, 1)}</td><td class="num" data-cap-cap-w>${num(capacity / wkDiv, 1)}</td><td class="num" data-cap-cap-m>${num(ceil(capacity))}</td></tr>
           <tr class="slack-row ${remaining < 0 ? 'short' : 'ok'}">
             <td>${remaining < 0 ? 'Short by' : 'Slack'}</td>
             <td class="num" data-cap-slack-d>${num(Math.abs(remaining) / mDiv, 1)}</td>
@@ -2392,15 +2490,15 @@ function renderTeamCapacity(c) {
       </table>
       <div class="cap-rec ${shortfall > 0 ? 'warn' : 'ok'}" data-cap-rec>
         ${shortfall > 0
-          ? `<b>Hire ${closersNeeded - count} more</b> — ${closersNeeded} total needed, you have ${count}. Each ${role} covers ${num(ceil(perRepCap))} calls/mo.`
-          : `Covered — each ${role} covers ${num(ceil(perRepCap))} calls/mo.`}
+          ? `<b>Hire ${closersNeeded - count} more</b> — ${closersNeeded} total needed, you have ${count}. Each ${role} covers ${num(ceil(perRepCap))} bookings/mo.`
+          : `Covered — each ${role} covers ${num(ceil(perRepCap))} bookings/mo.`}
       </div>
     </div>`;
   }
 
   document.getElementById('capacity-cards').innerHTML =
-    capCard('junior', 'Junior closer · call 1 (' + t.jrMinPerCall + ' min)', c.shows1, cap.jrCapacityCalls, cap.jrUtilization, t.jrCloserCount, cap.jrCapacityCalls / Math.max(1, t.jrCloserCount), cap.jrShortfall, cap.jrClosersNeeded) +
-    capCard('senior', 'Senior closer · call 2 (' + t.srMinPerCall + ' min)', c.shows2, cap.srCapacityCalls, cap.srUtilization, t.srCloserCount, cap.srCapacityCalls / Math.max(1, t.srCloserCount), cap.srShortfall, cap.srClosersNeeded);
+    capCard('junior', 'Junior closer · call 1 (' + t.jrMinPerCall + ' min)', c.bookings, cap.jrCapacityCalls, cap.jrUtilization, t.jrCloserCount, cap.jrCapacityCalls / Math.max(1, t.jrCloserCount), cap.jrShortfall, cap.jrClosersNeeded) +
+    capCard('senior', 'Senior closer · call 2 (' + t.srMinPerCall + ' min)', c.book2, cap.srCapacityCalls, cap.srUtilization, t.srCloserCount, cap.srCapacityCalls / Math.max(1, t.srCloserCount), cap.srShortfall, cap.srClosersNeeded);
   const rows = [
     ['jrCloserCount', 'Junior closers (count)', 'people who run call 1', 1, 0, 20, 1, ''],
     ['jrMinPerCall', 'Call 1 length', 'minutes per call 1', 1, 5, 60, 5, 'min'],
@@ -2423,7 +2521,7 @@ function renderTeamCapacity(c) {
   host.insertAdjacentHTML('afterend', inlineNoteHtml('team', 'Note for team capacity'));
   wireInlineNotes(host.parentElement);
   document.getElementById('cap-summary').textContent =
-    `${num(ceil(c.shows1))} call 1s + ${num(ceil(c.shows2))} call 2s · ${money(cap.totalCommissions)} commissions/mo`;
+    `${num(ceil(c.bookings))} call 1 bookings + ${num(ceil(c.book2))} call 2 bookings · ${money(cap.totalCommissions)} commissions/mo`;
 }
 
 // ============================================================
@@ -2442,6 +2540,11 @@ document.getElementById('rev-target').addEventListener('input', e => {
 });
 document.getElementById('month-select').addEventListener('change', e => {
   state.activeMonth = e.target.value;
+  saveState();
+  render();
+});
+document.getElementById('currency-select').addEventListener('change', e => {
+  state.settings.currency = e.target.value;
   saveState();
   render();
 });

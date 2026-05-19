@@ -9,7 +9,6 @@
 
   :root {
     --bg: #161616;
-    --bg-elevated: #1c1c1e;
     --surface: rgba(255, 255, 255, 0.04);
     --surface-raised: rgba(255, 255, 255, 0.06);
     --surface-pressed: rgba(255, 255, 255, 0.10);
@@ -25,6 +24,7 @@
     --accent: #d4a017;
     --accent-hover: #eecf6d;
     --accent-tint: rgba(212, 160, 23, 0.14);
+    --accent-tint-strong: rgba(212, 160, 23, 0.22);
     --accent-shadow: rgba(212, 160, 23, 0.30);
     --good: #30d158;
     --good-tint: rgba(48, 209, 88, 0.15);
@@ -36,8 +36,6 @@
     --linkedin-tint: rgba(191, 90, 242, 0.14);
     --email: #64d2ff;
     --email-tint: rgba(100, 210, 255, 0.14);
-    --direct: #30d158;
-    --direct-tint: rgba(48, 209, 88, 0.14);
   }
 
   html, body { height: 100%; }
@@ -46,12 +44,15 @@
     margin: 0;
     background: var(--bg);
     color: var(--text);
-    line-height: 1.5;
+    line-height: 1.55;
     font-size: 15px;
     font-feature-settings: "ss01" 1, "ss03" 1;
     letter-spacing: -0.005em;
   }
 
+  /* ==============================
+     Top bar
+     ============================== */
   .topbar {
     background: rgba(28, 28, 30, 0.72);
     backdrop-filter: saturate(180%) blur(20px);
@@ -59,31 +60,47 @@
     border-bottom: 1px solid var(--separator);
     display: flex;
     align-items: center;
-    padding: 0 24px;
-    gap: 16px;
+    padding: 0 28px;
+    gap: 18px;
     position: sticky;
     top: 0;
     z-index: 100;
-    height: 56px;
+    height: 60px;
   }
   .brand {
     display: flex;
     align-items: center;
     gap: 12px;
-    padding-right: 18px;
+    padding-right: 22px;
     border-right: 1px solid var(--separator);
     height: 100%;
   }
-  .brand img { height: 34px; width: auto; max-width: 50px; }
-  .brand .name { font-size: 14px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text); }
-  .topbar .title { font-size: 14px; color: var(--text-secondary); letter-spacing: 0.04em; }
+  .brand img { height: 36px; width: auto; max-width: 50px; }
+  .brand .name { font-size: 14px; font-weight: 600; letter-spacing: 0.10em; text-transform: uppercase; color: var(--text); }
+  .topbar .title { font-size: 14px; color: var(--text-secondary); letter-spacing: 0.06em; }
+
+  .topbar .month-picker { display: flex; align-items: center; gap: 8px; }
+  .topbar .month-picker label { font-size: 13px; color: var(--text-secondary); margin: 0; }
+  .topbar select, .topbar input, .topbar button {
+    background: var(--surface-raised);
+    border: 1px solid transparent;
+    color: var(--text);
+    padding: 7px 12px;
+    border-radius: 7px;
+    font-size: 13.5px;
+    font-family: inherit;
+    transition: background 0.12s;
+    cursor: pointer;
+  }
+  .topbar select:hover, .topbar button:hover { background: var(--surface-pressed); }
+  .topbar select:focus { outline: none; border-color: var(--accent); }
   .topbar .spacer { flex: 1; }
   .topbar .save-status {
-    font-size: 12px;
+    font-size: 12.5px;
     color: var(--text-secondary);
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 7px;
   }
   .topbar .save-status::before {
     content: '';
@@ -93,141 +110,208 @@
     background: var(--good);
   }
 
+  /* ==============================
+     Page container
+     ============================== */
   .container {
-    max-width: 1200px;
+    max-width: 1280px;
     margin: 0 auto;
-    padding: 32px 32px 80px;
+    padding: 40px 32px 100px;
   }
 
-  .header { margin-bottom: 28px; }
+  .header { margin-bottom: 36px; }
   .header h1 {
-    font-size: 36px;
-    margin: 0 0 8px;
+    font-size: 40px;
+    margin: 0 0 12px;
     font-weight: 700;
     letter-spacing: -0.028em;
+    line-height: 1.1;
   }
   .header .sub {
     color: var(--text-secondary);
-    font-size: 15px;
-    max-width: 720px;
-    line-height: 1.5;
+    font-size: 16px;
+    max-width: 780px;
+    line-height: 1.6;
   }
 
-  /* Hero target field */
-  .hero {
+  /* ==============================
+     Revenue input hero
+     ============================== */
+  .target-card {
     background: linear-gradient(135deg, var(--surface-raised), var(--surface));
-    border: 1px solid var(--border);
-    border-radius: 16px;
-    padding: 28px 32px;
-    margin-bottom: 22px;
-    display: grid;
-    grid-template-columns: 1.4fr 1fr 1fr;
-    gap: 32px;
-    align-items: center;
+    border: 1px solid var(--border-strong);
+    border-radius: 18px;
+    padding: 36px 40px;
+    margin-bottom: 28px;
   }
-  .hero .target-field { display: flex; flex-direction: column; gap: 6px; }
-  .hero .target-field .lbl {
-    font-size: 11.5px;
+  .target-card .lbl {
+    font-size: 12px;
     color: var(--text-tertiary);
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.10em;
     font-weight: 600;
+    margin-bottom: 10px;
   }
-  .hero .target-field .input-wrap {
+  .target-card .input-wrap {
     display: flex;
     align-items: baseline;
-    gap: 12px;
+    gap: 14px;
   }
-  .hero .target-field .currency {
-    font-size: 32px;
+  .target-card .currency {
+    font-size: 36px;
     color: var(--text-tertiary);
     font-weight: 500;
   }
-  .hero .target-field input {
-    font-size: 48px;
+  .target-card input {
+    font-size: 56px;
     font-weight: 700;
     letter-spacing: -0.03em;
     padding: 0;
     background: transparent;
     border: none;
     color: var(--text);
-    width: 240px;
-    font-feature-settings: "tnum" 1;
+    width: 320px;
     font-family: inherit;
+    font-feature-settings: "tnum" 1;
   }
-  .hero .target-field input:focus { outline: none; }
-  .hero .target-field .period {
-    font-size: 15px;
-    color: var(--text-secondary);
-    font-weight: 500;
+  .target-card input:focus { outline: none; }
+  .target-card .period { font-size: 17px; color: var(--text-secondary); font-weight: 500; }
+
+  /* ==============================
+     Funnel snapshot — 7 KPI tiles
+     ============================== */
+  .funnel-snapshot {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 28px 32px;
+    margin-bottom: 32px;
   }
-  .hero .hero-stat .lbl {
-    font-size: 11.5px;
+  .funnel-snapshot .head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: 22px;
+  }
+  .funnel-snapshot .head .title {
+    font-size: 12px;
     color: var(--text-tertiary);
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.10em;
     font-weight: 600;
-    margin-bottom: 6px;
   }
-  .hero .hero-stat .val {
-    font-size: 32px;
+  .funnel-snapshot .head .summary {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+  }
+  .funnel-stages {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 4px;
+    align-items: stretch;
+  }
+  .funnel-stage {
+    padding: 18px 14px;
+    text-align: center;
+    border-radius: 12px;
+    background: var(--surface-input);
+    position: relative;
+  }
+  .funnel-stage.hero {
+    background: var(--accent-tint);
+    border: 1px solid rgba(212, 160, 23, 0.30);
+  }
+  .funnel-stage .lbl {
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    margin-bottom: 8px;
+    line-height: 1.3;
+    min-height: 28px;
+  }
+  .funnel-stage.hero .lbl { color: var(--accent-hover); }
+  .funnel-stage .val {
+    font-size: 28px;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.025em;
-    line-height: 1.05;
+    color: var(--text);
+    line-height: 1.0;
   }
-  .hero .hero-stat .sub {
-    font-size: 12.5px;
+  .funnel-stage.hero .val { color: var(--accent-hover); }
+  .funnel-stage .sub {
+    font-size: 11.5px;
     color: var(--text-tertiary);
-    margin-top: 6px;
+    margin-top: 8px;
     font-variant-numeric: tabular-nums;
   }
+  .funnel-arrow {
+    position: absolute;
+    top: 50%;
+    right: -10px;
+    transform: translateY(-50%);
+    color: var(--text-quaternary);
+    font-size: 13px;
+    z-index: 2;
+    pointer-events: none;
+  }
 
-  /* Section + slider rows */
-  .section { margin-bottom: 22px; }
+  /* ==============================
+     Section + slider rows
+     ============================== */
+  .section { margin-bottom: 36px; }
   .section-head {
     display: flex;
     justify-content: space-between;
     align-items: baseline;
-    padding: 0 4px 12px;
+    padding: 0 6px 14px;
   }
   .section-head .title {
-    font-size: 11.5px;
+    font-size: 12px;
     color: var(--text-tertiary);
     text-transform: uppercase;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.10em;
     font-weight: 600;
   }
   .section-head .summary { font-size: 13px; color: var(--text-secondary); font-variant-numeric: tabular-nums; }
 
   .row {
     display: grid;
-    grid-template-columns: 240px 1fr 100px 60px;
-    gap: 16px;
+    grid-template-columns: 270px 1fr 110px 60px;
+    gap: 22px;
     align-items: center;
-    padding: 10px 18px;
+    padding: 14px 22px;
     background: var(--surface);
     border: 1px solid var(--border);
-    border-radius: 10px;
-    margin-bottom: 6px;
-    font-size: 14px;
+    border-radius: 11px;
+    margin-bottom: 8px;
+    font-size: 14.5px;
   }
-  .row .lbl { color: var(--text); font-weight: 500; display: flex; align-items: center; gap: 8px; }
+  .row .lbl {
+    color: var(--text);
+    font-weight: 500;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
   .row .lbl .hint { color: var(--text-tertiary); font-weight: 400; font-size: 12px; }
-  .row .slider-wrap { display: flex; align-items: center; height: 28px; }
+  .row .slider-wrap { display: flex; align-items: center; height: 30px; }
   .row input[type="range"] {
     -webkit-appearance: none;
     appearance: none;
     background: transparent;
     width: 100%;
-    height: 28px;
+    height: 30px;
     padding: 0;
     margin: 0;
     border: none;
   }
   .row input[type="range"]:focus { outline: none; }
   .row input[type="range"]::-webkit-slider-runnable-track {
-    height: 5px;
+    height: 6px;
     border-radius: 3px;
     background: linear-gradient(to right,
       var(--accent) 0%, var(--accent) var(--pct, 0%),
@@ -235,24 +319,22 @@
   }
   .row input[type="range"]::-webkit-slider-thumb {
     -webkit-appearance: none;
-    width: 18px;
-    height: 18px;
+    width: 20px;
+    height: 20px;
     background: #fff;
     border-radius: 50%;
-    margin-top: -6.5px;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.45);
+    margin-top: -7px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.5);
     cursor: pointer;
   }
-  .row input[type="range"]::-webkit-slider-thumb:active {
-    box-shadow: 0 2px 8px var(--accent-shadow);
-  }
+  .row input[type="range"]::-webkit-slider-thumb:active { box-shadow: 0 2px 10px var(--accent-shadow); }
   .row input[type="number"] {
-    padding: 6px 9px;
+    padding: 8px 11px;
     background: var(--surface-input);
     border: 1px solid var(--border-input);
-    border-radius: 7px;
+    border-radius: 8px;
     color: var(--text);
-    font-size: 13.5px;
+    font-size: 14px;
     text-align: right;
     font-variant-numeric: tabular-nums;
     font-family: inherit;
@@ -263,79 +345,76 @@
     border-color: var(--accent);
     box-shadow: 0 0 0 3px var(--accent-tint);
   }
-  .row .unit { color: var(--text-tertiary); font-size: 12.5px; }
+  .row .unit { color: var(--text-tertiary); font-size: 13px; }
 
-  /* Channel cards */
+  /* ==============================
+     Channel cards
+     ============================== */
   .channel {
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 14px;
     overflow: hidden;
-    margin-bottom: 14px;
-    transition: border-color 0.15s;
+    margin-bottom: 16px;
   }
-  .channel:hover { border-color: var(--border-strong); }
-  .channel.disabled { opacity: 0.5; }
+  .channel.linkedin .channel-head .swatch { background: var(--linkedin); }
+  .channel.email .channel-head .swatch { background: var(--email); }
   .channel-head {
     display: grid;
     grid-template-columns: auto 1fr auto auto;
-    gap: 18px;
+    gap: 20px;
     align-items: center;
-    padding: 18px 22px;
+    padding: 22px 26px;
     cursor: pointer;
   }
   .channel-head:hover { background: rgba(255,255,255,0.02); }
-  .channel-head .swatch { width: 12px; height: 28px; border-radius: 3px; }
-  .channel.linkedin .swatch { background: var(--linkedin); }
-  .channel.email .swatch { background: var(--email); }
-  .channel.direct .swatch { background: var(--direct); }
-  .channel-head .name { font-size: 16px; font-weight: 600; color: var(--text); }
-  .channel-head .summary { color: var(--text-secondary); font-size: 13.5px; font-variant-numeric: tabular-nums; }
+  .channel-head .swatch { width: 14px; height: 32px; border-radius: 3px; }
+  .channel-head .name { font-size: 17px; font-weight: 600; color: var(--text); }
+  .channel-head .summary { color: var(--text-secondary); font-size: 14px; font-variant-numeric: tabular-nums; }
   .channel-head .mix-pct {
     font-size: 13px;
     background: var(--accent-tint);
     color: var(--accent-hover);
-    padding: 4px 12px;
+    padding: 4px 14px;
     border-radius: 14px;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
   }
   .channel-head .toggle {
     color: var(--text-tertiary);
-    font-size: 20px;
+    font-size: 22px;
     transition: transform 0.18s;
     line-height: 1;
   }
   .channel.open .channel-head .toggle { transform: rotate(90deg); }
   .channel-body {
-    padding: 0 22px 20px;
+    padding: 8px 26px 24px;
     border-top: 1px solid var(--separator);
     display: none;
   }
   .channel.open .channel-body { display: block; }
 
-  /* Channel output tiles */
   .outputs {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 10px;
-    margin: 18px 0;
+    grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+    gap: 12px;
+    margin: 20px 0 24px;
   }
   .outputs .out {
     background: var(--surface-input);
-    border-radius: 10px;
-    padding: 14px 16px;
+    border-radius: 11px;
+    padding: 16px 18px;
   }
   .outputs .out .lbl {
     font-size: 11px;
     color: var(--text-tertiary);
     text-transform: uppercase;
-    letter-spacing: 0.07em;
+    letter-spacing: 0.08em;
     font-weight: 600;
-    margin-bottom: 4px;
+    margin-bottom: 6px;
   }
   .outputs .out .val {
-    font-size: 22px;
+    font-size: 24px;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
     letter-spacing: -0.022em;
@@ -343,96 +422,144 @@
     line-height: 1.1;
   }
   .outputs .out .sub {
-    font-size: 11.5px;
+    font-size: 12px;
     color: var(--text-tertiary);
-    margin-top: 4px;
+    margin-top: 5px;
     font-variant-numeric: tabular-nums;
   }
-  .outputs .out.hero { background: var(--accent-tint); border: 1px solid rgba(212,160,23,0.25); }
-  .outputs .out.hero .val { color: var(--accent-hover); }
+  .outputs .out.hero { border: 1px solid rgba(212,160,23,0.25); }
   .channel.linkedin .outputs .out.hero { background: var(--linkedin-tint); border-color: rgba(191,90,242,0.30); }
   .channel.linkedin .outputs .out.hero .val { color: var(--linkedin); }
   .channel.email .outputs .out.hero { background: var(--email-tint); border-color: rgba(100,210,255,0.30); }
   .channel.email .outputs .out.hero .val { color: var(--email); }
-  .channel.direct .outputs .out.hero { background: var(--direct-tint); border-color: rgba(48,209,88,0.30); }
-  .channel.direct .outputs .out.hero .val { color: var(--direct); }
 
-  .channel-enabled-toggle {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    color: var(--text-tertiary);
+  /* ==============================
+     Team capacity
+     ============================== */
+  .capacity-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
   }
-  .channel-enabled-toggle input { width: auto; accent-color: var(--accent); }
-
-  .footer {
-    margin-top: 36px;
-    padding-top: 24px;
-    border-top: 1px solid var(--separator);
-    color: var(--text-tertiary);
-    font-size: 12px;
-    text-align: center;
+  .cap-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 20px 22px;
   }
+  .cap-card .lbl {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .cap-card .val {
+    font-size: 28px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+  }
+  .cap-card .val.good { color: var(--good); }
+  .cap-card .val.bad { color: var(--bad); }
+  .cap-card .val.warn { color: var(--warn); }
+  .cap-card .sub {
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    margin-top: 8px;
+    font-variant-numeric: tabular-nums;
+  }
+  .cap-card .bar {
+    margin-top: 12px;
+    height: 8px;
+    background: var(--surface-input);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .cap-card .bar-fill { height: 100%; border-radius: 4px; transition: width 0.25s, background 0.2s; }
+  .cap-card .bar-fill.ok { background: linear-gradient(90deg, #2da44e, var(--good)); }
+  .cap-card .bar-fill.warn { background: linear-gradient(90deg, #d97706, var(--warn)); }
+  .cap-card .bar-fill.bad { background: linear-gradient(90deg, #c92a2a, var(--bad)); }
 
-  button {
-    padding: 7px 14px;
-    background: var(--surface-raised);
-    color: var(--text);
+  button.primary {
+    background: var(--accent);
+    color: #1a1a1a;
+    font-weight: 600;
+  }
+  button.primary:hover { background: var(--accent-hover); }
+  button.ghost {
+    background: transparent;
+    color: var(--text-secondary);
     border: 1px solid transparent;
-    border-radius: 7px;
-    cursor: pointer;
-    font-size: 13px;
-    font-weight: 500;
-    font-family: inherit;
-    transition: background 0.12s, transform 0.08s;
   }
-  button:hover { background: var(--surface-pressed); }
-  button:active { transform: scale(0.97); }
-  button.ghost { background: transparent; color: var(--text-secondary); }
   button.ghost:hover { background: var(--surface-raised); color: var(--text); }
 
-  .mix-warning {
-    background: var(--warn-tint);
-    color: var(--warn);
-    padding: 10px 16px;
-    border-radius: 8px;
-    font-size: 13px;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
+  .footer {
+    margin-top: 48px;
+    padding-top: 28px;
+    border-top: 1px solid var(--separator);
+    color: var(--text-tertiary);
+    font-size: 12.5px;
+    text-align: center;
+    line-height: 1.7;
   }
 
-  @media (max-width: 900px) {
-    .hero { grid-template-columns: 1fr; gap: 18px; }
+  @media (max-width: 1100px) {
+    .funnel-stages { grid-template-columns: repeat(4, 1fr); }
+    .funnel-arrow { display: none; }
+  }
+  @media (max-width: 700px) {
+    .funnel-stages { grid-template-columns: repeat(2, 1fr); }
+    .target-card input { font-size: 40px; width: 200px; }
     .row { grid-template-columns: 1fr 110px; }
     .row .slider-wrap, .row .unit { grid-column: 1 / -1; }
   }
 </style>
 </head>
 <body>
+
 <div class="topbar">
   <div class="brand">
     <img src="logo.png" alt="" />
     <span class="name">Agency Advanta</span>
   </div>
   <span class="title">REVERSE ENGINEERING</span>
+  <div class="month-picker">
+    <label for="month-select">Month</label>
+    <select id="month-select"></select>
+    <button id="add-month-btn" title="New month">+</button>
+  </div>
   <div class="spacer"></div>
   <span class="save-status" id="save-status">Saved</span>
-  <button id="reset-btn" class="ghost">Reset</button>
+  <button id="reset-btn" class="ghost">Reset month</button>
 </div>
 
 <div class="container">
   <div class="header">
     <h1>Reverse Engineering</h1>
-    <div class="sub">Set a revenue target. The math walks it backwards — through your sales funnel and channel mix — to tell you exactly how many sends, connections, and calls you need to hit it.</div>
+    <div class="sub">Set a revenue target. The math walks it backwards — through your sales funnel and channel mix — to tell you exactly how many sends, connections, and calls you need to hit it. Save a separate plan per month.</div>
   </div>
 
-  <!-- Hero: revenue target + key outputs -->
-  <div class="hero" id="hero"></div>
+  <div class="target-card">
+    <div class="lbl">Revenue target · <span id="active-month-label">—</span></div>
+    <div class="input-wrap">
+      <span class="currency">£</span>
+      <input id="rev-target" type="number" min="0" step="1000" />
+      <span class="period">/ month</span>
+    </div>
+  </div>
 
-  <!-- Revenue per close -->
+  <div class="funnel-snapshot">
+    <div class="head">
+      <span class="title">Full funnel — what you need each month</span>
+      <span class="summary" id="funnel-summary">—</span>
+    </div>
+    <div class="funnel-stages" id="funnel-stages"></div>
+  </div>
+
   <div class="section">
     <div class="section-head">
       <span class="title">Revenue per close</span>
@@ -441,16 +568,14 @@
     <div id="rev-rows"></div>
   </div>
 
-  <!-- Sales funnel -->
   <div class="section">
     <div class="section-head">
-      <span class="title">Sales funnel (close → call 1 booked)</span>
+      <span class="title">Sales funnel rates</span>
       <span class="summary" id="sales-summary">—</span>
     </div>
     <div id="sales-rows"></div>
   </div>
 
-  <!-- Channel mix -->
   <div class="section">
     <div class="section-head">
       <span class="title">Channel mix · % of bookings from each channel</span>
@@ -460,7 +585,6 @@
     <div id="mix-rows"></div>
   </div>
 
-  <!-- Per-channel cards -->
   <div class="section">
     <div class="section-head">
       <span class="title">Channels — outreach you need</span>
@@ -469,19 +593,28 @@
     <div id="channels-host"></div>
   </div>
 
+  <div class="section">
+    <div class="section-head">
+      <span class="title">Team capacity</span>
+      <span class="summary" id="cap-summary">—</span>
+    </div>
+    <div id="capacity-cards" class="capacity-grid"></div>
+    <div id="cap-rows"></div>
+  </div>
+
   <div class="footer">
-    Revenue → closes → call 1s booked → split by channel → top-of-funnel actions → infrastructure.<br>
-    Cash + contract values per close, funnel rates, channel mix, and per-channel conversion rates all autosave.
+    Revenue → closes → sales funnel → bookings → channel mix → outreach → infrastructure → team capacity.<br>
+    Everything autosaves to localStorage. Switch months in the top bar to plan multiple scenarios.
   </div>
 </div>
 
 <script>
 // ============================================================
-// State
+// State (per-month plans)
 // ============================================================
-const STORAGE_KEY = 'reverseEngineering_v1';
+const STORAGE_KEY = 'reverseEngineering_v2';
 
-function defaults() {
+function defaultPlan() {
   return {
     revenueTarget: 100000,
     cashPerClose: 3000,
@@ -489,46 +622,97 @@ function defaults() {
     workingDaysPerMonth: 22,
     workingDaysPerWeek: 5,
     sales: {
-      closeRate: 35,
-      offerRate: 90,
-      show2Rate: 80,
-      sched2Rate: 80,
-      book2Rate: 70,
-      qual1Rate: 70,
       show1Rate: 65,
+      qual1Rate: 70,
+      book2Rate: 70,
+      sched2Rate: 80,
+      show2Rate: 80,
+      qshow2Rate: 85,   // % of call-2 shows that are still qualified (NEW STAGE)
+      offerRate: 90,
+      closeRate: 35,
     },
     channels: {
       linkedin: {
-        enabled: true, mix: 50, label: 'LinkedIn', open: true,
+        enabled: true, mix: 60, label: 'LinkedIn', open: true,
         connectsPerProfilePerDay: 30,
         acceptRate: 20, prr: 6.24, csr: 80, abr: 50,
       },
       email: {
-        enabled: true, mix: 30, label: 'Email', open: true,
+        enabled: true, mix: 40, label: 'Email', open: true,
         sendsPerInboxPerDay: 30, inboxesPerDomain: 3,
         replyRate: 2, prr: 25, abr: 30,
       },
-      direct: {
-        enabled: true, mix: 20, label: 'Direct / Referrals', open: false,
-      },
+    },
+    team: {
+      jrCloserCount: 2,
+      jrMinPerCall: 20,
+      jrHoursPerDay: 6,
+      srCloserCount: 1,
+      srMinPerCall: 45,
+      srHoursPerDay: 6,
     },
   };
 }
 
-let state = loadState() || defaults();
+function defaultState() {
+  const monthId = currentMonthId();
+  return {
+    activeMonth: monthId,
+    months: { [monthId]: defaultPlan() },
+  };
+}
+
+function currentMonthId() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+function fmtMonth(id) {
+  const [y, m] = id.split('-').map(Number);
+  return new Date(y, m - 1, 1).toLocaleString('en-GB', { month: 'long', year: 'numeric' });
+}
+
 function loadState() {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     const s = JSON.parse(raw);
-    const d = defaults();
-    s.sales = { ...d.sales, ...(s.sales || {}) };
-    Object.keys(d.channels).forEach(k => {
-      s.channels[k] = { ...d.channels[k], ...(s.channels && s.channels[k] || {}) };
+    // Migrate v1 → v2 (flat state → per-month)
+    if (s.revenueTarget !== undefined && !s.months) {
+      const monthId = currentMonthId();
+      const v2 = { activeMonth: monthId, months: {} };
+      const dp = defaultPlan();
+      v2.months[monthId] = { ...dp, ...s };
+      // Merge nested
+      if (s.sales) v2.months[monthId].sales = { ...dp.sales, ...s.sales };
+      if (s.channels) {
+        v2.months[monthId].channels = {
+          linkedin: { ...dp.channels.linkedin, ...(s.channels.linkedin || {}) },
+          email: { ...dp.channels.email, ...(s.channels.email || {}) },
+        };
+      }
+      return v2;
+    }
+    // Ensure every month has all defaults (handles new stages added later like qshow2Rate, team)
+    const dp = defaultPlan();
+    Object.values(s.months || {}).forEach(p => {
+      Object.keys(dp).forEach(k => { if (p[k] === undefined) p[k] = dp[k]; });
+      p.sales = { ...dp.sales, ...(p.sales || {}) };
+      p.channels = {
+        linkedin: { ...dp.channels.linkedin, ...((p.channels && p.channels.linkedin) || {}) },
+        email: { ...dp.channels.email, ...((p.channels && p.channels.email) || {}) },
+      };
+      p.team = { ...dp.team, ...(p.team || {}) };
     });
+    if (!s.activeMonth || !s.months[s.activeMonth]) {
+      s.activeMonth = Object.keys(s.months || {})[0] || currentMonthId();
+    }
     return s;
   } catch (e) { console.error(e); return null; }
 }
+
+let state = loadState() || defaultState();
+function plan() { return state.months[state.activeMonth]; }
 
 let saveTimer;
 function saveState() {
@@ -546,49 +730,45 @@ function setStatus(t) { document.getElementById('save-status').textContent = t; 
 // ============================================================
 // Math
 // ============================================================
-function money(n) {
-  if (n == null || !isFinite(n)) return '—';
-  return '£' + n.toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-}
-function moneyDecimal(n) {
-  if (n == null || !isFinite(n)) return '—';
-  return '£' + n.toLocaleString('en-GB', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-}
 function num(n, decimals = 0) {
   if (n == null || !isFinite(n)) return '—';
   return n.toLocaleString('en-GB', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
 }
+function money(n) {
+  if (n == null || !isFinite(n)) return '—';
+  return '£' + n.toLocaleString('en-GB', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+}
 function pct(n) { return (n == null || !isFinite(n)) ? '—' : n.toFixed(1) + '%'; }
+function ceil(n) { return isFinite(n) ? Math.ceil(n) : 0; }
 
 function compute() {
-  const s = state;
-  const revPerClose = (s.cashPerClose || 0) + (s.contractPerClose || 0);
-  const closesPerMonth = revPerClose > 0 ? s.revenueTarget / revPerClose : 0;
-  const r = s.sales;
-  // Cumulative conversion from booking to close
-  const bookingToClose = (r.show1Rate / 100) * (r.qual1Rate / 100) * (r.book2Rate / 100) * (r.sched2Rate / 100) * (r.show2Rate / 100) * (r.offerRate / 100) * (r.closeRate / 100);
-  const bookingsPerMonth = bookingToClose > 0 ? closesPerMonth / bookingToClose : 0;
-  // Each funnel stage backward from closes
-  const offers = r.closeRate > 0 ? closesPerMonth / (r.closeRate / 100) : 0;
-  const showed2 = r.offerRate > 0 ? offers / (r.offerRate / 100) : 0;
-  const sched2 = r.show2Rate > 0 ? showed2 / (r.show2Rate / 100) : 0;
+  const p = plan();
+  const r = p.sales;
+  const revPerClose = (p.cashPerClose || 0) + (p.contractPerClose || 0);
+  const closes = revPerClose > 0 ? p.revenueTarget / revPerClose : 0;
+  // Backward chain from closes:
+  const offers = r.closeRate > 0 ? closes / (r.closeRate / 100) : 0;
+  const qshows2 = r.offerRate > 0 ? offers / (r.offerRate / 100) : 0;
+  const shows2 = r.qshow2Rate > 0 ? qshows2 / (r.qshow2Rate / 100) : 0;
+  const sched2 = r.show2Rate > 0 ? shows2 / (r.show2Rate / 100) : 0;
   const book2 = r.sched2Rate > 0 ? sched2 / (r.sched2Rate / 100) : 0;
   const qual1 = r.book2Rate > 0 ? book2 / (r.book2Rate / 100) : 0;
-  const showed1 = r.qual1Rate > 0 ? qual1 / (r.qual1Rate / 100) : 0;
-  // bookings = showed1 / show1Rate
+  const shows1 = r.qual1Rate > 0 ? qual1 / (r.qual1Rate / 100) : 0;
+  const bookings = r.show1Rate > 0 ? shows1 / (r.show1Rate / 100) : 0;
+  const bookingToClose =
+    (r.show1Rate / 100) * (r.qual1Rate / 100) * (r.book2Rate / 100) *
+    (r.sched2Rate / 100) * (r.show2Rate / 100) * (r.qshow2Rate / 100) *
+    (r.offerRate / 100) * (r.closeRate / 100);
 
-  // Channel splits
+  // Channels
   const channelBookings = {};
-  Object.keys(s.channels).forEach(k => {
-    const c = s.channels[k];
-    if (!c.enabled) { channelBookings[k] = 0; return; }
-    channelBookings[k] = bookingsPerMonth * (c.mix / 100);
+  Object.keys(p.channels).forEach(k => {
+    const c = p.channels[k];
+    channelBookings[k] = c.enabled ? bookings * (c.mix / 100) : 0;
   });
 
-  // Per-channel outreach math
-  const channelOutputs = {};
-  // LinkedIn
-  const li = s.channels.linkedin;
+  const out = {};
+  const li = p.channels.linkedin;
   if (li.enabled) {
     const bk = channelBookings.linkedin;
     const csr = li.csr / 100, abr = li.abr / 100, prr = li.prr / 100, ar = li.acceptRate / 100;
@@ -596,40 +776,61 @@ function compute() {
     const positives = csr > 0 ? calendlyClicks / csr : 0;
     const accepts = prr > 0 ? positives / prr : 0;
     const connections = ar > 0 ? accepts / ar : 0;
-    const connectionsPerWeek = connections / (s.workingDaysPerMonth / s.workingDaysPerWeek);
-    const connectionsPerDay = connections / s.workingDaysPerMonth;
+    const connectionsPerWeek = connections / (p.workingDaysPerMonth / p.workingDaysPerWeek);
+    const connectionsPerDay = connections / p.workingDaysPerMonth;
     const profilesNeeded = Math.ceil(connectionsPerDay / (li.connectsPerProfilePerDay || 30));
-    channelOutputs.linkedin = { bk, calendlyClicks, positives, accepts, connections, connectionsPerWeek, connectionsPerDay, profilesNeeded };
+    out.linkedin = { bk, calendlyClicks, positives, accepts, connections, connectionsPerWeek, connectionsPerDay, profilesNeeded };
   }
-  // Email
-  const em = s.channels.email;
+  const em = p.channels.email;
   if (em.enabled) {
     const bk = channelBookings.email;
     const abr = em.abr / 100, prr = em.prr / 100, rr = em.replyRate / 100;
     const positives = abr > 0 ? bk / abr : 0;
     const replies = prr > 0 ? positives / prr : 0;
     const sends = rr > 0 ? replies / rr : 0;
-    const sendsPerWeek = sends / (s.workingDaysPerMonth / s.workingDaysPerWeek);
-    const sendsPerDay = sends / s.workingDaysPerMonth;
+    const sendsPerWeek = sends / (p.workingDaysPerMonth / p.workingDaysPerWeek);
+    const sendsPerDay = sends / p.workingDaysPerMonth;
     const inboxesNeeded = Math.ceil(sendsPerDay / (em.sendsPerInboxPerDay || 30));
     const domainsNeeded = Math.ceil(inboxesNeeded / (em.inboxesPerDomain || 3));
-    channelOutputs.email = { bk, positives, replies, sends, sendsPerWeek, sendsPerDay, inboxesNeeded, domainsNeeded };
-  }
-  // Direct
-  const dr = s.channels.direct;
-  if (dr.enabled) {
-    const bk = channelBookings.direct;
-    channelOutputs.direct = { bk, perWeek: bk / (s.workingDaysPerMonth / s.workingDaysPerWeek), perDay: bk / s.workingDaysPerMonth };
+    out.email = { bk, positives, replies, sends, sendsPerWeek, sendsPerDay, inboxesNeeded, domainsNeeded };
   }
 
+  // Team capacity
+  const t = p.team;
+  // Call 1 = junior closer, 20 min each (default)
+  // Call 2 = senior closer, 45 min each (default)
+  const jrMinutesAvailable = t.jrCloserCount * t.jrHoursPerDay * 60 * p.workingDaysPerMonth;
+  const srMinutesAvailable = t.srCloserCount * t.srHoursPerDay * 60 * p.workingDaysPerMonth;
+  const jrMinutesNeeded = shows1 * t.jrMinPerCall;   // each call 1 show takes jrMinPerCall
+  const srMinutesNeeded = shows2 * t.srMinPerCall;   // each call 2 show takes srMinPerCall
+  const jrCapacityCalls = t.jrMinPerCall > 0 ? jrMinutesAvailable / t.jrMinPerCall : 0;
+  const srCapacityCalls = t.srMinPerCall > 0 ? srMinutesAvailable / t.srMinPerCall : 0;
+  const jrUtilization = jrCapacityCalls > 0 ? (shows1 / jrCapacityCalls) * 100 : 0;
+  const srUtilization = srCapacityCalls > 0 ? (shows2 / srCapacityCalls) * 100 : 0;
+  const jrShortfall = shows1 - jrCapacityCalls;
+  const srShortfall = shows2 - srCapacityCalls;
+  // How many more closers needed to cover?
+  const jrCloserCapacityPerRep = (t.jrHoursPerDay * 60 * p.workingDaysPerMonth) / t.jrMinPerCall;
+  const srCloserCapacityPerRep = (t.srHoursPerDay * 60 * p.workingDaysPerMonth) / t.srMinPerCall;
+  const jrClosersNeeded = jrCloserCapacityPerRep > 0 ? Math.ceil(shows1 / jrCloserCapacityPerRep) : 0;
+  const srClosersNeeded = srCloserCapacityPerRep > 0 ? Math.ceil(shows2 / srCloserCapacityPerRep) : 0;
+
   return {
-    revPerClose, closesPerMonth, bookingsPerMonth, bookingToClose,
-    offers, showed2, sched2, book2, qual1, showed1,
-    channelBookings, channelOutputs,
-    closesPerWeek: closesPerMonth / (s.workingDaysPerMonth / s.workingDaysPerWeek),
-    closesPerDay: closesPerMonth / s.workingDaysPerMonth,
-    bookingsPerWeek: bookingsPerMonth / (s.workingDaysPerMonth / s.workingDaysPerWeek),
-    bookingsPerDay: bookingsPerMonth / s.workingDaysPerMonth,
+    revPerClose, closes, bookings, bookingToClose,
+    bookingsPerWeek: bookings / (p.workingDaysPerMonth / p.workingDaysPerWeek),
+    bookingsPerDay: bookings / p.workingDaysPerMonth,
+    closesPerWeek: closes / (p.workingDaysPerMonth / p.workingDaysPerWeek),
+    closesPerDay: closes / p.workingDaysPerMonth,
+    offers, qshows2, shows2, sched2, book2, qual1, shows1,
+    channelBookings, channelOutputs: out,
+    team: {
+      jrMinutesNeeded, srMinutesNeeded,
+      jrMinutesAvailable, srMinutesAvailable,
+      jrCapacityCalls, srCapacityCalls,
+      jrUtilization, srUtilization,
+      jrShortfall, srShortfall,
+      jrClosersNeeded, srClosersNeeded,
+    },
   };
 }
 
@@ -637,51 +838,57 @@ function compute() {
 // Render
 // ============================================================
 function render() {
+  populateMonthSelect();
+  document.getElementById('active-month-label').textContent = fmtMonth(state.activeMonth);
+  document.getElementById('rev-target').value = plan().revenueTarget;
   const c = compute();
-  renderHero(c);
+  renderFunnelSnapshot(c);
   renderRevRows();
   renderSalesRows(c);
   renderMixRows(c);
   renderChannels(c);
+  renderTeamCapacity(c);
 }
 
-function renderHero(c) {
-  document.getElementById('hero').innerHTML = `
-    <div class="target-field">
-      <div class="lbl">Revenue target</div>
-      <div class="input-wrap">
-        <span class="currency">£</span>
-        <input id="rev-target" type="number" min="0" step="1000" value="${state.revenueTarget}" />
-        <span class="period">/ month</span>
-      </div>
+function populateMonthSelect() {
+  const sel = document.getElementById('month-select');
+  const ids = Object.keys(state.months).sort();
+  sel.innerHTML = ids.map(id => `<option value="${id}" ${id === state.activeMonth ? 'selected' : ''}>${fmtMonth(id)}</option>`).join('');
+  sel.value = state.activeMonth;
+}
+
+function renderFunnelSnapshot(c) {
+  const p = plan();
+  const wkDivisor = p.workingDaysPerMonth / p.workingDaysPerWeek;
+  const stages = [
+    { lbl: 'Call 1 booked', val: c.bookings, hero: true },
+    { lbl: 'Call 1 shows', val: c.shows1 },
+    { lbl: 'Call 2 bookings', val: c.book2 },
+    { lbl: 'Call 2 shows', val: c.shows2 },
+    { lbl: 'Call 2 qual shows', val: c.qshows2 },
+    { lbl: 'Offers', val: c.offers },
+    { lbl: 'Closes', val: c.closes, hero: true },
+  ];
+  const host = document.getElementById('funnel-stages');
+  host.innerHTML = stages.map((s, i) => `
+    <div class="funnel-stage ${s.hero ? 'hero' : ''}">
+      <div class="lbl">${s.lbl}</div>
+      <div class="val">${num(ceil(s.val))}</div>
+      <div class="sub">${num(s.val / wkDivisor, 1)} /wk</div>
+      ${i < stages.length - 1 ? '<span class="funnel-arrow">›</span>' : ''}
     </div>
-    <div class="hero-stat">
-      <div class="lbl">Closes needed</div>
-      <div class="val">${num(Math.ceil(c.closesPerMonth))}</div>
-      <div class="sub">${num(c.closesPerWeek, 1)} /wk · ${num(c.closesPerDay, 2)} /day</div>
-    </div>
-    <div class="hero-stat">
-      <div class="lbl">Calls booked (call 1)</div>
-      <div class="val">${num(Math.ceil(c.bookingsPerMonth))}</div>
-      <div class="sub">${num(c.bookingsPerWeek, 1)} /wk · ${num(c.bookingsPerDay, 1)} /day</div>
-    </div>
-  `;
-  document.getElementById('rev-target').addEventListener('input', e => {
-    state.revenueTarget = parseFloat(e.target.value) || 0;
-    saveState();
-    render();
-  });
+  `).join('');
+  document.getElementById('funnel-summary').textContent =
+    `${pct(c.bookingToClose * 100)} booking→close · ${money(c.revPerClose)}/close · ${money(p.revenueTarget)} target`;
 }
 
 function makeRow(opts) {
-  // opts: { key, label, hint, value, min, max, step, unit, onChange }
-  const id = 'row_' + Math.random().toString(36).slice(2, 8);
-  return `<div class="row" data-row="${id}">
+  return `<div class="row" data-key="${opts.key || ''}">
     <div class="lbl">${opts.label}${opts.hint ? `<span class="hint">${opts.hint}</span>` : ''}</div>
     <div class="slider-wrap">
-      <input type="range" min="${opts.min}" max="${opts.max}" step="${opts.step}" value="${opts.value}" data-role="slider" />
+      <input type="range" min="${opts.min}" max="${opts.max}" step="${opts.step}" value="${opts.value}" />
     </div>
-    <input type="number" min="${opts.min}" max="${opts.max * 5}" step="${opts.step}" value="${opts.value}" data-role="input" />
+    <input type="number" min="${opts.min}" max="${opts.max * 5}" step="${opts.step}" value="${opts.value}" />
     <span class="unit">${opts.unit || ''}</span>
   </div>`;
 }
@@ -708,104 +915,83 @@ function wireRow(rowEl, get, set, onAfter) {
 }
 
 function renderRevRows() {
+  const p = plan();
   const host = document.getElementById('rev-rows');
   host.innerHTML =
-    makeRow({ label: 'Cash per close', value: state.cashPerClose, min: 0, max: 10000, step: 50, unit: '£' }) +
-    makeRow({ label: 'Contract per close', hint: 'remainder/cash flow', value: state.contractPerClose, min: 0, max: 20000, step: 100, unit: '£' }) +
-    makeRow({ label: 'Working days / month', value: state.workingDaysPerMonth, min: 1, max: 31, step: 1, unit: '' }) +
-    makeRow({ label: 'Working days / week', value: state.workingDaysPerWeek, min: 1, max: 7, step: 1, unit: '' });
+    makeRow({ label: 'Cash per close', value: p.cashPerClose, min: 0, max: 10000, step: 50, unit: '£' }) +
+    makeRow({ label: 'Contract per close', hint: 'remainder/recurring', value: p.contractPerClose, min: 0, max: 20000, step: 100, unit: '£' }) +
+    makeRow({ label: 'Working days / month', value: p.workingDaysPerMonth, min: 1, max: 31, step: 1, unit: '' }) +
+    makeRow({ label: 'Working days / week', value: p.workingDaysPerWeek, min: 1, max: 7, step: 1, unit: '' });
   const rows = host.querySelectorAll('.row');
-  wireRow(rows[0], () => state.cashPerClose, v => state.cashPerClose = v, render);
-  wireRow(rows[1], () => state.contractPerClose, v => state.contractPerClose = v, render);
-  wireRow(rows[2], () => state.workingDaysPerMonth, v => state.workingDaysPerMonth = v, render);
-  wireRow(rows[3], () => state.workingDaysPerWeek, v => state.workingDaysPerWeek = v, render);
+  wireRow(rows[0], () => p.cashPerClose, v => p.cashPerClose = v, render);
+  wireRow(rows[1], () => p.contractPerClose, v => p.contractPerClose = v, render);
+  wireRow(rows[2], () => p.workingDaysPerMonth, v => p.workingDaysPerMonth = v, render);
+  wireRow(rows[3], () => p.workingDaysPerWeek, v => p.workingDaysPerWeek = v, render);
   const c = compute();
-  document.getElementById('rev-per-close-summary').textContent = `${money(c.revPerClose)} per close · ${num(Math.ceil(c.closesPerMonth))} closes/mo`;
+  document.getElementById('rev-per-close-summary').textContent =
+    `${money(c.revPerClose)} per close · ${num(Math.ceil(c.closes))} closes/mo`;
 }
 
 function renderSalesRows(c) {
+  const p = plan();
   const fields = [
-    ['show1Rate', 'Call 1 show rate', '% of bookings that show up'],
+    ['show1Rate', 'Call 1 show rate', '% of bookings that show'],
     ['qual1Rate', 'Call 1 qualification', '% of shows that qualify'],
     ['book2Rate', 'Call 2 booking', '% of qualified that book call 2'],
     ['sched2Rate', 'Call 2 scheduled', '% of booked that confirm a slot'],
-    ['show2Rate', 'Call 2 show rate', '% of scheduled that show up'],
-    ['offerRate', 'Offer rate', '% of call 2 shows that get an offer'],
+    ['show2Rate', 'Call 2 show rate', '% of scheduled that show'],
+    ['qshow2Rate', 'Call 2 qualified-show rate', '% of call 2 shows still qualified'],
+    ['offerRate', 'Offer rate', '% of qualified call 2s that get an offer'],
     ['closeRate', 'Close rate', '% of offers that close'],
   ];
   const host = document.getElementById('sales-rows');
   host.innerHTML = fields.map(([k, label, hint]) =>
-    makeRow({ label, hint, value: state.sales[k], min: 0, max: 100, step: 1, unit: '%' })
+    makeRow({ label, hint, value: p.sales[k], min: 0, max: 100, step: 1, unit: '%' })
   ).join('');
   const rows = host.querySelectorAll('.row');
-  fields.forEach(([k], i) => wireRow(rows[i], () => state.sales[k], v => state.sales[k] = v, render));
+  fields.forEach(([k], i) => wireRow(rows[i], () => p.sales[k], v => p.sales[k] = v, render));
   document.getElementById('sales-summary').textContent =
-    `${pct(c.bookingToClose * 100)} booking→close · ${num(Math.ceil(c.bookingsPerMonth))} bookings/mo`;
+    `${pct(c.bookingToClose * 100)} booking→close · ${num(Math.ceil(c.bookings))} bookings/mo`;
 }
 
 function renderMixRows(c) {
-  const channelKeys = Object.keys(state.channels);
+  const p = plan();
+  const channelKeys = Object.keys(p.channels);
   const host = document.getElementById('mix-rows');
   host.innerHTML = channelKeys.map(k => {
-    const ch = state.channels[k];
+    const ch = p.channels[k];
     return `<div class="row" data-channel="${k}">
-      <div class="lbl">
-        <label class="channel-enabled-toggle"><input type="checkbox" ${ch.enabled ? 'checked' : ''} data-role="enabled" />&nbsp;</label>
-        ${ch.label}
-      </div>
+      <div class="lbl">${ch.label}<span class="hint">${ch.enabled ? 'enabled' : 'disabled'}</span></div>
       <div class="slider-wrap">
-        <input type="range" min="0" max="100" step="1" value="${ch.mix}" data-role="slider" ${!ch.enabled ? 'disabled' : ''} />
+        <input type="range" min="0" max="100" step="1" value="${ch.mix}" />
       </div>
-      <input type="number" min="0" max="100" step="1" value="${ch.mix}" data-role="input" ${!ch.enabled ? 'disabled' : ''} />
+      <input type="number" min="0" max="100" step="1" value="${ch.mix}" />
       <span class="unit">%</span>
     </div>`;
   }).join('');
-  // Wire
   host.querySelectorAll('.row').forEach(rowEl => {
     const k = rowEl.dataset.channel;
-    const ch = state.channels[k];
-    const slider = rowEl.querySelector('input[type="range"]');
-    const input = rowEl.querySelector('input[type="number"]');
-    const cb = rowEl.querySelector('input[type="checkbox"]');
-    const updatePct = () => {
-      slider.style.setProperty('--pct', ((slider.value / 100) * 100).toFixed(1) + '%');
-    };
-    updatePct();
-    const apply = (v, src) => {
-      const n = parseFloat(v) || 0;
-      ch.mix = n;
-      if (src !== 'slider') slider.value = n;
-      if (src !== 'input') input.value = n;
-      updatePct();
-      saveState();
-      render();
-    };
-    slider.addEventListener('input', e => apply(e.target.value, 'slider'));
-    input.addEventListener('input', e => apply(e.target.value, 'input'));
-    cb.addEventListener('change', e => {
-      ch.enabled = e.target.checked;
-      saveState();
-      render();
-    });
+    const ch = p.channels[k];
+    wireRow(rowEl, () => ch.mix, v => ch.mix = v, render);
   });
-  // Mix total + warning
-  const totalMix = channelKeys.filter(k => state.channels[k].enabled).reduce((s, k) => s + (state.channels[k].mix || 0), 0);
-  document.getElementById('mix-summary').textContent = `mix total ${totalMix}%`;
+  const totalMix = channelKeys.filter(k => p.channels[k].enabled).reduce((s, k) => s + (p.channels[k].mix || 0), 0);
+  document.getElementById('mix-summary').textContent = `mix total ${totalMix}% (should be 100%)`;
   const warnHost = document.getElementById('mix-warning-host');
   if (Math.abs(totalMix - 100) > 1) {
-    warnHost.innerHTML = `<div class="mix-warning">
+    warnHost.innerHTML = `<div style="background:var(--warn-tint);color:var(--warn);padding:12px 18px;border-radius:10px;font-size:13.5px;margin-bottom:12px;display:flex;align-items:center;gap:10px">
       Mix sums to ${totalMix}% — should be 100%.
-      <button id="rebalance-btn" style="margin-left:auto">Rebalance proportionally</button>
+      <button id="rebalance-btn" style="margin-left:auto;padding:6px 14px;border-radius:7px">Rebalance to 100%</button>
     </div>`;
     document.getElementById('rebalance-btn').addEventListener('click', () => {
-      const enabledKeys = channelKeys.filter(k => state.channels[k].enabled);
-      const sum = enabledKeys.reduce((s, k) => s + state.channels[k].mix, 0);
+      const sum = channelKeys.reduce((s, k) => s + (p.channels[k].enabled ? p.channels[k].mix : 0), 0);
       if (sum === 0) {
-        // Even split
+        const enabledKeys = channelKeys.filter(k => p.channels[k].enabled);
         const each = 100 / enabledKeys.length;
-        enabledKeys.forEach(k => state.channels[k].mix = Math.round(each));
+        enabledKeys.forEach(k => p.channels[k].mix = Math.round(each));
       } else {
-        enabledKeys.forEach(k => state.channels[k].mix = Math.round((state.channels[k].mix / sum) * 100));
+        channelKeys.forEach(k => {
+          if (p.channels[k].enabled) p.channels[k].mix = Math.round((p.channels[k].mix / sum) * 100);
+        });
       }
       saveState();
       render();
@@ -816,109 +1002,188 @@ function renderMixRows(c) {
 }
 
 function renderChannels(c) {
+  const p = plan();
   const host = document.getElementById('channels-host');
-  host.innerHTML = Object.keys(state.channels).map(k => renderChannel(k, c)).join('');
-  // Wire toggles + sliders
+  host.innerHTML = Object.keys(p.channels).map(k => renderChannel(k, c)).join('');
   host.querySelectorAll('.channel').forEach(el => {
     const k = el.dataset.key;
     el.querySelector('.channel-head').addEventListener('click', e => {
       if (e.target.tagName === 'INPUT' || e.target.tagName === 'BUTTON') return;
-      state.channels[k].open = !state.channels[k].open;
+      p.channels[k].open = !p.channels[k].open;
       saveState();
-      el.classList.toggle('open', state.channels[k].open);
+      el.classList.toggle('open', p.channels[k].open);
     });
     el.querySelectorAll('.row').forEach(rowEl => {
       const key = rowEl.dataset.field;
-      wireRow(rowEl, () => state.channels[k][key], v => state.channels[k][key] = v, render);
+      wireRow(rowEl, () => p.channels[k][key], v => p.channels[k][key] = v, render);
     });
   });
 }
 
 function renderChannel(k, c) {
-  const ch = state.channels[k];
+  const p = plan();
+  const ch = p.channels[k];
   const out = c.channelOutputs[k];
   const bookings = c.channelBookings[k];
-  let body = '';
-  let summary = '';
-  if (!ch.enabled) {
-    summary = 'Disabled';
-    body = '<div style="color:var(--text-tertiary);padding:14px 0">Channel disabled. Enable it in the mix above to include in calculations.</div>';
-  } else if (k === 'linkedin') {
-    summary = `${num(Math.ceil(out.connections))} connects/mo · ${out.profilesNeeded} profile${out.profilesNeeded === 1 ? '' : 's'}`;
-    const fields = [
-      ['acceptRate', 'Acceptance rate', '% of connections that accept'],
-      ['prr', 'Positive reply rate', '% of accepts that reply positively'],
-      ['csr', 'Calendly schedule rate', '% of positives that click Calendly'],
-      ['abr', 'Appointment book rate', '% of Calendly clicks that book'],
-    ];
-    body = `
-      <div class="outputs">
-        <div class="out"><div class="lbl">Bookings target</div><div class="val">${num(Math.ceil(bookings))}</div><div class="sub">${num(bookings / (state.workingDaysPerMonth / state.workingDaysPerWeek), 1)} /wk</div></div>
-        <div class="out hero"><div class="lbl">Connections / month</div><div class="val">${num(Math.ceil(out.connections))}</div><div class="sub">${num(Math.ceil(out.connectionsPerWeek))} /wk · ${num(Math.ceil(out.connectionsPerDay))} /day</div></div>
-        <div class="out hero"><div class="lbl">Sender profiles</div><div class="val">${out.profilesNeeded}</div><div class="sub">${ch.connectsPerProfilePerDay}/day each</div></div>
-        <div class="out"><div class="lbl">Accepts</div><div class="val">${num(Math.ceil(out.accepts))}</div></div>
-        <div class="out"><div class="lbl">Positive replies</div><div class="val">${num(Math.ceil(out.positives))}</div></div>
-        <div class="out"><div class="lbl">Calendly clicks</div><div class="val">${num(Math.ceil(out.calendlyClicks))}</div></div>
-      </div>
-      ${fields.map(([key, label, hint]) =>
-        `<div class="row" data-field="${key}">
-          <div class="lbl">${label}<span class="hint">${hint}</span></div>
-          <div class="slider-wrap"><input type="range" min="0" max="100" step="0.1" value="${ch[key]}" data-role="slider" /></div>
-          <input type="number" min="0" max="100" step="0.1" value="${ch[key]}" data-role="input" />
-          <span class="unit">%</span>
-        </div>`
-      ).join('')}
-    `;
+  const wkDivisor = p.workingDaysPerMonth / p.workingDaysPerWeek;
+  let summary = '', body = '';
+  if (k === 'linkedin') {
+    summary = out ? `${num(ceil(out.connections))} connects/mo · ${out.profilesNeeded} profile${out.profilesNeeded === 1 ? '' : 's'}` : 'disabled';
+    if (out) {
+      const fields = [
+        ['acceptRate', 'Acceptance rate', '% of connections that accept'],
+        ['prr', 'Positive reply rate', '% of accepts that reply positively'],
+        ['csr', 'Calendly schedule rate', '% of positives that click Calendly'],
+        ['abr', 'Appointment book rate', '% of Calendly clicks that book'],
+      ];
+      body = `
+        <div class="outputs">
+          <div class="out"><div class="lbl">Bookings target</div><div class="val">${num(ceil(bookings))}</div><div class="sub">${num(bookings / wkDivisor, 1)} /wk</div></div>
+          <div class="out hero"><div class="lbl">Connections / mo</div><div class="val">${num(ceil(out.connections))}</div><div class="sub">${num(ceil(out.connectionsPerWeek))} /wk · ${num(ceil(out.connectionsPerDay))} /day</div></div>
+          <div class="out hero"><div class="lbl">Sender profiles</div><div class="val">${out.profilesNeeded}</div><div class="sub">${ch.connectsPerProfilePerDay}/day each</div></div>
+          <div class="out"><div class="lbl">Accepts</div><div class="val">${num(ceil(out.accepts))}</div></div>
+          <div class="out"><div class="lbl">Positive replies</div><div class="val">${num(ceil(out.positives))}</div></div>
+          <div class="out"><div class="lbl">Calendly clicks</div><div class="val">${num(ceil(out.calendlyClicks))}</div></div>
+        </div>
+        ${fields.map(([key, label, hint]) =>
+          `<div class="row" data-field="${key}">
+            <div class="lbl">${label}<span class="hint">${hint}</span></div>
+            <div class="slider-wrap"><input type="range" min="0" max="100" step="0.1" value="${ch[key]}" /></div>
+            <input type="number" min="0" max="100" step="0.1" value="${ch[key]}" />
+            <span class="unit">%</span>
+          </div>`
+        ).join('')}
+      `;
+    }
   } else if (k === 'email') {
-    summary = `${num(Math.ceil(out.sends))} sends/mo · ${out.inboxesNeeded} inbox${out.inboxesNeeded === 1 ? '' : 'es'} · ${out.domainsNeeded} domain${out.domainsNeeded === 1 ? '' : 's'}`;
-    const fields = [
-      ['replyRate', 'Reply rate', '% of sends that reply (any reply)'],
-      ['prr', 'Positive reply rate', '% of replies that are positive'],
-      ['abr', 'Appointment book rate', '% of positives that book'],
-    ];
-    body = `
-      <div class="outputs">
-        <div class="out"><div class="lbl">Bookings target</div><div class="val">${num(Math.ceil(bookings))}</div><div class="sub">${num(bookings / (state.workingDaysPerMonth / state.workingDaysPerWeek), 1)} /wk</div></div>
-        <div class="out hero"><div class="lbl">Sends / month</div><div class="val">${num(Math.ceil(out.sends))}</div><div class="sub">${num(Math.ceil(out.sendsPerWeek))} /wk · ${num(Math.ceil(out.sendsPerDay))} /day</div></div>
-        <div class="out hero"><div class="lbl">Inboxes / Domains</div><div class="val">${out.inboxesNeeded} / ${out.domainsNeeded}</div><div class="sub">${ch.sendsPerInboxPerDay}/inbox · ${ch.inboxesPerDomain} inboxes/domain</div></div>
-        <div class="out"><div class="lbl">Replies</div><div class="val">${num(Math.ceil(out.replies))}</div></div>
-        <div class="out"><div class="lbl">Positive replies</div><div class="val">${num(Math.ceil(out.positives))}</div></div>
-      </div>
-      ${fields.map(([key, label, hint]) =>
-        `<div class="row" data-field="${key}">
-          <div class="lbl">${label}<span class="hint">${hint}</span></div>
-          <div class="slider-wrap"><input type="range" min="0" max="100" step="0.1" value="${ch[key]}" data-role="slider" /></div>
-          <input type="number" min="0" max="100" step="0.1" value="${ch[key]}" data-role="input" />
-          <span class="unit">%</span>
-        </div>`
-      ).join('')}
-    `;
-  } else if (k === 'direct') {
-    summary = `${num(Math.ceil(out.bk))} bookings/mo, no outreach math`;
-    body = `
-      <div class="outputs">
-        <div class="out hero"><div class="lbl">Bookings / month</div><div class="val">${num(Math.ceil(out.bk))}</div><div class="sub">${num(out.perWeek, 1)} /wk · ${num(out.perDay, 1)} /day</div></div>
-      </div>
-      <div style="color:var(--text-tertiary);font-size:13px;padding:8px 0">Direct/referral bookings have no funnel — they come in from existing relationships, word of mouth, or inbound. Slide the mix above to set how many bookings you expect from this channel.</div>
-    `;
+    summary = out ? `${num(ceil(out.sends))} sends/mo · ${out.inboxesNeeded} inbox${out.inboxesNeeded === 1 ? '' : 'es'} · ${out.domainsNeeded} domain${out.domainsNeeded === 1 ? '' : 's'}` : 'disabled';
+    if (out) {
+      const fields = [
+        ['replyRate', 'Reply rate', '% of sends that reply (any reply)'],
+        ['prr', 'Positive reply rate', '% of replies that are positive'],
+        ['abr', 'Appointment book rate', '% of positives that book'],
+      ];
+      body = `
+        <div class="outputs">
+          <div class="out"><div class="lbl">Bookings target</div><div class="val">${num(ceil(bookings))}</div><div class="sub">${num(bookings / wkDivisor, 1)} /wk</div></div>
+          <div class="out hero"><div class="lbl">Sends / mo</div><div class="val">${num(ceil(out.sends))}</div><div class="sub">${num(ceil(out.sendsPerWeek))} /wk · ${num(ceil(out.sendsPerDay))} /day</div></div>
+          <div class="out hero"><div class="lbl">Inboxes / Domains</div><div class="val">${out.inboxesNeeded} / ${out.domainsNeeded}</div><div class="sub">${ch.sendsPerInboxPerDay}/inbox · ${ch.inboxesPerDomain} inboxes/domain</div></div>
+          <div class="out"><div class="lbl">Replies</div><div class="val">${num(ceil(out.replies))}</div></div>
+          <div class="out"><div class="lbl">Positive replies</div><div class="val">${num(ceil(out.positives))}</div></div>
+        </div>
+        ${fields.map(([key, label, hint]) =>
+          `<div class="row" data-field="${key}">
+            <div class="lbl">${label}<span class="hint">${hint}</span></div>
+            <div class="slider-wrap"><input type="range" min="0" max="100" step="0.1" value="${ch[key]}" /></div>
+            <input type="number" min="0" max="100" step="0.1" value="${ch[key]}" />
+            <span class="unit">%</span>
+          </div>`
+        ).join('')}
+      `;
+    }
   }
-  return `<div class="channel ${k} ${ch.open ? 'open' : ''} ${!ch.enabled ? 'disabled' : ''}" data-key="${k}">
+  return `<div class="channel ${k} ${ch.open ? 'open' : ''}" data-key="${k}">
     <div class="channel-head">
       <div class="swatch"></div>
       <div class="name">${ch.label}</div>
       <div class="summary">${summary}</div>
-      <div style="display:flex;align-items:center;gap:10px"><span class="mix-pct">${ch.mix}% mix</span><span class="toggle">›</span></div>
+      <div style="display:flex;align-items:center;gap:12px"><span class="mix-pct">${ch.mix}% mix</span><span class="toggle">›</span></div>
     </div>
     <div class="channel-body">${body}</div>
   </div>`;
 }
 
+function renderTeamCapacity(c) {
+  const p = plan();
+  const t = p.team;
+  const cap = c.team;
+  function statusOf(util) {
+    if (util > 100) return 'bad';
+    if (util > 85) return 'warn';
+    return 'ok';
+  }
+  function statusLabel(shortfall, calls) {
+    if (shortfall <= 0) return `${num(-shortfall)} call slack`;
+    return `short ${num(ceil(shortfall))} calls`;
+  }
+  const jrStatus = statusOf(cap.jrUtilization);
+  const srStatus = statusOf(cap.srUtilization);
+  document.getElementById('capacity-cards').innerHTML = `
+    <div class="cap-card">
+      <div class="lbl">Junior closer (call 1)</div>
+      <div class="val ${jrStatus}">${pct(cap.jrUtilization)} loaded</div>
+      <div class="sub">${num(ceil(c.shows1))} shows needed · ${num(ceil(cap.jrCapacityCalls))} capacity</div>
+      <div class="bar"><div class="bar-fill ${jrStatus}" style="width:${Math.min(100, cap.jrUtilization).toFixed(1)}%"></div></div>
+      <div class="sub" style="margin-top:10px">${cap.jrShortfall > 0 ? `Need ${cap.jrClosersNeeded} closer${cap.jrClosersNeeded === 1 ? '' : 's'} total (have ${t.jrCloserCount})` : `${t.jrCloserCount} closer${t.jrCloserCount === 1 ? '' : 's'} cover ${num(ceil(cap.jrCapacityCalls))} call 1s/mo`}</div>
+    </div>
+    <div class="cap-card">
+      <div class="lbl">Senior closer (call 2)</div>
+      <div class="val ${srStatus}">${pct(cap.srUtilization)} loaded</div>
+      <div class="sub">${num(ceil(c.shows2))} shows needed · ${num(ceil(cap.srCapacityCalls))} capacity</div>
+      <div class="bar"><div class="bar-fill ${srStatus}" style="width:${Math.min(100, cap.srUtilization).toFixed(1)}%"></div></div>
+      <div class="sub" style="margin-top:10px">${cap.srShortfall > 0 ? `Need ${cap.srClosersNeeded} closer${cap.srClosersNeeded === 1 ? '' : 's'} total (have ${t.srCloserCount})` : `${t.srCloserCount} closer${t.srCloserCount === 1 ? '' : 's'} cover ${num(ceil(cap.srCapacityCalls))} call 2s/mo`}</div>
+    </div>
+    <div class="cap-card">
+      <div class="lbl">Total call hours / mo</div>
+      <div class="val">${num((cap.jrMinutesNeeded + cap.srMinutesNeeded) / 60, 0)}h</div>
+      <div class="sub">${num(cap.jrMinutesNeeded / 60, 0)}h call 1 + ${num(cap.srMinutesNeeded / 60, 0)}h call 2</div>
+    </div>
+  `;
+  const rows = [
+    ['jrCloserCount', 'Junior closers (count)', 'people who run call 1', 1, 0, 20, 1, ''],
+    ['jrMinPerCall', 'Call 1 length', 'minutes per call 1', 1, 5, 60, 5, 'min'],
+    ['jrHoursPerDay', 'Junior productive hrs / day', 'hours each junior actually spends on calls per workday', 0.5, 0, 12, 0.5, 'hrs'],
+    ['srCloserCount', 'Senior closers (count)', 'people who run call 2', 1, 0, 20, 1, ''],
+    ['srMinPerCall', 'Call 2 length', 'minutes per call 2', 1, 15, 120, 5, 'min'],
+    ['srHoursPerDay', 'Senior productive hrs / day', 'hours each senior actually spends on calls per workday', 0.5, 0, 12, 0.5, 'hrs'],
+  ];
+  const host = document.getElementById('cap-rows');
+  host.innerHTML = rows.map(r =>
+    makeRow({ label: r[1], hint: r[2], value: t[r[0]], min: r[4], max: r[5], step: r[6], unit: r[7] })
+  ).join('');
+  host.querySelectorAll('.row').forEach((rowEl, i) => {
+    const key = rows[i][0];
+    wireRow(rowEl, () => t[key], v => t[key] = v, render);
+  });
+  document.getElementById('cap-summary').textContent =
+    `${num(ceil(c.shows1))} call 1s + ${num(ceil(c.shows2))} call 2s needed this month`;
+}
+
 // ============================================================
-// Boot
+// Top bar wiring
 // ============================================================
 document.getElementById('reset-btn').addEventListener('click', () => {
-  if (!confirm('Reset all values to defaults?')) return;
-  state = defaults();
+  if (!confirm(`Reset ${fmtMonth(state.activeMonth)} to defaults?`)) return;
+  state.months[state.activeMonth] = defaultPlan();
+  saveState();
+  render();
+});
+document.getElementById('rev-target').addEventListener('input', e => {
+  plan().revenueTarget = parseFloat(e.target.value) || 0;
+  saveState();
+  render();
+});
+document.getElementById('month-select').addEventListener('change', e => {
+  state.activeMonth = e.target.value;
+  saveState();
+  render();
+});
+document.getElementById('add-month-btn').addEventListener('click', () => {
+  const ids = Object.keys(state.months).sort();
+  const last = ids[ids.length - 1] || currentMonthId();
+  const [y, m] = last.split('-').map(Number);
+  const nextDate = new Date(y, m, 1);
+  const suggested = `${nextDate.getFullYear()}-${String(nextDate.getMonth() + 1).padStart(2, '0')}`;
+  const input = prompt('New month (YYYY-MM):', suggested);
+  if (!input) return;
+  if (!/^\d{4}-\d{2}$/.test(input)) { alert('Use YYYY-MM format'); return; }
+  if (state.months[input]) {
+    state.activeMonth = input;
+  } else {
+    // Clone the current month's plan as a starting point
+    state.months[input] = JSON.parse(JSON.stringify(plan()));
+    state.activeMonth = input;
+  }
   saveState();
   render();
 });

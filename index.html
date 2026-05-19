@@ -190,6 +190,64 @@
   .target-input-col.revenue .input-wrap input {
     color: var(--good);
   }
+  .cash-dial-row {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 32px;
+    align-items: center;
+  }
+  @media (max-width: 800px) { .cash-dial-row { grid-template-columns: 1fr; gap: 18px; } }
+  .dial-slider-wrap {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-top: 4px;
+  }
+  .dial-slider-wrap input[type="range"] {
+    -webkit-appearance: none; appearance: none;
+    background: transparent; flex: 1; height: 36px; padding: 0; margin: 0; border: none;
+    cursor: grab;
+  }
+  .dial-slider-wrap input[type="range"]:active { cursor: grabbing; }
+  .dial-slider-wrap input[type="range"]:focus { outline: none; }
+  .dial-slider-wrap input[type="range"]::-webkit-slider-runnable-track {
+    height: 8px;
+    border-radius: 999px;
+    background: linear-gradient(to right,
+      var(--accent) 0%, var(--accent) var(--pct, 0%),
+      var(--surface-input) var(--pct, 0%), var(--surface-input) 100%);
+  }
+  .dial-slider-wrap input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 26px; height: 26px;
+    background: #fff;
+    border-radius: 50%;
+    margin-top: -9px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.45), 0 0 0 0.5px rgba(0,0,0,0.15), 0 6px 16px rgba(0,0,0,0.2);
+    cursor: grab;
+    transition: transform 0.08s;
+  }
+  .dial-slider-wrap input[type="range"]:active::-webkit-slider-thumb {
+    transform: scale(1.10);
+    cursor: grabbing;
+    box-shadow: 0 3px 10px var(--accent-shadow), 0 0 0 0.5px rgba(0,0,0,0.2), 0 8px 22px rgba(0,0,0,0.3);
+  }
+  .dial-pct-val {
+    font-size: 24px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent-hover);
+    min-width: 60px;
+    text-align: right;
+  }
+  .dial-derived {
+    background: var(--accent-tint);
+    border: 1px solid rgba(212, 160, 23, 0.30);
+    border-radius: 12px;
+    padding: 16px 18px;
+  }
+  .dial-derived .rev-stat-lbl { color: var(--accent-hover); font-size: 11px; }
+  .dial-derived .rev-stat-val { color: var(--accent-hover); font-size: 28px; }
   .target-sub {
     color: var(--text-tertiary);
     font-size: 12px;
@@ -707,7 +765,33 @@
   }
   .row .unit { color: var(--text-tertiary); font-size: 13px; }
 
-  /* Inline note under any slider row */
+  /* Per-row note button + inline note input under any slider row */
+  .row .row-note-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 22px;
+    margin-left: 8px;
+    padding: 0;
+    border-radius: 50%;
+    background: var(--surface-raised);
+    color: var(--text-tertiary);
+    border: 1px solid transparent;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 0.12s, color 0.12s;
+    vertical-align: middle;
+  }
+  .row .row-note-btn:hover {
+    background: var(--accent-tint);
+    color: var(--accent-hover);
+    transform: none;
+  }
+  .row.has-row-note .row-note-btn { background: var(--accent-tint); color: var(--accent-hover); }
+  .row.note-open .row-note-btn { background: var(--accent); color: #1a1a1a; }
   .row .row-note-wrap {
     grid-column: 1 / -1;
     display: none;
@@ -715,8 +799,8 @@
     padding-top: 10px;
     border-top: 1px dashed var(--separator);
   }
-  body.notes-on .row .row-note-wrap { display: block; }
-  body.notes-on .row.has-row-note .row-note-wrap { display: block; }
+  body.notes-on .row .row-note-wrap,
+  .row.note-open .row-note-wrap { display: block; }
   .row .row-note {
     width: 100%;
     background: var(--surface-input);
@@ -735,18 +819,7 @@
     border-color: var(--accent);
     box-shadow: 0 0 0 2px var(--accent-tint);
   }
-  .row .row-note-dot {
-    display: inline-block;
-    width: 6px;
-    height: 6px;
-    border-radius: 50%;
-    background: var(--text-quaternary);
-    margin-left: 8px;
-    vertical-align: middle;
-    transition: background 0.15s;
-  }
-  .row.has-row-note .row-note-dot { background: var(--accent); }
-  body.notes-on .row.has-row-note { background: linear-gradient(to right, var(--accent-tint), var(--surface)); }
+  .row.has-row-note .lbl { color: var(--accent-hover); }
 
   /* ==============================
      Channel cards
@@ -1167,6 +1240,120 @@
   }
   button.ghost:hover { background: var(--surface-raised); color: var(--text); }
 
+  /* War plan */
+  .warplan-card {
+    background: linear-gradient(135deg, var(--surface-raised), var(--surface));
+    border: 1px solid var(--border-strong);
+    border-radius: 16px;
+    padding: 28px 30px;
+  }
+  .warplan-meta { margin-bottom: 18px; }
+  .warplan-month {
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .warplan-sub {
+    font-size: 13px;
+    color: var(--text-tertiary);
+    line-height: 1.5;
+  }
+  .warplan-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13.5px;
+    font-variant-numeric: tabular-nums;
+  }
+  .warplan-table th {
+    text-align: right;
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .warplan-table th:first-child { text-align: left; }
+  .warplan-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--separator);
+    color: var(--text);
+  }
+  .warplan-table td.num { text-align: right; }
+  .warplan-table td.lbl { font-weight: 500; }
+  .warplan-table td.conv { color: var(--text-tertiary); text-align: right; font-size: 12px; }
+  .warplan-table tr.section-row td {
+    background: var(--surface);
+    padding-top: 14px;
+    padding-bottom: 8px;
+    font-size: 10.5px;
+    color: var(--accent-hover);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+  }
+  .warplan-table tr.has-note td { background: linear-gradient(to right, var(--accent-tint), transparent); }
+  .warplan-table .note-btn {
+    background: var(--surface-raised);
+    color: var(--text-tertiary);
+    border: none;
+    width: 22px; height: 22px;
+    padding: 0;
+    border-radius: 50%;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-left: 6px;
+    line-height: 1;
+  }
+  .warplan-table .note-btn:hover { background: var(--accent-tint); color: var(--accent-hover); }
+  .warplan-table tr.has-note .note-btn { background: var(--accent-tint); color: var(--accent-hover); }
+  .warplan-table tr.note-open .note-btn { background: var(--accent); color: #1a1a1a; }
+  .warplan-table tr.note-row td {
+    padding: 0 12px 14px;
+    border-bottom: 1px solid var(--separator);
+  }
+  .warplan-table tr.note-row textarea {
+    width: 100%;
+    background: var(--surface-input);
+    border: 1px solid var(--border-input);
+    border-radius: 7px;
+    color: var(--text);
+    font-size: 13px;
+    padding: 8px 11px;
+    font-family: inherit;
+    line-height: 1.5;
+    resize: vertical;
+    min-height: 40px;
+  }
+  .warplan-table tr.note-row textarea:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-tint);
+  }
+  .warplan-actions {
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px solid var(--separator);
+    display: flex;
+    gap: 12px;
+    align-items: center;
+  }
+  .warplan-actions input { flex: 1; }
+  .warplan-actions .field {
+    background: var(--surface-input);
+    border: 1px solid var(--border-input);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: inherit;
+  }
+  .warplan-actions .field:focus { outline: none; border-color: var(--accent); }
+
   .settings-card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -1361,32 +1548,35 @@
 
   <div class="target-card">
     <div class="target-month-lbl"><span id="active-month-label">—</span></div>
-    <div class="target-inputs">
-      <div class="target-input-col cash">
-        <div class="lbl">Cash collected target</div>
-        <div class="input-wrap">
-          <span class="currency">£</span>
-          <input id="cash-target" type="number" min="0" step="1000" />
-          <span class="period">/ month</span>
-        </div>
-        <div class="target-sub" id="cash-target-sub">— upfront cash from new sales</div>
+    <div class="target-input-col revenue" style="margin-bottom:24px">
+      <div class="lbl">Contracted revenue target</div>
+      <div class="input-wrap">
+        <span class="currency">£</span>
+        <input id="rev-target" type="number" min="0" step="1000" />
+        <span class="period">/ month</span>
       </div>
-      <div class="target-input-col revenue">
-        <div class="lbl">Revenue target <span class="hint">(total contracted)</span></div>
-        <div class="input-wrap">
-          <span class="currency">£</span>
-          <input id="rev-target" type="number" min="0" step="1000" />
-          <span class="period">/ month</span>
+      <div class="target-sub" id="rev-target-sub">— total contracted value sold this month</div>
+    </div>
+    <div class="cash-dial-row">
+      <div class="dial-col">
+        <div class="lbl">Cash collected · % of contracted</div>
+        <div class="dial-slider-wrap">
+          <input id="cash-pct" type="range" min="0" max="100" step="1" />
+          <span class="dial-pct-val" id="cash-pct-val">50%</span>
         </div>
-        <div class="target-sub" id="rev-target-sub">— total contracted value sold</div>
+        <div class="target-sub">drag the dial to set how much of contracted revenue comes in as cash upfront</div>
+      </div>
+      <div class="dial-derived">
+        <div class="rev-stat-lbl">Cash collected target</div>
+        <div class="rev-stat-val" id="cash-target-derived">—</div>
+        <div class="rev-stat-sub" id="cash-target-sub">— /wk · — /day · upfront cash from new sales</div>
       </div>
     </div>
-    <div class="target-derived">
+    <div class="target-derived" style="margin-top:24px;padding-top:24px;border-top:1px solid var(--separator)">
       <div class="rev-stat" id="rev-stat-cash">
         <div class="rev-stat-lbl">Cash collected · derived from closes</div>
         <div class="rev-stat-val">—</div>
         <div class="rev-stat-sub">— /wk · — /day</div>
-        <div class="rev-stat-variance" id="cash-variance"></div>
       </div>
       <div class="rev-stat" id="rev-stat-contract">
         <div class="rev-stat-lbl">Contracted revenue · derived from closes</div>
@@ -1413,15 +1603,6 @@
     </div>
     <div class="econ-card">
       <div class="econ-kpis" id="econ-kpis"></div>
-      <div class="econ-row">
-        <label>Contract length (months)</label>
-        <div class="econ-slider-wrap">
-          <input id="econ-contract-months" type="range" min="1" max="36" step="1" />
-          <input id="econ-contract-months-num" type="number" min="1" max="120" step="1" />
-          <span class="unit">mo</span>
-        </div>
-        <div class="econ-hint" id="econ-ltv-hint"></div>
-      </div>
       <div class="econ-channels-grid" id="econ-channels"></div>
     </div>
   </div>
@@ -1490,14 +1671,22 @@
     </div>
   </div>
 
+  <!-- War plan — the printable cheat sheet that goes to Notion -->
   <div class="section">
-    <div class="publish-bar">
-      <div class="text">
-        <b>Publish to Notion</b>
-        <span class="small">Build the full plan as Markdown — funnel numbers, sliders, channel breakdown, team capacity, all your notes — then push directly into your Notion page.</span>
+    <div class="section-head">
+      <span class="title">War plan — daily · weekly · monthly</span>
+      <span class="summary" id="warplan-summary">—</span>
+    </div>
+    <div class="warplan-card">
+      <div class="warplan-meta">
+        <div class="warplan-month" id="warplan-month-label">—</div>
+        <div class="warplan-sub">Every number you need to hit + the conversion rate that produces it. Click ✎ on any row to add a note.</div>
       </div>
-      <input id="notion-page-url" type="url" class="field" placeholder="Optional: your Notion plan URL" />
-      <button id="generate-plan-btn" class="primary">Generate plan →</button>
+      <div id="warplan-table-wrap"></div>
+      <div class="warplan-actions">
+        <input id="notion-page-url" type="url" class="field" placeholder="Optional: your Notion plan URL" />
+        <button id="generate-plan-btn" class="primary">Send war plan to Notion →</button>
+      </div>
     </div>
   </div>
 
@@ -1580,10 +1769,13 @@ const STORAGE_KEY = 'reverseEngineering_v2';
 
 function defaultPlan() {
   return {
-    revenueTarget: 100000,         // total contracted revenue this month (e.g. closes × $15k)
-    cashCollectedTarget: 50000,    // upfront cash hitting bank this month (e.g. closes × upfront portion)
-    cashPerClose: 7500,            // avg upfront cash per close (half of $15k package)
-    contractPerClose: 7500,        // avg deferred / payment-plan portion per close
+    revenueTarget: 120000,         // total contracted revenue target / month
+    packagePrice: 15000,           // contracted price per close (the program price = LTV)
+    cashCollectedPct: 67,          // % of contracted revenue paid upfront in cash (slider)
+    // cashPerClose + contractPerClose are now DERIVED from packagePrice × cashCollectedPct
+    // (kept in state for backward compat but compute() recomputes them every time)
+    cashPerClose: 10050,
+    contractPerClose: 4950,
     workingDaysPerMonth: 22,
     workingDaysPerWeek: 5,
     sales: {
@@ -1626,8 +1818,7 @@ function defaultPlan() {
       srHoursPerDay: 6,
       srCommissionPct: 10,       // % of cash collected per close (commission)
     },
-    // LTV inputs
-    contractMonths: 6,           // how long the contract / retention period runs
+    // LTV = packagePrice (the contracted program price). No multiplier.
     notes: {
       // Per-funnel-stage notes
       bookings: '', shows1: '', book2: '', shows2: '', qshows2: '', offers: '', closes: '',
@@ -1709,13 +1900,17 @@ function loadState() {
       p.notes = { ...dp.notes, ...(p.notes || {}) };
       if (p.notionPageUrl === undefined) p.notionPageUrl = '';
       if (p.notionPageId === undefined) p.notionPageId = '';
-      if (p.contractMonths === undefined) p.contractMonths = dp.contractMonths;
-      // New: cash collected target (default = revenue × cashShare to seed plausibly)
-      if (p.cashCollectedTarget === undefined) {
-        const total = (p.cashPerClose || 0) + (p.contractPerClose || 0);
-        const cashShare = total > 0 ? (p.cashPerClose || 0) / total : 0.5;
-        p.cashCollectedTarget = Math.round((p.revenueTarget || 0) * cashShare);
+      // Migrate to simplified pricing model: packagePrice + cashCollectedPct
+      // (replaces cashPerClose / contractPerClose / contractMonths / cashCollectedTarget)
+      const oldTotal = (p.cashPerClose || 0) + (p.contractPerClose || 0);
+      if (p.packagePrice === undefined) {
+        p.packagePrice = oldTotal > 0 ? oldTotal : 15000;
       }
+      if (p.cashCollectedPct === undefined) {
+        p.cashCollectedPct = oldTotal > 0 ? Math.round(((p.cashPerClose || 0) / oldTotal) * 100) : 67;
+      }
+      delete p.contractMonths;
+      delete p.cashCollectedTarget;
       // Migrate team commission fields: jrCommissionPerCall → jrCommissionPerQshow,
       // srCommissionPerClose (flat £) → srCommissionPct (% of cash)
       if (p.team) {
@@ -1773,15 +1968,21 @@ function ceil(n) { return isFinite(n) ? Math.ceil(n) : 0; }
 function compute() {
   const p = plan();
   const r = p.sales;
-  const revPerClose = (p.cashPerClose || 0) + (p.contractPerClose || 0);
-  // Closes needed = whichever target is the BINDING constraint (the bigger
-  // implied closes count). If both targets are set, the user has to hit both,
-  // so use the max. If only one is set, that one drives.
-  const closesFromCash = (p.cashCollectedTarget > 0 && p.cashPerClose > 0) ? p.cashCollectedTarget / p.cashPerClose : 0;
-  const closesFromRev  = (p.revenueTarget > 0 && revPerClose > 0) ? p.revenueTarget / revPerClose : 0;
-  const closes = Math.max(closesFromCash, closesFromRev);
-  // Which target is binding? (used by the variance pill)
-  const bindingTarget = closesFromCash > closesFromRev ? 'cash' : 'revenue';
+  // Package price = LTV per close (the contracted program price).
+  // Cash & contract split derived from cashCollectedPct slider.
+  const packagePrice = p.packagePrice || 0;
+  const cashPct = (p.cashCollectedPct || 0) / 100;
+  // Keep state in sync — derived values written back so other places that
+  // still read p.cashPerClose / p.contractPerClose get correct numbers.
+  p.cashPerClose = packagePrice * cashPct;
+  p.contractPerClose = packagePrice * (1 - cashPct);
+  const cashPerClose = p.cashPerClose;
+  const contractPerClose = p.contractPerClose;
+  const revPerClose = packagePrice;
+  // Closes derived purely from contracted revenue target. Cash collected
+  // target = revenue × cashPct, so it tracks automatically.
+  const closes = packagePrice > 0 ? p.revenueTarget / packagePrice : 0;
+  const cashCollectedTarget = (p.revenueTarget || 0) * cashPct;
   // Backward chain from closes:
   const offers = r.closeRate > 0 ? closes / (r.closeRate / 100) : 0;
   const qshows2 = r.offerRate > 0 ? offers / (r.offerRate / 100) : 0;
@@ -1887,8 +2088,8 @@ function compute() {
   const srCommissionTotal = closes * (p.cashPerClose || 0) * ((t.srCommissionPct || 0) / 100);
   const totalCommissions = jrCommissionTotal + srCommissionTotal;
 
-  // Unit economics
-  const ltv = (p.cashPerClose || 0) + (p.contractPerClose || 0) * (p.contractMonths || 1);
+  // Unit economics — LTV is just the package price (one program = one LTV)
+  const ltv = packagePrice;
   // Per-channel LTV:CAC (now that ltv is known)
   Object.values(out).forEach(o => { o.ltvCac = o.cac > 0 ? ltv / o.cac : 0; });
   const totalMarketing = Object.values(out).reduce((s, o) => s + (o.totalCost || 0), 0);
@@ -1899,12 +2100,14 @@ function compute() {
   const profitMarginAfterSM = p.revenueTarget > 0 ? (profitAfterSM / p.revenueTarget) * 100 : 0;
 
   // Monthly revenue split
-  const cashCollectedMo = closes * (p.cashPerClose || 0);
-  const contractedRevenueMo = closes * (p.contractPerClose || 0);
+  // Cash collected = upfront portion (closes × cash per close)
+  // Contracted revenue = FULL contracted amount (closes × packagePrice) — matches the revenue target
+  const cashCollectedMo = closes * cashPerClose;
+  const contractedRevenueMo = closes * packagePrice;
 
   return {
     revPerClose, closes, bookings, bookingToClose,
-    closesFromCash, closesFromRev, bindingTarget,
+    cashCollectedTarget, packagePrice,
     cashCollectedMo, contractedRevenueMo,
     bookingsPerWeek: bookings / (p.workingDaysPerMonth / p.workingDaysPerWeek),
     bookingsPerDay: bookings / p.workingDaysPerMonth,
@@ -1931,6 +2134,110 @@ function compute() {
 // ============================================================
 // Render
 // ============================================================
+function renderWarPlan(c) {
+  const p = plan();
+  const wkDiv = p.workingDaysPerMonth / p.workingDaysPerWeek;
+  const mDiv = p.workingDaysPerMonth;
+  setText('warplan-month-label', fmtMonth(state.activeMonth) + ' war plan');
+  setText('warplan-summary', `${num(ceil(c.bookings))} bookings → ${num(ceil(c.closes))} closes`);
+
+  const rows = [];
+  rows.push({ section: 'Revenue & sales funnel' });
+  rows.push({ k: 'wp_revenueTarget', lbl: 'Contracted revenue target', mo: p.revenueTarget, money: true });
+  rows.push({ k: 'wp_cashCollectedTarget', lbl: 'Cash collected target', mo: c.cashCollectedTarget, money: true, conv: `${p.cashCollectedPct}% of contracted` });
+  rows.push({ k: 'wp_closes', lbl: 'Closes', mo: c.closes, conv: `${money(c.packagePrice)} per close` });
+  rows.push({ k: 'wp_offers', lbl: 'Offers', mo: c.offers, conv: `${p.sales.closeRate}% close rate` });
+  rows.push({ k: 'wp_qshows2', lbl: 'Call 2 qualified shows', mo: c.qshows2, conv: `${p.sales.offerRate}% offer rate` });
+  rows.push({ k: 'wp_shows2', lbl: 'Call 2 shows', mo: c.shows2, conv: `${p.sales.qshow2Rate}% qual-show rate` });
+  rows.push({ k: 'wp_book2', lbl: 'Call 2 bookings', mo: c.book2, conv: `${p.sales.book2Rate}% → call 2 booked` });
+  rows.push({ k: 'wp_shows1', lbl: 'Call 1 shows', mo: c.shows1, conv: `${p.sales.show1Rate}% show rate` });
+  rows.push({ k: 'wp_bookings', lbl: 'Call 1 bookings', mo: c.bookings });
+
+  rows.push({ section: 'Channels — outreach' });
+  Object.entries(c.channelOutputs).forEach(([k, out]) => {
+    const ch = p.channels[k];
+    if (!ch.enabled) return;
+    if (k === 'linkedin') {
+      rows.push({ k: 'wp_li_connections', lbl: 'LinkedIn connections', mo: out.connections, conv: `${ch.acceptRate}% accept · ${ch.prr}% PRR · ${ch.csr}% CSR · ${ch.abr}% ABR` });
+      rows.push({ k: 'wp_li_profiles', lbl: 'LinkedIn profiles needed', mo: out.profilesNeeded, conv: `${ch.connectsPerProfilePerDay}/day each` });
+    }
+    if (k === 'email') {
+      rows.push({ k: 'wp_em_sends', lbl: 'Email sends', mo: out.sends, conv: `${ch.replyRate}% reply · ${ch.prr}% PRR · ${ch.abr}% ABR` });
+      rows.push({ k: 'wp_em_inboxes', lbl: 'Email inboxes / domains', mo: out.inboxesNeeded, conv: `${out.inboxesNeeded} inboxes · ${out.domainsNeeded} domains` });
+    }
+  });
+
+  rows.push({ section: 'Team capacity & spend' });
+  rows.push({ k: 'wp_jr_load', lbl: 'Junior closer load', mo: c.team.jrUtilization / 100, pct: true, conv: `${p.team.jrCloserCount} junior · ${num(ceil(c.bookings))} call 1 bookings` });
+  rows.push({ k: 'wp_sr_load', lbl: 'Senior closer load', mo: c.team.srUtilization / 100, pct: true, conv: `${p.team.srCloserCount} senior · ${num(ceil(c.book2))} call 2 bookings` });
+  rows.push({ k: 'wp_marketing', lbl: 'Marketing spend', mo: c.economics.totalMarketing, money: true });
+  rows.push({ k: 'wp_commissions', lbl: 'Commission spend', mo: c.economics.totalCommissions, money: true });
+  rows.push({ k: 'wp_total_sm', lbl: 'Total S+M spend', mo: c.economics.totalSalesAndMarketing, money: true });
+  rows.push({ k: 'wp_profit', lbl: 'Profit on M+S', mo: c.economics.profitAfterSM, money: true, conv: `${pct(c.economics.profitMarginAfterSM)} margin · LTV:CAC ${c.economics.ltvCac > 0 ? c.economics.ltvCac.toFixed(1) + 'x' : '—'}` });
+
+  function fmtVal(r, periodVal) {
+    if (r.money) return money(periodVal);
+    if (r.pct) return pct(periodVal * 100);
+    if (Number.isInteger(periodVal)) return num(periodVal);
+    if (periodVal >= 100) return num(Math.round(periodVal));
+    return num(periodVal, 1);
+  }
+
+  const html = `<table class="warplan-table"><thead><tr>
+      <th>Metric</th>
+      <th class="num">Daily</th>
+      <th class="num">Weekly</th>
+      <th class="num">Monthly</th>
+      <th>Conversion / context</th>
+    </tr></thead><tbody>${rows.map((r, i) => {
+    if (r.section) return `<tr class="section-row"><td colspan="5">${r.section}</td></tr>`;
+    const note = (plan().notes[r.k] || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const hasNote = note.trim().length > 0;
+    const cls = hasNote ? 'has-note' : '';
+    const moVal = r.mo || 0;
+    const noteRow = `<tr class="note-row" data-note-row-for="${r.k}" style="display:none"><td colspan="5"><textarea data-row-note="${r.k}" placeholder="add note for ${r.lbl}…">${note}</textarea></td></tr>`;
+    return `<tr class="${cls}" data-warplan-row="${r.k}">
+      <td class="lbl">${r.lbl}<button type="button" class="note-btn" data-toggle-warplan-note title="${hasNote ? 'Edit note' : 'Add note'}">${hasNote ? '✎' : '+'}</button></td>
+      <td class="num">${r.money ? money(moVal / mDiv) : r.pct ? pct(moVal * 100) : fmtVal(r, moVal / mDiv)}</td>
+      <td class="num">${r.money ? money(moVal / wkDiv) : r.pct ? pct(moVal * 100) : fmtVal(r, moVal / wkDiv)}</td>
+      <td class="num">${fmtVal(r, moVal)}</td>
+      <td class="conv">${r.conv || ''}</td>
+    </tr>${noteRow}`;
+  }).join('')}</tbody></table>`;
+
+  const wrap = document.getElementById('warplan-table-wrap');
+  wrap.innerHTML = html;
+  wrap.querySelectorAll('button[data-toggle-warplan-note]').forEach(btn => {
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      const tr = btn.closest('tr');
+      const key = tr.dataset.warplanRow;
+      const noteRow = wrap.querySelector(`tr.note-row[data-note-row-for="${key}"]`);
+      const isOpen = noteRow.style.display !== 'none';
+      noteRow.style.display = isOpen ? 'none' : 'table-row';
+      tr.classList.toggle('note-open', !isOpen);
+      if (!isOpen) {
+        const ta = noteRow.querySelector('textarea');
+        setTimeout(() => ta && ta.focus(), 50);
+      }
+    });
+  });
+  wrap.querySelectorAll('textarea[data-row-note]').forEach(ta => {
+    ta.addEventListener('input', e => {
+      const key = e.target.dataset.rowNote;
+      plan().notes[key] = e.target.value;
+      saveState();
+      const tr = wrap.querySelector(`tr[data-warplan-row="${key}"]`);
+      if (tr) {
+        const has = e.target.value.trim().length > 0;
+        tr.classList.toggle('has-note', has);
+        const btn = tr.querySelector('.note-btn');
+        if (btn) { btn.textContent = has ? '✎' : '+'; btn.title = has ? 'Edit note' : 'Add note'; }
+      }
+    });
+  });
+}
+
 function render() {
   populateMonthSelect();
   document.getElementById('currency-select').value = state.settings.currency;
@@ -1938,7 +2245,14 @@ function render() {
   document.querySelectorAll('.currency').forEach(el => el.textContent = currencySymbol());
   document.getElementById('active-month-label').textContent = fmtMonth(state.activeMonth);
   document.getElementById('rev-target').value = plan().revenueTarget;
-  document.getElementById('cash-target').value = plan().cashCollectedTarget;
+  // Sync cash-pct slider
+  const cashSlider = document.getElementById('cash-pct');
+  const cashValEl = document.getElementById('cash-pct-val');
+  if (cashSlider) {
+    cashSlider.value = plan().cashCollectedPct || 0;
+    cashSlider.style.setProperty('--pct', (plan().cashCollectedPct || 0) + '%');
+    if (cashValEl) cashValEl.textContent = (plan().cashCollectedPct || 0) + '%';
+  }
   const c = compute();
   updateRevenueStats(c);
   renderFunnelSnapshot(c);
@@ -1948,6 +2262,7 @@ function render() {
   renderMixRows(c);
   renderChannels(c);
   renderTeamCapacity(c);
+  renderWarPlan(c);
   renderPlanFields();
   renderSettings();
 }
@@ -1962,7 +2277,7 @@ function renderEconomics(c) {
     <div class="econ-kpi hero">
       <div class="lbl">LTV per close</div>
       <div class="val">${money(e.ltv)}</div>
-      <div class="sub">${money(p.cashPerClose)} cash + ${money(p.contractPerClose)} × ${p.contractMonths}mo contract</div>
+      <div class="sub">program price (${money(p.cashPerClose)} cash + ${money(p.contractPerClose)} contracted)</div>
     </div>
     <div class="econ-kpi">
       <div class="lbl">CAC overall</div>
@@ -1995,14 +2310,6 @@ function renderEconomics(c) {
       <div class="sub">${pct(e.profitMarginAfterSM)} of revenue</div>
     </div>
   `;
-  // Contract slider
-  const slider = document.getElementById('econ-contract-months');
-  const numIn = document.getElementById('econ-contract-months-num');
-  slider.value = p.contractMonths;
-  numIn.value = p.contractMonths;
-  slider.style.setProperty('--pct', (p.contractMonths / 36 * 100).toFixed(1) + '%');
-  document.getElementById('econ-ltv-hint').innerHTML =
-    `→ <b>LTV = ${money(e.ltv)}</b> per close`;
   // Per-channel breakdown
   const channelsEl = document.getElementById('econ-channels');
   const channels = [];
@@ -2028,20 +2335,6 @@ function renderEconomics(c) {
   }).join('');
   document.getElementById('econ-summary').textContent =
     `LTV ${money(e.ltv)} · CAC ${money(e.cacOverall)} · ${e.ltvCac > 0 ? e.ltvCac.toFixed(1) + 'x ratio' : 'no closes'}`;
-  // Wire contract-months pair
-  const applyContract = v => {
-    const n = parseInt(v, 10) || 1;
-    p.contractMonths = n;
-    slider.value = Math.min(n, 36);
-    numIn.value = n;
-    slider.style.setProperty('--pct', (Math.min(n, 36) / 36 * 100).toFixed(1) + '%');
-    saveState();
-    updateLiveOutputs();
-  };
-  slider.addEventListener('input', e2 => applyContract(e2.target.value));
-  numIn.addEventListener('input', e2 => applyContract(e2.target.value));
-  slider.addEventListener('change', () => render());
-  numIn.addEventListener('blur', () => render());
 }
 
 function renderPlanFields() {
@@ -2076,32 +2369,16 @@ function updateRevenueStats(c) {
   const p = plan();
   const wkDiv = p.workingDaysPerMonth / p.workingDaysPerWeek;
   const mDiv = p.workingDaysPerMonth;
-  // Sub-lines under inputs
-  setText('cash-target-sub', `${money((p.cashCollectedTarget || 0) / wkDiv)} /wk · ${money((p.cashCollectedTarget || 0) / mDiv)} /day · upfront cash from new sales`);
-  setText('rev-target-sub', `${money((p.revenueTarget || 0) / wkDiv)} /wk · ${money((p.revenueTarget || 0) / mDiv)} /day · total contracted value sold`);
-  // Derived stats
+  setText('rev-target-sub', `${money((p.revenueTarget || 0) / wkDiv)} /wk · ${money((p.revenueTarget || 0) / mDiv)} /day · total contracted value sold this month`);
+  // Cash collected target (derived from dial)
+  setText('cash-target-derived', money(c.cashCollectedTarget));
+  setText('cash-target-sub', `${money(c.cashCollectedTarget / wkDiv)} /wk · ${money(c.cashCollectedTarget / mDiv)} /day · upfront cash from new sales`);
+  // Derived stats below the divider (these match by construction now)
   const cashEl = document.getElementById('rev-stat-cash');
   const contractEl = document.getElementById('rev-stat-contract');
   if (cashEl) {
     cashEl.querySelector('.rev-stat-val').textContent = money(c.cashCollectedMo);
     cashEl.querySelector('.rev-stat-sub').textContent = `${money(c.cashCollectedMo / wkDiv)} /wk · ${money(c.cashCollectedMo / mDiv)} /day`;
-    // Variance vs cashCollectedTarget
-    const target = p.cashCollectedTarget || 0;
-    const varEl = cashEl.querySelector('#cash-variance');
-    if (varEl) {
-      if (target <= 0) {
-        varEl.textContent = '';
-        varEl.className = 'rev-stat-variance';
-      } else {
-        const variance = c.cashCollectedMo - target;
-        const absVar = Math.abs(variance);
-        const pctVar = (absVar / target) * 100;
-        const status = pctVar <= 2 ? 'ok' : pctVar <= 10 ? 'warn' : 'bad';
-        varEl.className = `rev-stat-variance ${status}`;
-        if (status === 'ok') varEl.textContent = `On target (within 2%)`;
-        else varEl.textContent = `${variance >= 0 ? 'Over' : 'Under'} cash target by ${money(absVar)} (${pctVar.toFixed(0)}%) — adjust cash collected per close or revenue target to reconcile`;
-      }
-    }
   }
   if (contractEl) {
     contractEl.querySelector('.rev-stat-val').textContent = money(c.contractedRevenueMo);
@@ -2189,7 +2466,7 @@ function makeRow(opts) {
   const note = opts.noteKey ? ((plan().notes[opts.noteKey] || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')) : '';
   const hasNote = note.trim().length > 0;
   return `<div class="row ${hasNote ? 'has-row-note' : ''}" data-key="${opts.key || ''}" data-note-key="${opts.noteKey || ''}">
-    <div class="lbl">${opts.label}${opts.hint ? `<span class="hint">${opts.hint}</span>` : ''}${opts.noteKey ? '<span class="row-note-dot" title="Has note"></span>' : ''}</div>
+    <div class="lbl">${opts.label}${opts.hint ? `<span class="hint">${opts.hint}</span>` : ''}${opts.noteKey ? `<button type="button" class="row-note-btn" title="${hasNote ? 'Edit note' : 'Add note'}" data-toggle-note>${hasNote ? '✎' : '+'}</button>` : ''}</div>
     <div class="slider-wrap">
       <input type="range" min="${opts.min}" max="${opts.max}" step="${opts.step}" value="${opts.value}" />
     </div>
@@ -2200,13 +2477,12 @@ function makeRow(opts) {
 }
 
 // Channel rows need an extra data-field attribute on top of makeRow.
-// Inline note input attached via the standard noteKey machinery.
 function makeRowInChannel(channelKey, fieldKey, label, hint, value, min, max, step, unit) {
   const noteKey = `${channelKey}_${fieldKey}`;
   const note = (plan().notes[noteKey] || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
   const hasNote = note.trim().length > 0;
   return `<div class="row ${hasNote ? 'has-row-note' : ''}" data-field="${fieldKey}" data-note-key="${noteKey}">
-    <div class="lbl">${label}<span class="hint">${hint}</span><span class="row-note-dot" title="Has note"></span></div>
+    <div class="lbl">${label}<span class="hint">${hint}</span><button type="button" class="row-note-btn" title="${hasNote ? 'Edit note' : 'Add note'}" data-toggle-note>${hasNote ? '✎' : '+'}</button></div>
     <div class="slider-wrap"><input type="range" min="${min}" max="${max}" step="${step}" value="${value}" /></div>
     <input type="number" min="${min}" max="${max * 5}" step="${step}" value="${value}" />
     <span class="unit">${unit}</span>
@@ -2216,12 +2492,26 @@ function makeRowInChannel(channelKey, fieldKey, label, hint, value, min, max, st
 
 function wireRowNote(rowEl) {
   const ta = rowEl.querySelector('textarea.row-note');
+  const btn = rowEl.querySelector('button.row-note-btn');
+  if (btn) {
+    btn.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      const open = rowEl.classList.toggle('note-open');
+      if (open && ta) setTimeout(() => ta.focus(), 50);
+    });
+  }
   if (!ta) return;
   ta.addEventListener('input', e => {
     const key = e.target.dataset.rowNote;
     plan().notes[key] = e.target.value;
     saveState();
-    rowEl.classList.toggle('has-row-note', e.target.value.trim().length > 0);
+    const has = e.target.value.trim().length > 0;
+    rowEl.classList.toggle('has-row-note', has);
+    if (btn) {
+      btn.textContent = has ? '✎' : '+';
+      btn.title = has ? 'Edit note' : 'Add note';
+    }
   });
   ta.addEventListener('click', e => e.stopPropagation());
 }
@@ -2367,7 +2657,7 @@ function updateLiveOutputs() {
     const kpis = econKpis.querySelectorAll('.econ-kpi');
     if (kpis.length >= 7) {
       kpis[0].querySelector('.val').textContent = money(e.ltv);
-      kpis[0].querySelector('.sub').textContent = `${money(p.cashPerClose)} cash + ${money(p.contractPerClose)} × ${p.contractMonths}mo contract`;
+      kpis[0].querySelector('.sub').textContent = `program price (${money(p.cashPerClose)} cash + ${money(p.contractPerClose)} contracted)`;
       kpis[1].querySelector('.val').textContent = money(e.cacOverall);
       kpis[1].querySelector('.sub').textContent = `${money(e.totalSalesAndMarketing)} ÷ ${num(ceil(c.closes))} closes`;
       const ratioEl = kpis[2].querySelector('.val');
@@ -2386,9 +2676,6 @@ function updateLiveOutputs() {
       kpis[6].querySelector('.sub').textContent = `${pct(e.profitMarginAfterSM)} of revenue`;
     }
     setText('econ-summary', `LTV ${money(e.ltv)} · CAC ${money(e.cacOverall)} · ${e.ltvCac > 0 ? e.ltvCac.toFixed(1) + 'x ratio' : 'no closes'}`);
-    setText('econ-ltv-hint', '');
-    const hint = document.getElementById('econ-ltv-hint');
-    if (hint) hint.innerHTML = `→ <b>LTV = ${money(e.ltv)}</b> per close`;
   }
   // Per-channel economics summary cards (the small ones in econ-card)
   const econChannelsEl = document.getElementById('econ-channels');
@@ -2465,19 +2752,17 @@ function renderRevRows() {
   const p = plan();
   const host = document.getElementById('rev-rows');
   host.innerHTML =
-    makeRow({ noteKey: 'rev_cashPerClose', label: 'Cash collected', hint: 'per close — upfront cash', value: p.cashPerClose, min: 0, max: 10000, step: 50, unit: currencySymbol() }) +
-    makeRow({ noteKey: 'rev_contractPerClose', label: 'Contracted revenue', hint: 'per close — total recurring/contract value', value: p.contractPerClose, min: 0, max: 20000, step: 100, unit: currencySymbol() }) +
+    makeRow({ noteKey: 'rev_packagePrice', label: 'Program price', hint: 'contracted price per close (= LTV)', value: p.packagePrice, min: 500, max: 50000, step: 250, unit: currencySymbol() }) +
     makeRow({ noteKey: 'rev_workingDaysMonth', label: 'Working days / month', value: p.workingDaysPerMonth, min: 1, max: 31, step: 1, unit: '' }) +
     makeRow({ noteKey: 'rev_workingDaysWeek', label: 'Working days / week', value: p.workingDaysPerWeek, min: 1, max: 7, step: 1, unit: '' });
   const rows = host.querySelectorAll('.row');
-  wireRow(rows[0], () => p.cashPerClose, v => p.cashPerClose = v, render);
-  wireRow(rows[1], () => p.contractPerClose, v => p.contractPerClose = v, render);
-  wireRow(rows[2], () => p.workingDaysPerMonth, v => p.workingDaysPerMonth = v, render);
-  wireRow(rows[3], () => p.workingDaysPerWeek, v => p.workingDaysPerWeek = v, render);
+  wireRow(rows[0], () => p.packagePrice, v => p.packagePrice = v, render);
+  wireRow(rows[1], () => p.workingDaysPerMonth, v => p.workingDaysPerMonth = v, render);
+  wireRow(rows[2], () => p.workingDaysPerWeek, v => p.workingDaysPerWeek = v, render);
   rows.forEach(wireRowNote);
   const c = compute();
   document.getElementById('rev-per-close-summary').textContent =
-    `${money(c.revPerClose)} per close · ${num(Math.ceil(c.closes))} closes/mo`;
+    `${money(c.packagePrice)} program price · ${num(Math.ceil(c.closes))} closes/mo`;
 }
 
 function renderSalesRows(c) {
@@ -2727,9 +3012,7 @@ function renderTeamCapacity(c) {
     wireRow(rowEl, () => t[key], v => t[key] = v, render);
     wireRowNote(rowEl);
   });
-  // Inline note under the team capacity section
-  host.insertAdjacentHTML('afterend', inlineNoteHtml('team', 'Note for team capacity'));
-  wireInlineNotes(host.parentElement);
+  // (Inline team-capacity note removed — per-row notes via the global toggle cover it.)
   document.getElementById('cap-summary').textContent =
     `${num(ceil(c.bookings))} call 1 bookings + ${num(ceil(c.book2))} call 2 bookings · ${money(cap.totalCommissions)} commissions/mo`;
 }
@@ -2749,12 +3032,21 @@ document.getElementById('rev-target').addEventListener('input', e => {
   updateLiveOutputs();
 });
 document.getElementById('rev-target').addEventListener('change', () => render());
-document.getElementById('cash-target').addEventListener('input', e => {
-  plan().cashCollectedTarget = parseFloat(e.target.value) || 0;
-  saveState();
-  updateLiveOutputs();
-});
-document.getElementById('cash-target').addEventListener('change', () => render());
+(() => {
+  const slider = document.getElementById('cash-pct');
+  const valEl  = document.getElementById('cash-pct-val');
+  const apply = v => {
+    const n = Math.max(0, Math.min(100, parseFloat(v) || 0));
+    plan().cashCollectedPct = n;
+    slider.value = n;
+    valEl.textContent = n + '%';
+    slider.style.setProperty('--pct', n + '%');
+    saveState();
+    updateLiveOutputs();
+  };
+  slider.addEventListener('input', e => apply(e.target.value));
+  slider.addEventListener('change', () => render());
+})();
 document.getElementById('month-select').addEventListener('change', e => {
   state.activeMonth = e.target.value;
   saveState();

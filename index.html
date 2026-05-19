@@ -350,6 +350,153 @@
   }
 
   /* ==============================
+     Unit economics
+     ============================== */
+  .econ-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 26px 28px;
+  }
+  .econ-kpis {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 14px;
+    margin-bottom: 22px;
+  }
+  .econ-kpi {
+    background: var(--surface-input);
+    border-radius: 11px;
+    padding: 16px 18px;
+    transition: background 0.15s;
+  }
+  .econ-kpi.hero {
+    background: var(--accent-tint);
+    border: 1px solid rgba(212, 160, 23, 0.30);
+  }
+  .econ-kpi .lbl {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .econ-kpi.hero .lbl { color: var(--accent-hover); }
+  .econ-kpi .val {
+    font-size: 26px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.025em;
+    line-height: 1.05;
+  }
+  .econ-kpi .val.good { color: var(--good); }
+  .econ-kpi .val.bad { color: var(--bad); }
+  .econ-kpi .val.warn { color: var(--warn); }
+  .econ-kpi.hero .val { color: var(--accent-hover); }
+  .econ-kpi .sub {
+    font-size: 11.5px;
+    color: var(--text-tertiary);
+    margin-top: 5px;
+    font-variant-numeric: tabular-nums;
+  }
+  .econ-row {
+    display: grid;
+    grid-template-columns: 200px 1fr 1fr;
+    gap: 18px;
+    align-items: center;
+    padding: 12px 0;
+    border-top: 1px solid var(--separator);
+  }
+  .econ-row > label {
+    font-size: 13.5px;
+    color: var(--text);
+    font-weight: 500;
+    margin: 0;
+  }
+  .econ-slider-wrap {
+    display: grid;
+    grid-template-columns: 1fr 70px auto;
+    gap: 10px;
+    align-items: center;
+  }
+  .econ-slider-wrap input[type="range"] {
+    -webkit-appearance: none; appearance: none;
+    background: transparent; width: 100%; height: 28px; padding: 0; margin: 0; border: none;
+    cursor: grab;
+  }
+  .econ-slider-wrap input[type="range"]:focus { outline: none; }
+  .econ-slider-wrap input[type="range"]::-webkit-slider-runnable-track {
+    height: 6px; border-radius: 999px;
+    background: linear-gradient(to right,
+      var(--accent) 0%, var(--accent) var(--pct, 0%),
+      var(--surface-input) var(--pct, 0%), var(--surface-input) 100%);
+  }
+  .econ-slider-wrap input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 22px; height: 22px;
+    background: #fff; border-radius: 50%; margin-top: -8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.4), 0 4px 12px rgba(0,0,0,0.15);
+    cursor: grab;
+  }
+  .econ-slider-wrap input[type="number"] {
+    text-align: right;
+    background: var(--surface-input);
+    border: 1px solid var(--border-input);
+    border-radius: 7px;
+    padding: 6px 9px;
+    color: var(--text);
+    font-size: 13px;
+    font-variant-numeric: tabular-nums;
+    font-family: inherit;
+  }
+  .econ-hint {
+    font-size: 12.5px;
+    color: var(--text-tertiary);
+    font-variant-numeric: tabular-nums;
+  }
+  .econ-channels-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 18px;
+  }
+  @media (max-width: 800px) { .econ-channels-grid { grid-template-columns: 1fr; } }
+  .econ-channel {
+    background: var(--surface-input);
+    border-radius: 11px;
+    padding: 16px 18px;
+  }
+  .econ-channel .title-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .econ-channel .title-row .name {
+    font-size: 14px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .econ-channel .title-row .swatch {
+    width: 10px; height: 10px; border-radius: 50%;
+  }
+  .econ-channel.linkedin .swatch { background: var(--linkedin); }
+  .econ-channel.email .swatch { background: var(--email); }
+  .econ-channel .stat-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 0;
+    font-size: 13px;
+    border-bottom: 1px solid var(--separator);
+  }
+  .econ-channel .stat-row:last-child { border-bottom: none; padding-top: 8px; font-weight: 600; }
+  .econ-channel .stat-row .lbl { color: var(--text-secondary); }
+  .econ-channel .stat-row .val { color: var(--text); font-variant-numeric: tabular-nums; font-weight: 500; }
+  .econ-channel .stat-row.cac .val { color: var(--accent-hover); font-weight: 600; }
+
+  /* ==============================
      Section + slider rows
      ============================== */
   .section { margin-bottom: 36px; }
@@ -502,6 +649,14 @@
     display: none;
   }
   .channel.open .channel-body { display: block; }
+  .ch-section-title {
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.10em;
+    font-weight: 600;
+    margin: 18px 4px 8px;
+  }
 
   .outputs {
     display: grid;
@@ -1069,6 +1224,27 @@
     <div class="funnel-stages" id="funnel-stages"></div>
   </div>
 
+  <!-- Unit economics -->
+  <div class="section">
+    <div class="section-head">
+      <span class="title">Unit economics</span>
+      <span class="summary" id="econ-summary">—</span>
+    </div>
+    <div class="econ-card">
+      <div class="econ-kpis" id="econ-kpis"></div>
+      <div class="econ-row">
+        <label>Contract length (months)</label>
+        <div class="econ-slider-wrap">
+          <input id="econ-contract-months" type="range" min="1" max="36" step="1" />
+          <input id="econ-contract-months-num" type="number" min="1" max="120" step="1" />
+          <span class="unit">mo</span>
+        </div>
+        <div class="econ-hint" id="econ-ltv-hint"></div>
+      </div>
+      <div class="econ-channels-grid" id="econ-channels"></div>
+    </div>
+  </div>
+
   <div class="section">
     <div class="section-head">
       <span class="title">Revenue per close</span>
@@ -1243,21 +1419,33 @@ function defaultPlan() {
         enabled: true, mix: 60, label: 'LinkedIn', open: true,
         connectsPerProfilePerDay: 30,
         acceptRate: 20, prr: 6.24, csr: 80, abr: 50,
+        // Costs
+        costPerProfile: 75,        // £/month per LinkedIn sender profile
+        costPerLead: 0,            // £ per connection sent (data/list cost)
+        softwareCost: 250,         // £/month additional software (Sales Nav, etc.)
       },
       email: {
         enabled: true, mix: 40, label: 'Email', open: true,
         sendsPerInboxPerDay: 30, inboxesPerDomain: 3,
         replyRate: 2, prr: 25, abr: 30,
+        // Costs
+        costPerInbox: 8,           // £/month per email inbox
+        costPerLead: 0.05,         // £ per send (data/enrichment per record)
+        softwareCost: 350,         // £/month additional software (Instantly, Clay, etc.)
       },
     },
     team: {
       jrCloserCount: 2,
       jrMinPerCall: 20,
       jrHoursPerDay: 6,
+      jrCommissionPerCall: 25,   // £ commission per qualified call 1
       srCloserCount: 1,
       srMinPerCall: 45,
       srHoursPerDay: 6,
+      srCommissionPerClose: 500, // £ commission per close
     },
+    // LTV inputs
+    contractMonths: 6,           // how long the contract / retention period runs
     notes: {
       // Per-funnel-stage notes
       bookings: '', shows1: '', book2: '', shows2: '', qshows2: '', offers: '', closes: '',
@@ -1335,6 +1523,7 @@ function loadState() {
       p.notes = { ...dp.notes, ...(p.notes || {}) };
       if (p.notionPageUrl === undefined) p.notionPageUrl = '';
       if (p.notionPageId === undefined) p.notionPageId = '';
+      if (p.contractMonths === undefined) p.contractMonths = dp.contractMonths;
     });
     if (!s.activeMonth || !s.months[s.activeMonth]) {
       s.activeMonth = Object.keys(s.months || {})[0] || currentMonthId();
@@ -1412,7 +1601,20 @@ function compute() {
     const connectionsPerWeek = connections / (p.workingDaysPerMonth / p.workingDaysPerWeek);
     const connectionsPerDay = connections / p.workingDaysPerMonth;
     const profilesNeeded = Math.ceil(connectionsPerDay / (li.connectsPerProfilePerDay || 30));
-    out.linkedin = { bk, calendlyClicks, positives, accepts, connections, connectionsPerWeek, connectionsPerDay, profilesNeeded };
+    // Costs
+    const profileCost = profilesNeeded * (li.costPerProfile || 0);
+    const leadCost = connections * (li.costPerLead || 0);
+    const softwareCost = li.softwareCost || 0;
+    const totalCost = profileCost + leadCost + softwareCost;
+    const closesAttributable = bk * bookingToClose;
+    const costPerBooking = bk > 0 ? totalCost / bk : 0;
+    const cac = closesAttributable > 0 ? totalCost / closesAttributable : 0;
+    const messagesPerBooking = bk > 0 ? connections / bk : 0;
+    out.linkedin = {
+      bk, calendlyClicks, positives, accepts, connections, connectionsPerWeek, connectionsPerDay, profilesNeeded,
+      profileCost, leadCost, softwareCost, totalCost,
+      closesAttributable, costPerBooking, cac, messagesPerBooking,
+    };
   }
   const em = p.channels.email;
   if (em.enabled) {
@@ -1425,7 +1627,20 @@ function compute() {
     const sendsPerDay = sends / p.workingDaysPerMonth;
     const inboxesNeeded = Math.ceil(sendsPerDay / (em.sendsPerInboxPerDay || 30));
     const domainsNeeded = Math.ceil(inboxesNeeded / (em.inboxesPerDomain || 3));
-    out.email = { bk, positives, replies, sends, sendsPerWeek, sendsPerDay, inboxesNeeded, domainsNeeded };
+    // Costs
+    const inboxCost = inboxesNeeded * (em.costPerInbox || 0);
+    const leadCost = sends * (em.costPerLead || 0);
+    const softwareCost = em.softwareCost || 0;
+    const totalCost = inboxCost + leadCost + softwareCost;
+    const closesAttributable = bk * bookingToClose;
+    const costPerBooking = bk > 0 ? totalCost / bk : 0;
+    const cac = closesAttributable > 0 ? totalCost / closesAttributable : 0;
+    const messagesPerBooking = bk > 0 ? sends / bk : 0;
+    out.email = {
+      bk, positives, replies, sends, sendsPerWeek, sendsPerDay, inboxesNeeded, domainsNeeded,
+      inboxCost, leadCost, softwareCost, totalCost,
+      closesAttributable, costPerBooking, cac, messagesPerBooking,
+    };
   }
 
   // Team capacity
@@ -1448,6 +1663,20 @@ function compute() {
   const jrClosersNeeded = jrCloserCapacityPerRep > 0 ? Math.ceil(shows1 / jrCloserCapacityPerRep) : 0;
   const srClosersNeeded = srCloserCapacityPerRep > 0 ? Math.ceil(shows2 / srCloserCapacityPerRep) : 0;
 
+  // Team commissions
+  const jrCommissionTotal = qual1 * (t.jrCommissionPerCall || 0);
+  const srCommissionTotal = closes * (t.srCommissionPerClose || 0);
+  const totalCommissions = jrCommissionTotal + srCommissionTotal;
+
+  // Unit economics
+  const ltv = (p.cashPerClose || 0) + (p.contractPerClose || 0) * (p.contractMonths || 1);
+  const totalMarketing = Object.values(out).reduce((s, o) => s + (o.totalCost || 0), 0);
+  const totalSalesAndMarketing = totalMarketing + totalCommissions;
+  const cacOverall = closes > 0 ? totalSalesAndMarketing / closes : 0;
+  const ltvCac = cacOverall > 0 ? ltv / cacOverall : 0;
+  const profitAfterSM = (p.revenueTarget || 0) - totalSalesAndMarketing;
+  const profitMarginAfterSM = p.revenueTarget > 0 ? (profitAfterSM / p.revenueTarget) * 100 : 0;
+
   return {
     revPerClose, closes, bookings, bookingToClose,
     bookingsPerWeek: bookings / (p.workingDaysPerMonth / p.workingDaysPerWeek),
@@ -1463,6 +1692,11 @@ function compute() {
       jrUtilization, srUtilization,
       jrShortfall, srShortfall,
       jrClosersNeeded, srClosersNeeded,
+      jrCommissionTotal, srCommissionTotal, totalCommissions,
+    },
+    economics: {
+      ltv, totalMarketing, totalCommissions, totalSalesAndMarketing,
+      cacOverall, ltvCac, profitAfterSM, profitMarginAfterSM,
     },
   };
 }
@@ -1476,6 +1710,7 @@ function render() {
   document.getElementById('rev-target').value = plan().revenueTarget;
   const c = compute();
   renderFunnelSnapshot(c);
+  renderEconomics(c);
   renderRevRows();
   renderSalesRows(c);
   renderMixRows(c);
@@ -1483,6 +1718,86 @@ function render() {
   renderTeamCapacity(c);
   renderPlanFields();
   renderSettings();
+}
+
+function renderEconomics(c) {
+  const p = plan();
+  const e = c.economics;
+  // KPI tiles
+  const ltvCacStatus = e.ltvCac >= 3 ? 'good' : e.ltvCac >= 2 ? 'warn' : 'bad';
+  const profitStatus = e.profitAfterSM > 0 ? 'good' : 'bad';
+  document.getElementById('econ-kpis').innerHTML = `
+    <div class="econ-kpi hero">
+      <div class="lbl">LTV per close</div>
+      <div class="val">${money(e.ltv)}</div>
+      <div class="sub">${money(p.cashPerClose)} cash + ${money(p.contractPerClose)} × ${p.contractMonths}mo contract</div>
+    </div>
+    <div class="econ-kpi">
+      <div class="lbl">CAC overall</div>
+      <div class="val">${money(e.cacOverall)}</div>
+      <div class="sub">${money(e.totalSalesAndMarketing)} ÷ ${num(ceil(c.closes))} closes</div>
+    </div>
+    <div class="econ-kpi">
+      <div class="lbl">LTV : CAC</div>
+      <div class="val ${ltvCacStatus}">${e.ltvCac > 0 ? e.ltvCac.toFixed(1) + 'x' : '—'}</div>
+      <div class="sub">${e.ltvCac >= 3 ? 'healthy' : e.ltvCac >= 2 ? 'borderline' : 'fix it'}</div>
+    </div>
+    <div class="econ-kpi">
+      <div class="lbl">Marketing spend</div>
+      <div class="val">${money(e.totalMarketing)}</div>
+      <div class="sub">+ ${money(e.totalCommissions)} commissions</div>
+    </div>
+    <div class="econ-kpi">
+      <div class="lbl">Profit after S+M</div>
+      <div class="val ${profitStatus}">${money(e.profitAfterSM)}</div>
+      <div class="sub">${pct(e.profitMarginAfterSM)} of revenue</div>
+    </div>
+  `;
+  // Contract slider
+  const slider = document.getElementById('econ-contract-months');
+  const numIn = document.getElementById('econ-contract-months-num');
+  slider.value = p.contractMonths;
+  numIn.value = p.contractMonths;
+  slider.style.setProperty('--pct', (p.contractMonths / 36 * 100).toFixed(1) + '%');
+  document.getElementById('econ-ltv-hint').innerHTML =
+    `→ <b>LTV = ${money(e.ltv)}</b> per close`;
+  // Per-channel breakdown
+  const channelsEl = document.getElementById('econ-channels');
+  const channels = [];
+  Object.keys(p.channels).forEach(k => {
+    if (!p.channels[k].enabled) return;
+    const out = c.channelOutputs[k];
+    if (!out) return;
+    channels.push({ k, out, ch: p.channels[k] });
+  });
+  channelsEl.innerHTML = channels.map(({ k, out, ch }) => `
+    <div class="econ-channel ${k}">
+      <div class="title-row">
+        <div class="name"><span class="swatch"></span>${ch.label}</div>
+        <div style="color:var(--text-tertiary);font-size:12px">${num(ceil(out.bk))} bookings · ${num(out.closesAttributable, 1)} closes</div>
+      </div>
+      <div class="stat-row"><span class="lbl">Total cost / mo</span><span class="val">${money(out.totalCost)}</span></div>
+      <div class="stat-row"><span class="lbl">Messages per booking</span><span class="val">${num(ceil(out.messagesPerBooking))}</span></div>
+      <div class="stat-row"><span class="lbl">Cost per booking</span><span class="val">${money(out.costPerBooking)}</span></div>
+      <div class="stat-row cac"><span class="lbl">CAC (cost per close)</span><span class="val">${money(out.cac)}</span></div>
+    </div>
+  `).join('');
+  document.getElementById('econ-summary').textContent =
+    `LTV ${money(e.ltv)} · CAC ${money(e.cacOverall)} · ${e.ltvCac > 0 ? e.ltvCac.toFixed(1) + 'x ratio' : 'no closes'}`;
+  // Wire contract-months pair
+  const applyContract = v => {
+    const n = parseInt(v, 10) || 1;
+    p.contractMonths = n;
+    slider.value = Math.min(n, 36);
+    numIn.value = n;
+    slider.style.setProperty('--pct', (Math.min(n, 36) / 36 * 100).toFixed(1) + '%');
+    saveState();
+    updateLiveOutputs();
+  };
+  slider.addEventListener('input', e2 => applyContract(e2.target.value));
+  numIn.addEventListener('input', e2 => applyContract(e2.target.value));
+  slider.addEventListener('change', () => render());
+  numIn.addEventListener('blur', () => render());
 }
 
 function renderPlanFields() {
@@ -1710,6 +2025,78 @@ function updateLiveOutputs() {
 
   // Team capacity tiles
   updateTeamCapacityLive(c);
+  // Channel cost output tiles (4th, 5th, 6th tiles in each channel's body)
+  channelKeys.forEach(k => {
+    const card = document.querySelector(`.channel[data-key="${k}"]`);
+    if (!card) return;
+    const out = c.channelOutputs[k];
+    if (!out) return;
+    const outs = card.querySelectorAll('.outputs .out');
+    if (outs.length >= 6) {
+      // Index 3: Total cost / mo
+      outs[3].querySelector('.val').textContent = money(out.totalCost);
+      if (k === 'linkedin') outs[3].querySelector('.sub').textContent = `${money(out.profileCost)} profiles + ${money(out.softwareCost)} sw`;
+      else outs[3].querySelector('.sub').textContent = `${money(out.inboxCost)} inboxes + ${money(out.softwareCost)} sw + ${money(out.leadCost)} leads`;
+      // Index 4: Cost per booking
+      outs[4].querySelector('.val').textContent = money(out.costPerBooking);
+      outs[4].querySelector('.sub').textContent = `${num(ceil(out.messagesPerBooking))} msgs / booking`;
+      // Index 5: CAC
+      outs[5].querySelector('.val').textContent = money(out.cac);
+      outs[5].querySelector('.sub').textContent = `${num(out.closesAttributable, 1)} closes attributable`;
+    }
+  });
+
+  // Unit economics KPI tiles
+  const econKpis = document.getElementById('econ-kpis');
+  if (econKpis) {
+    const e = c.economics;
+    const kpis = econKpis.querySelectorAll('.econ-kpi');
+    if (kpis.length >= 5) {
+      kpis[0].querySelector('.val').textContent = money(e.ltv);
+      kpis[0].querySelector('.sub').textContent = `${money(p.cashPerClose)} cash + ${money(p.contractPerClose)} × ${p.contractMonths}mo contract`;
+      kpis[1].querySelector('.val').textContent = money(e.cacOverall);
+      kpis[1].querySelector('.sub').textContent = `${money(e.totalSalesAndMarketing)} ÷ ${num(ceil(c.closes))} closes`;
+      const ratioEl = kpis[2].querySelector('.val');
+      ratioEl.textContent = e.ltvCac > 0 ? e.ltvCac.toFixed(1) + 'x' : '—';
+      ratioEl.classList.remove('good', 'warn', 'bad');
+      ratioEl.classList.add(e.ltvCac >= 3 ? 'good' : e.ltvCac >= 2 ? 'warn' : 'bad');
+      kpis[2].querySelector('.sub').textContent = e.ltvCac >= 3 ? 'healthy' : e.ltvCac >= 2 ? 'borderline' : 'fix it';
+      kpis[3].querySelector('.val').textContent = money(e.totalMarketing);
+      kpis[3].querySelector('.sub').textContent = `+ ${money(e.totalCommissions)} commissions`;
+      const profitEl = kpis[4].querySelector('.val');
+      profitEl.textContent = money(e.profitAfterSM);
+      profitEl.classList.remove('good', 'bad');
+      profitEl.classList.add(e.profitAfterSM > 0 ? 'good' : 'bad');
+      kpis[4].querySelector('.sub').textContent = `${pct(e.profitMarginAfterSM)} of revenue`;
+    }
+    setText('econ-summary', `LTV ${money(e.ltv)} · CAC ${money(e.cacOverall)} · ${e.ltvCac > 0 ? e.ltvCac.toFixed(1) + 'x ratio' : 'no closes'}`);
+    setText('econ-ltv-hint', '');
+    const hint = document.getElementById('econ-ltv-hint');
+    if (hint) hint.innerHTML = `→ <b>LTV = ${money(e.ltv)}</b> per close`;
+  }
+  // Per-channel economics summary cards (the small ones in econ-card)
+  const econChannelsEl = document.getElementById('econ-channels');
+  if (econChannelsEl) {
+    const cards = econChannelsEl.querySelectorAll('.econ-channel');
+    let idx = 0;
+    Object.keys(p.channels).forEach(k => {
+      if (!p.channels[k].enabled) return;
+      const out = c.channelOutputs[k];
+      const card = cards[idx++];
+      if (!card || !out) return;
+      const rows = card.querySelectorAll('.stat-row .val');
+      if (rows.length >= 4) {
+        rows[0].textContent = money(out.totalCost);
+        rows[1].textContent = num(ceil(out.messagesPerBooking));
+        rows[2].textContent = money(out.costPerBooking);
+        rows[3].textContent = money(out.cac);
+      }
+      const sub = card.querySelector('.title-row > div:last-child');
+      if (sub) sub.textContent = `${num(ceil(out.bk))} bookings · ${num(out.closesAttributable, 1)} closes`;
+    });
+  }
+  // Team capacity summary line with commission total
+  setText('cap-summary', `${num(ceil(c.shows1))} call 1s + ${num(ceil(c.shows2))} call 2s · ${money(c.team.totalCommissions)} commissions/mo`);
 }
 
 function setText(id, text) { const el = document.getElementById(id); if (el) el.textContent = text; }
@@ -1865,6 +2252,7 @@ function renderChannel(k, c) {
   const out = c.channelOutputs[k];
   const bookings = c.channelBookings[k];
   const wkDivisor = p.workingDaysPerMonth / p.workingDaysPerWeek;
+  const mDiv = p.workingDaysPerMonth;
   let summary = '', body = '';
   if (k === 'linkedin') {
     summary = out ? `${num(ceil(out.connections))} connects/mo · ${out.profilesNeeded} profile${out.profilesNeeded === 1 ? '' : 's'}` : 'disabled';
@@ -1875,21 +2263,36 @@ function renderChannel(k, c) {
         ['csr', 'Calendly schedule rate', '% of positives that click Calendly'],
         ['abr', 'Appointment book rate', '% of Calendly clicks that book'],
       ];
+      const costFields = [
+        ['costPerProfile', '£ per sender profile / mo', 'fixed subscription per profile', 0, 500, 5, '£/mo'],
+        ['costPerLead', '£ per connection (lead cost)', 'data/list cost per outbound connection', 0, 5, 0.05, '£'],
+        ['softwareCost', '£ additional software / mo', 'Sales Nav, Heyreach, etc.', 0, 2000, 25, '£/mo'],
+      ];
       body = `
         <div class="outputs">
-          <div class="out"><div class="lbl">Bookings target</div><div class="val">${num(ceil(bookings))}</div><div class="sub">${num(bookings / wkDivisor, 1)} /wk</div></div>
+          <div class="out"><div class="lbl">Bookings target</div><div class="val">${num(ceil(bookings))}</div><div class="sub">${num(bookings / wkDivisor, 1)} /wk · ${num(bookings / mDiv, 1)} /day</div></div>
           <div class="out hero"><div class="lbl">Connections / mo</div><div class="val">${num(ceil(out.connections))}</div><div class="sub">${num(ceil(out.connectionsPerWeek))} /wk · ${num(ceil(out.connectionsPerDay))} /day</div></div>
           <div class="out hero"><div class="lbl">Sender profiles</div><div class="val">${out.profilesNeeded}</div><div class="sub">${ch.connectsPerProfilePerDay}/day each</div></div>
-          <div class="out"><div class="lbl">Accepts</div><div class="val">${num(ceil(out.accepts))}</div></div>
-          <div class="out"><div class="lbl">Positive replies</div><div class="val">${num(ceil(out.positives))}</div></div>
-          <div class="out"><div class="lbl">Calendly clicks</div><div class="val">${num(ceil(out.calendlyClicks))}</div></div>
+          <div class="out"><div class="lbl">Total cost / mo</div><div class="val">${money(out.totalCost)}</div><div class="sub">${money(out.profileCost)} profiles + ${money(out.softwareCost)} sw</div></div>
+          <div class="out"><div class="lbl">Cost per booking</div><div class="val">${money(out.costPerBooking)}</div><div class="sub">${num(ceil(out.messagesPerBooking))} msgs / booking</div></div>
+          <div class="out"><div class="lbl">CAC (this channel)</div><div class="val">${money(out.cac)}</div><div class="sub">${num(out.closesAttributable, 1)} closes attributable</div></div>
         </div>
+        <div class="ch-section-title">Conversion rates</div>
         ${fields.map(([key, label, hint]) =>
           `<div class="row" data-field="${key}">
             <div class="lbl">${label}<span class="hint">${hint}</span></div>
             <div class="slider-wrap"><input type="range" min="0" max="100" step="0.1" value="${ch[key]}" /></div>
             <input type="number" min="0" max="100" step="0.1" value="${ch[key]}" />
             <span class="unit">%</span>
+          </div>`
+        ).join('')}
+        <div class="ch-section-title">Costs</div>
+        ${costFields.map(([key, label, hint, min, max, step, unit]) =>
+          `<div class="row" data-field="${key}">
+            <div class="lbl">${label}<span class="hint">${hint}</span></div>
+            <div class="slider-wrap"><input type="range" min="${min}" max="${max}" step="${step}" value="${ch[key]}" /></div>
+            <input type="number" min="${min}" max="${max * 5}" step="${step}" value="${ch[key]}" />
+            <span class="unit">${unit}</span>
           </div>`
         ).join('')}
       `;
@@ -1902,20 +2305,36 @@ function renderChannel(k, c) {
         ['prr', 'Positive reply rate', '% of replies that are positive'],
         ['abr', 'Appointment book rate', '% of positives that book'],
       ];
+      const costFields = [
+        ['costPerInbox', '£ per inbox / mo', 'fixed subscription per inbox', 0, 30, 0.50, '£/mo'],
+        ['costPerLead', '£ per send (lead/data cost)', 'data enrichment cost per record sent', 0, 1, 0.01, '£'],
+        ['softwareCost', '£ additional software / mo', 'Instantly, Clay, etc.', 0, 2000, 25, '£/mo'],
+      ];
       body = `
         <div class="outputs">
-          <div class="out"><div class="lbl">Bookings target</div><div class="val">${num(ceil(bookings))}</div><div class="sub">${num(bookings / wkDivisor, 1)} /wk</div></div>
+          <div class="out"><div class="lbl">Bookings target</div><div class="val">${num(ceil(bookings))}</div><div class="sub">${num(bookings / wkDivisor, 1)} /wk · ${num(bookings / mDiv, 1)} /day</div></div>
           <div class="out hero"><div class="lbl">Sends / mo</div><div class="val">${num(ceil(out.sends))}</div><div class="sub">${num(ceil(out.sendsPerWeek))} /wk · ${num(ceil(out.sendsPerDay))} /day</div></div>
           <div class="out hero"><div class="lbl">Inboxes / Domains</div><div class="val">${out.inboxesNeeded} / ${out.domainsNeeded}</div><div class="sub">${ch.sendsPerInboxPerDay}/inbox · ${ch.inboxesPerDomain} inboxes/domain</div></div>
-          <div class="out"><div class="lbl">Replies</div><div class="val">${num(ceil(out.replies))}</div></div>
-          <div class="out"><div class="lbl">Positive replies</div><div class="val">${num(ceil(out.positives))}</div></div>
+          <div class="out"><div class="lbl">Total cost / mo</div><div class="val">${money(out.totalCost)}</div><div class="sub">${money(out.inboxCost)} inboxes + ${money(out.softwareCost)} sw + ${money(out.leadCost)} leads</div></div>
+          <div class="out"><div class="lbl">Cost per booking</div><div class="val">${money(out.costPerBooking)}</div><div class="sub">${num(ceil(out.messagesPerBooking))} msgs / booking</div></div>
+          <div class="out"><div class="lbl">CAC (this channel)</div><div class="val">${money(out.cac)}</div><div class="sub">${num(out.closesAttributable, 1)} closes attributable</div></div>
         </div>
+        <div class="ch-section-title">Conversion rates</div>
         ${fields.map(([key, label, hint]) =>
           `<div class="row" data-field="${key}">
             <div class="lbl">${label}<span class="hint">${hint}</span></div>
             <div class="slider-wrap"><input type="range" min="0" max="100" step="0.1" value="${ch[key]}" /></div>
             <input type="number" min="0" max="100" step="0.1" value="${ch[key]}" />
             <span class="unit">%</span>
+          </div>`
+        ).join('')}
+        <div class="ch-section-title">Costs</div>
+        ${costFields.map(([key, label, hint, min, max, step, unit]) =>
+          `<div class="row" data-field="${key}">
+            <div class="lbl">${label}<span class="hint">${hint}</span></div>
+            <div class="slider-wrap"><input type="range" min="${min}" max="${max}" step="${step}" value="${ch[key]}" /></div>
+            <input type="number" min="${min}" max="${max * 5}" step="${step}" value="${ch[key]}" />
+            <span class="unit">${unit}</span>
           </div>`
         ).join('')}
       `;
@@ -1986,9 +2405,11 @@ function renderTeamCapacity(c) {
     ['jrCloserCount', 'Junior closers (count)', 'people who run call 1', 1, 0, 20, 1, ''],
     ['jrMinPerCall', 'Call 1 length', 'minutes per call 1', 1, 5, 60, 5, 'min'],
     ['jrHoursPerDay', 'Junior productive hrs / day', 'hours each junior actually spends on calls per workday', 0.5, 0, 12, 0.5, 'hrs'],
+    ['jrCommissionPerCall', 'Junior commission per qualified', '£ paid to junior for each qualified call 1', 5, 0, 200, 5, '£'],
     ['srCloserCount', 'Senior closers (count)', 'people who run call 2', 1, 0, 20, 1, ''],
     ['srMinPerCall', 'Call 2 length', 'minutes per call 2', 1, 15, 120, 5, 'min'],
     ['srHoursPerDay', 'Senior productive hrs / day', 'hours each senior actually spends on calls per workday', 0.5, 0, 12, 0.5, 'hrs'],
+    ['srCommissionPerClose', 'Closer commission per close', '£ paid to senior per close', 25, 0, 5000, 25, '£'],
   ];
   const host = document.getElementById('cap-rows');
   host.innerHTML = rows.map(r =>
@@ -2002,7 +2423,7 @@ function renderTeamCapacity(c) {
   host.insertAdjacentHTML('afterend', inlineNoteHtml('team', 'Note for team capacity'));
   wireInlineNotes(host.parentElement);
   document.getElementById('cap-summary').textContent =
-    `${num(ceil(c.shows1))} call 1s + ${num(ceil(c.shows2))} call 2s needed this month`;
+    `${num(ceil(c.shows1))} call 1s + ${num(ceil(c.shows2))} call 2s · ${money(cap.totalCommissions)} commissions/mo`;
 }
 
 // ============================================================

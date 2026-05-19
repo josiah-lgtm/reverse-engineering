@@ -707,6 +707,47 @@
   }
   .row .unit { color: var(--text-tertiary); font-size: 13px; }
 
+  /* Inline note under any slider row */
+  .row .row-note-wrap {
+    grid-column: 1 / -1;
+    display: none;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--separator);
+  }
+  body.notes-on .row .row-note-wrap { display: block; }
+  body.notes-on .row.has-row-note .row-note-wrap { display: block; }
+  .row .row-note {
+    width: 100%;
+    background: var(--surface-input);
+    border: 1px solid var(--border-input);
+    border-radius: 7px;
+    color: var(--text);
+    font-size: 13px;
+    padding: 8px 11px;
+    font-family: inherit;
+    line-height: 1.5;
+    resize: vertical;
+    min-height: 38px;
+  }
+  .row .row-note:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-tint);
+  }
+  .row .row-note-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--text-quaternary);
+    margin-left: 8px;
+    vertical-align: middle;
+    transition: background 0.15s;
+  }
+  .row.has-row-note .row-note-dot { background: var(--accent); }
+  body.notes-on .row.has-row-note { background: linear-gradient(to right, var(--accent-tint), var(--surface)); }
+
   /* ==============================
      Channel cards
      ============================== */
@@ -2145,14 +2186,44 @@ function wireInlineNotes(host) {
 }
 
 function makeRow(opts) {
-  return `<div class="row" data-key="${opts.key || ''}">
-    <div class="lbl">${opts.label}${opts.hint ? `<span class="hint">${opts.hint}</span>` : ''}</div>
+  const note = opts.noteKey ? ((plan().notes[opts.noteKey] || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')) : '';
+  const hasNote = note.trim().length > 0;
+  return `<div class="row ${hasNote ? 'has-row-note' : ''}" data-key="${opts.key || ''}" data-note-key="${opts.noteKey || ''}">
+    <div class="lbl">${opts.label}${opts.hint ? `<span class="hint">${opts.hint}</span>` : ''}${opts.noteKey ? '<span class="row-note-dot" title="Has note"></span>' : ''}</div>
     <div class="slider-wrap">
       <input type="range" min="${opts.min}" max="${opts.max}" step="${opts.step}" value="${opts.value}" />
     </div>
     <input type="number" min="${opts.min}" max="${opts.max * 5}" step="${opts.step}" value="${opts.value}" />
     <span class="unit">${opts.unit || ''}</span>
+    ${opts.noteKey ? `<div class="row-note-wrap"><textarea class="row-note" placeholder="note for ${opts.label}…" data-row-note="${opts.noteKey}">${note}</textarea></div>` : ''}
   </div>`;
+}
+
+// Channel rows need an extra data-field attribute on top of makeRow.
+// Inline note input attached via the standard noteKey machinery.
+function makeRowInChannel(channelKey, fieldKey, label, hint, value, min, max, step, unit) {
+  const noteKey = `${channelKey}_${fieldKey}`;
+  const note = (plan().notes[noteKey] || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const hasNote = note.trim().length > 0;
+  return `<div class="row ${hasNote ? 'has-row-note' : ''}" data-field="${fieldKey}" data-note-key="${noteKey}">
+    <div class="lbl">${label}<span class="hint">${hint}</span><span class="row-note-dot" title="Has note"></span></div>
+    <div class="slider-wrap"><input type="range" min="${min}" max="${max}" step="${step}" value="${value}" /></div>
+    <input type="number" min="${min}" max="${max * 5}" step="${step}" value="${value}" />
+    <span class="unit">${unit}</span>
+    <div class="row-note-wrap"><textarea class="row-note" data-row-note="${noteKey}" placeholder="note for ${label}…">${note}</textarea></div>
+  </div>`;
+}
+
+function wireRowNote(rowEl) {
+  const ta = rowEl.querySelector('textarea.row-note');
+  if (!ta) return;
+  ta.addEventListener('input', e => {
+    const key = e.target.dataset.rowNote;
+    plan().notes[key] = e.target.value;
+    saveState();
+    rowEl.classList.toggle('has-row-note', e.target.value.trim().length > 0);
+  });
+  ta.addEventListener('click', e => e.stopPropagation());
 }
 
 // Slider/number pair. Drag = live cheap updates (text only, no DOM rebuild).
@@ -2394,15 +2465,16 @@ function renderRevRows() {
   const p = plan();
   const host = document.getElementById('rev-rows');
   host.innerHTML =
-    makeRow({ label: 'Cash collected', hint: 'per close — upfront cash', value: p.cashPerClose, min: 0, max: 10000, step: 50, unit: currencySymbol() }) +
-    makeRow({ label: 'Contracted revenue', hint: 'per close — total recurring/contract value', value: p.contractPerClose, min: 0, max: 20000, step: 100, unit: currencySymbol() }) +
-    makeRow({ label: 'Working days / month', value: p.workingDaysPerMonth, min: 1, max: 31, step: 1, unit: '' }) +
-    makeRow({ label: 'Working days / week', value: p.workingDaysPerWeek, min: 1, max: 7, step: 1, unit: '' });
+    makeRow({ noteKey: 'rev_cashPerClose', label: 'Cash collected', hint: 'per close — upfront cash', value: p.cashPerClose, min: 0, max: 10000, step: 50, unit: currencySymbol() }) +
+    makeRow({ noteKey: 'rev_contractPerClose', label: 'Contracted revenue', hint: 'per close — total recurring/contract value', value: p.contractPerClose, min: 0, max: 20000, step: 100, unit: currencySymbol() }) +
+    makeRow({ noteKey: 'rev_workingDaysMonth', label: 'Working days / month', value: p.workingDaysPerMonth, min: 1, max: 31, step: 1, unit: '' }) +
+    makeRow({ noteKey: 'rev_workingDaysWeek', label: 'Working days / week', value: p.workingDaysPerWeek, min: 1, max: 7, step: 1, unit: '' });
   const rows = host.querySelectorAll('.row');
   wireRow(rows[0], () => p.cashPerClose, v => p.cashPerClose = v, render);
   wireRow(rows[1], () => p.contractPerClose, v => p.contractPerClose = v, render);
   wireRow(rows[2], () => p.workingDaysPerMonth, v => p.workingDaysPerMonth = v, render);
   wireRow(rows[3], () => p.workingDaysPerWeek, v => p.workingDaysPerWeek = v, render);
+  rows.forEach(wireRowNote);
   const c = compute();
   document.getElementById('rev-per-close-summary').textContent =
     `${money(c.revPerClose)} per close · ${num(Math.ceil(c.closes))} closes/mo`;
@@ -2422,10 +2494,11 @@ function renderSalesRows(c) {
   ];
   const host = document.getElementById('sales-rows');
   host.innerHTML = fields.map(([k, label, hint]) =>
-    makeRow({ label, hint, value: p.sales[k], min: 0, max: 100, step: 1, unit: '%' })
+    makeRow({ noteKey: 'sales_' + k, label, hint, value: p.sales[k], min: 0, max: 100, step: 1, unit: '%' })
   ).join('');
   const rows = host.querySelectorAll('.row');
   fields.forEach(([k], i) => wireRow(rows[i], () => p.sales[k], v => p.sales[k] = v, render));
+  rows.forEach(wireRowNote);
   document.getElementById('sales-summary').textContent =
     `${pct(c.bookingToClose * 100)} booking→close · ${num(Math.ceil(c.bookings))} bookings/mo`;
 }
@@ -2492,6 +2565,7 @@ function renderChannels(c) {
     el.querySelectorAll('.row').forEach(rowEl => {
       const key = rowEl.dataset.field;
       wireRow(rowEl, () => p.channels[k][key], v => p.channels[k][key] = v, render);
+      wireRowNote(rowEl);
     });
   });
   wireInlineNotes(host);
@@ -2531,21 +2605,11 @@ function renderChannel(k, c) {
         </div>
         <div class="ch-section-title">Conversion rates</div>
         ${fields.map(([key, label, hint]) =>
-          `<div class="row" data-field="${key}">
-            <div class="lbl">${label}<span class="hint">${hint}</span></div>
-            <div class="slider-wrap"><input type="range" min="0" max="100" step="0.1" value="${ch[key]}" /></div>
-            <input type="number" min="0" max="100" step="0.1" value="${ch[key]}" />
-            <span class="unit">%</span>
-          </div>`
+          makeRowInChannel(k, key, label, hint, ch[key], 0, 100, 0.1, '%')
         ).join('')}
         <div class="ch-section-title">Costs</div>
         ${costFields.map(([key, label, hint, min, max, step, unit]) =>
-          `<div class="row" data-field="${key}">
-            <div class="lbl">${label}<span class="hint">${hint}</span></div>
-            <div class="slider-wrap"><input type="range" min="${min}" max="${max}" step="${step}" value="${ch[key]}" /></div>
-            <input type="number" min="${min}" max="${max * 5}" step="${step}" value="${ch[key]}" />
-            <span class="unit">${unit}</span>
-          </div>`
+          makeRowInChannel(k, key, label, hint, ch[key], min, max, step, unit)
         ).join('')}
       `;
     }
@@ -2575,21 +2639,11 @@ function renderChannel(k, c) {
         </div>
         <div class="ch-section-title">Conversion rates</div>
         ${fields.map(([key, label, hint]) =>
-          `<div class="row" data-field="${key}">
-            <div class="lbl">${label}<span class="hint">${hint}</span></div>
-            <div class="slider-wrap"><input type="range" min="0" max="100" step="0.1" value="${ch[key]}" /></div>
-            <input type="number" min="0" max="100" step="0.1" value="${ch[key]}" />
-            <span class="unit">%</span>
-          </div>`
+          makeRowInChannel(k, key, label, hint, ch[key], 0, 100, 0.1, '%')
         ).join('')}
         <div class="ch-section-title">Costs</div>
         ${costFields.map(([key, label, hint, min, max, step, unit]) =>
-          `<div class="row" data-field="${key}">
-            <div class="lbl">${label}<span class="hint">${hint}</span></div>
-            <div class="slider-wrap"><input type="range" min="${min}" max="${max}" step="${step}" value="${ch[key]}" /></div>
-            <input type="number" min="${min}" max="${max * 5}" step="${step}" value="${ch[key]}" />
-            <span class="unit">${unit}</span>
-          </div>`
+          makeRowInChannel(k, key, label, hint, ch[key], min, max, step, unit)
         ).join('')}
       `;
     }
@@ -2666,11 +2720,12 @@ function renderTeamCapacity(c) {
   ];
   const host = document.getElementById('cap-rows');
   host.innerHTML = rows.map(r =>
-    makeRow({ label: r[1], hint: r[2], value: t[r[0]], min: r[4], max: r[5], step: r[6], unit: r[7] })
+    makeRow({ noteKey: 'team_' + r[0], label: r[1], hint: r[2], value: t[r[0]], min: r[4], max: r[5], step: r[6], unit: r[7] })
   ).join('');
   host.querySelectorAll('.row').forEach((rowEl, i) => {
     const key = rows[i][0];
     wireRow(rowEl, () => t[key], v => t[key] = v, render);
+    wireRowNote(rowEl);
   });
   // Inline note under the team capacity section
   host.insertAdjacentHTML('afterend', inlineNoteHtml('team', 'Note for team capacity'));
@@ -2963,11 +3018,13 @@ document.getElementById('plan-publish-btn').addEventListener('click', async () =
   }
 });
 
-// Notes toggle
+// Notes toggle — flips both the funnel notes AND the global body class
+// so every dial row's inline note input is revealed too.
 document.getElementById('notes-toggle').addEventListener('click', () => {
   notesShown = !notesShown;
   document.getElementById('notes-toggle').classList.toggle('on', notesShown);
   document.getElementById('funnel-stages').classList.toggle('notes-on', notesShown);
+  document.body.classList.toggle('notes-on', notesShown);
 });
 
 // ============================================================

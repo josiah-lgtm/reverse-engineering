@@ -594,6 +594,11 @@
   .econ-channel .stat-row .lbl { color: var(--text-secondary); }
   .econ-channel .stat-row .val { color: var(--text); font-variant-numeric: tabular-nums; font-weight: 500; }
   .econ-channel .stat-row.cac .val { color: var(--accent-hover); font-weight: 600; }
+  .econ-channel .stat-row.ltvcac { padding-top: 8px; }
+  .econ-channel .stat-row.ltvcac .val { font-weight: 700; font-size: 14.5px; }
+  .econ-channel .stat-row.ltvcac.good .val { color: var(--good); }
+  .econ-channel .stat-row.ltvcac.warn .val { color: var(--warn); }
+  .econ-channel .stat-row.ltvcac.bad .val { color: var(--bad); }
 
   /* ==============================
      Section + slider rows
@@ -1574,11 +1579,11 @@ function defaultPlan() {
       jrCloserCount: 2,
       jrMinPerCall: 20,
       jrHoursPerDay: 6,
-      jrCommissionPerCall: 25,   // £ commission per qualified call 1
+      jrCommissionPerQshow: 50,  // £ per qualified call-2 show that lands on closer's calendar
       srCloserCount: 1,
       srMinPerCall: 45,
       srHoursPerDay: 6,
-      srCommissionPerClose: 500, // £ commission per close
+      srCommissionPct: 10,       // % of cash collected per close (commission)
     },
     // LTV inputs
     contractMonths: 6,           // how long the contract / retention period runs
@@ -1670,6 +1675,21 @@ function loadState() {
         const cashShare = total > 0 ? (p.cashPerClose || 0) / total : 0.5;
         p.cashCollectedTarget = Math.round((p.revenueTarget || 0) * cashShare);
       }
+      // Migrate team commission fields: jrCommissionPerCall → jrCommissionPerQshow,
+      // srCommissionPerClose (flat £) → srCommissionPct (% of cash)
+      if (p.team) {
+        if (p.team.jrCommissionPerQshow === undefined) {
+          p.team.jrCommissionPerQshow = p.team.jrCommissionPerCall || 50;
+          delete p.team.jrCommissionPerCall;
+        }
+        if (p.team.srCommissionPct === undefined) {
+          // Try to derive a % from old flat amount: pct ≈ oldFlat / cashPerClose × 100
+          const cash = p.cashPerClose || 1;
+          const derived = ((p.team.srCommissionPerClose || 0) / cash) * 100;
+          p.team.srCommissionPct = derived > 0 && derived <= 30 ? Math.round(derived) : 10;
+          delete p.team.srCommissionPerClose;
+        }
+      }
     });
     if (!s.activeMonth || !s.months[s.activeMonth]) {
       s.activeMonth = Object.keys(s.months || {})[0] || currentMonthId();
@@ -1713,7 +1733,14 @@ function compute() {
   const p = plan();
   const r = p.sales;
   const revPerClose = (p.cashPerClose || 0) + (p.contractPerClose || 0);
-  const closes = revPerClose > 0 ? p.revenueTarget / revPerClose : 0;
+  // Closes needed = whichever target is the BINDING constraint (the bigger
+  // implied closes count). If both targets are set, the user has to hit both,
+  // so use the max. If only one is set, that one drives.
+  const closesFromCash = (p.cashCollectedTarget > 0 && p.cashPerClose > 0) ? p.cashCollectedTarget / p.cashPerClose : 0;
+  const closesFromRev  = (p.revenueTarget > 0 && revPerClose > 0) ? p.revenueTarget / revPerClose : 0;
+  const closes = Math.max(closesFromCash, closesFromRev);
+  // Which target is binding? (used by the variance pill)
+  const bindingTarget = closesFromCash > closesFromRev ? 'cash' : 'revenue';
   // Backward chain from closes:
   const offers = r.closeRate > 0 ? closes / (r.closeRate / 100) : 0;
   const qshows2 = r.offerRate > 0 ? offers / (r.offerRate / 100) : 0;
@@ -1760,6 +1787,7 @@ function compute() {
       bk, calendlyClicks, positives, accepts, connections, connectionsPerWeek, connectionsPerDay, profilesNeeded,
       profileCost, leadCost, softwareCost, totalCost,
       closesAttributable, costPerBooking, cac, messagesPerBooking,
+      // ltvCac computed below after ltv is known (placeholder)
     };
   }
   const em = p.channels.email;
@@ -1812,12 +1840,16 @@ function compute() {
   const srClosersNeeded = srCloserCapacityPerRep > 0 ? Math.ceil(srBookingsNeeded / srCloserCapacityPerRep) : 0;
 
   // Team commissions
-  const jrCommissionTotal = qual1 * (t.jrCommissionPerCall || 0);
-  const srCommissionTotal = closes * (t.srCommissionPerClose || 0);
+  // Junior gets paid per qualified call-2 show landing on the closer's calendar.
+  const jrCommissionTotal = qshows2 * (t.jrCommissionPerQshow || 0);
+  // Senior gets paid % of cash collected per close.
+  const srCommissionTotal = closes * (p.cashPerClose || 0) * ((t.srCommissionPct || 0) / 100);
   const totalCommissions = jrCommissionTotal + srCommissionTotal;
 
   // Unit economics
   const ltv = (p.cashPerClose || 0) + (p.contractPerClose || 0) * (p.contractMonths || 1);
+  // Per-channel LTV:CAC (now that ltv is known)
+  Object.values(out).forEach(o => { o.ltvCac = o.cac > 0 ? ltv / o.cac : 0; });
   const totalMarketing = Object.values(out).reduce((s, o) => s + (o.totalCost || 0), 0);
   const totalSalesAndMarketing = totalMarketing + totalCommissions;
   const cacOverall = closes > 0 ? totalSalesAndMarketing / closes : 0;
@@ -1831,6 +1863,7 @@ function compute() {
 
   return {
     revPerClose, closes, bookings, bookingToClose,
+    closesFromCash, closesFromRev, bindingTarget,
     cashCollectedMo, contractedRevenueMo,
     bookingsPerWeek: bookings / (p.workingDaysPerMonth / p.workingDaysPerWeek),
     bookingsPerDay: bookings / p.workingDaysPerMonth,
@@ -1901,12 +1934,22 @@ function renderEconomics(c) {
       <div class="sub">${e.ltvCac >= 3 ? 'healthy' : e.ltvCac >= 2 ? 'borderline' : 'fix it'}</div>
     </div>
     <div class="econ-kpi">
-      <div class="lbl">Marketing spend</div>
+      <div class="lbl">Marketing spend / mo</div>
       <div class="val">${money(e.totalMarketing)}</div>
-      <div class="sub">+ ${money(e.totalCommissions)} commissions</div>
+      <div class="sub">channel infra + leads + sw</div>
     </div>
     <div class="econ-kpi">
-      <div class="lbl">Profit after S+M</div>
+      <div class="lbl">Commission spend / mo</div>
+      <div class="val">${money(e.totalCommissions)}</div>
+      <div class="sub">${money(c.team.jrCommissionTotal)} jr + ${money(c.team.srCommissionTotal)} sr</div>
+    </div>
+    <div class="econ-kpi">
+      <div class="lbl">Total S+M spend</div>
+      <div class="val">${money(e.totalSalesAndMarketing)}</div>
+      <div class="sub">marketing + commissions</div>
+    </div>
+    <div class="econ-kpi">
+      <div class="lbl">Profit on M+S</div>
       <div class="val ${profitStatus}">${money(e.profitAfterSM)}</div>
       <div class="sub">${pct(e.profitMarginAfterSM)} of revenue</div>
     </div>
@@ -1928,8 +1971,9 @@ function renderEconomics(c) {
     if (!out) return;
     channels.push({ k, out, ch: p.channels[k] });
   });
-  channelsEl.innerHTML = channels.map(({ k, out, ch }) => `
-    <div class="econ-channel ${k}">
+  channelsEl.innerHTML = channels.map(({ k, out, ch }) => {
+    const lcStatus = out.ltvCac >= 3 ? 'good' : out.ltvCac >= 2 ? 'warn' : 'bad';
+    return `<div class="econ-channel ${k}">
       <div class="title-row">
         <div class="name"><span class="swatch"></span>${ch.label}</div>
         <div style="color:var(--text-tertiary);font-size:12px">${num(ceil(out.bk))} bookings · ${num(out.closesAttributable, 1)} closes</div>
@@ -1938,8 +1982,9 @@ function renderEconomics(c) {
       <div class="stat-row"><span class="lbl">Messages per booking</span><span class="val">${num(ceil(out.messagesPerBooking))}</span></div>
       <div class="stat-row"><span class="lbl">Cost per booking</span><span class="val">${money(out.costPerBooking)}</span></div>
       <div class="stat-row cac"><span class="lbl">CAC (cost per close)</span><span class="val">${money(out.cac)}</span></div>
-    </div>
-  `).join('');
+      <div class="stat-row ltvcac ${lcStatus}"><span class="lbl">LTV : CAC</span><span class="val">${out.ltvCac > 0 ? out.ltvCac.toFixed(1) + 'x' : '—'}</span></div>
+    </div>`;
+  }).join('');
   document.getElementById('econ-summary').textContent =
     `LTV ${money(e.ltv)} · CAC ${money(e.cacOverall)} · ${e.ltvCac > 0 ? e.ltvCac.toFixed(1) + 'x ratio' : 'no closes'}`;
   // Wire contract-months pair
@@ -2249,7 +2294,7 @@ function updateLiveOutputs() {
   if (econKpis) {
     const e = c.economics;
     const kpis = econKpis.querySelectorAll('.econ-kpi');
-    if (kpis.length >= 5) {
+    if (kpis.length >= 7) {
       kpis[0].querySelector('.val').textContent = money(e.ltv);
       kpis[0].querySelector('.sub').textContent = `${money(p.cashPerClose)} cash + ${money(p.contractPerClose)} × ${p.contractMonths}mo contract`;
       kpis[1].querySelector('.val').textContent = money(e.cacOverall);
@@ -2260,12 +2305,14 @@ function updateLiveOutputs() {
       ratioEl.classList.add(e.ltvCac >= 3 ? 'good' : e.ltvCac >= 2 ? 'warn' : 'bad');
       kpis[2].querySelector('.sub').textContent = e.ltvCac >= 3 ? 'healthy' : e.ltvCac >= 2 ? 'borderline' : 'fix it';
       kpis[3].querySelector('.val').textContent = money(e.totalMarketing);
-      kpis[3].querySelector('.sub').textContent = `+ ${money(e.totalCommissions)} commissions`;
-      const profitEl = kpis[4].querySelector('.val');
+      kpis[4].querySelector('.val').textContent = money(e.totalCommissions);
+      kpis[4].querySelector('.sub').textContent = `${money(c.team.jrCommissionTotal)} jr + ${money(c.team.srCommissionTotal)} sr`;
+      kpis[5].querySelector('.val').textContent = money(e.totalSalesAndMarketing);
+      const profitEl = kpis[6].querySelector('.val');
       profitEl.textContent = money(e.profitAfterSM);
       profitEl.classList.remove('good', 'bad');
       profitEl.classList.add(e.profitAfterSM > 0 ? 'good' : 'bad');
-      kpis[4].querySelector('.sub').textContent = `${pct(e.profitMarginAfterSM)} of revenue`;
+      kpis[6].querySelector('.sub').textContent = `${pct(e.profitMarginAfterSM)} of revenue`;
     }
     setText('econ-summary', `LTV ${money(e.ltv)} · CAC ${money(e.cacOverall)} · ${e.ltvCac > 0 ? e.ltvCac.toFixed(1) + 'x ratio' : 'no closes'}`);
     setText('econ-ltv-hint', '');
@@ -2283,11 +2330,17 @@ function updateLiveOutputs() {
       const card = cards[idx++];
       if (!card || !out) return;
       const rows = card.querySelectorAll('.stat-row .val');
-      if (rows.length >= 4) {
+      if (rows.length >= 5) {
         rows[0].textContent = money(out.totalCost);
         rows[1].textContent = num(ceil(out.messagesPerBooking));
         rows[2].textContent = money(out.costPerBooking);
         rows[3].textContent = money(out.cac);
+        rows[4].textContent = out.ltvCac > 0 ? out.ltvCac.toFixed(1) + 'x' : '—';
+        const ltvcacRow = card.querySelector('.stat-row.ltvcac');
+        if (ltvcacRow) {
+          ltvcacRow.classList.remove('good', 'warn', 'bad');
+          ltvcacRow.classList.add(out.ltvCac >= 3 ? 'good' : out.ltvCac >= 2 ? 'warn' : 'bad');
+        }
       }
       const sub = card.querySelector('.title-row > div:last-child');
       if (sub) sub.textContent = `${num(ceil(out.bk))} bookings · ${num(out.closesAttributable, 1)} closes`;
@@ -2462,9 +2515,10 @@ function renderChannel(k, c) {
         ['abr', 'Appointment book rate', '% of Calendly clicks that book'],
       ];
       const costFields = [
-        ['costPerProfile', '£ per sender profile / mo', 'fixed subscription per profile', 0, 500, 5, '£/mo'],
-        ['costPerLead', '£ per connection (lead cost)', 'data/list cost per outbound connection', 0, 5, 0.05, '£'],
-        ['softwareCost', '£ additional software / mo', 'Sales Nav, Heyreach, etc.', 0, 2000, 25, '£/mo'],
+        ['connectsPerProfilePerDay', 'Connects / profile / day', 'daily connection request volume each profile can safely send', 1, 60, 1, '/day'],
+        ['costPerProfile', '£ per sender profile / mo', 'fixed subscription per profile', 0, 500, 5, currencySymbol() + '/mo'],
+        ['costPerLead', '£ per connection (lead cost)', 'data/list cost per outbound connection', 0, 5, 0.05, currencySymbol()],
+        ['softwareCost', '£ additional software / mo', 'Sales Nav, Heyreach, etc.', 0, 2000, 25, currencySymbol() + '/mo'],
       ];
       body = `
         <div class="outputs">
@@ -2504,9 +2558,11 @@ function renderChannel(k, c) {
         ['abr', 'Appointment book rate', '% of positives that book'],
       ];
       const costFields = [
-        ['costPerInbox', '£ per inbox / mo', 'fixed subscription per inbox', 0, 30, 0.50, '£/mo'],
-        ['costPerLead', '£ per send (lead/data cost)', 'data enrichment cost per record sent', 0, 1, 0.01, '£'],
-        ['softwareCost', '£ additional software / mo', 'Instantly, Clay, etc.', 0, 2000, 25, '£/mo'],
+        ['sendsPerInboxPerDay', 'Sends / inbox / day', 'daily sending volume each inbox can safely do (warm-up + deliverability)', 1, 100, 1, '/day'],
+        ['inboxesPerDomain', 'Inboxes / domain', 'how many sending inboxes you set up per email domain', 1, 10, 1, ''],
+        ['costPerInbox', '£ per inbox / mo', 'fixed subscription per inbox', 0, 30, 0.50, currencySymbol() + '/mo'],
+        ['costPerLead', '£ per send (lead/data cost)', 'data enrichment cost per record sent', 0, 1, 0.01, currencySymbol()],
+        ['softwareCost', '£ additional software / mo', 'Instantly, Clay, etc.', 0, 2000, 25, currencySymbol() + '/mo'],
       ];
       body = `
         <div class="outputs">
@@ -2602,11 +2658,11 @@ function renderTeamCapacity(c) {
     ['jrCloserCount', 'Junior closers (count)', 'people who run call 1', 1, 0, 20, 1, ''],
     ['jrMinPerCall', 'Call 1 length', 'minutes per call 1', 1, 5, 60, 5, 'min'],
     ['jrHoursPerDay', 'Junior productive hrs / day', 'hours each junior actually spends on calls per workday', 0.5, 0, 12, 0.5, 'hrs'],
-    ['jrCommissionPerCall', 'Junior commission per qualified', '£ paid to junior for each qualified call 1', 5, 0, 200, 5, '£'],
+    ['jrCommissionPerQshow', 'Junior commission per qualified show', '£ paid to junior per qualified call-2 show on closer calendar', 5, 0, 500, 5, currencySymbol()],
     ['srCloserCount', 'Senior closers (count)', 'people who run call 2', 1, 0, 20, 1, ''],
     ['srMinPerCall', 'Call 2 length', 'minutes per call 2', 1, 15, 120, 5, 'min'],
     ['srHoursPerDay', 'Senior productive hrs / day', 'hours each senior actually spends on calls per workday', 0.5, 0, 12, 0.5, 'hrs'],
-    ['srCommissionPerClose', 'Closer commission per close', '£ paid to senior per close', 25, 0, 5000, 25, '£'],
+    ['srCommissionPct', 'Closer commission (% of cash collected)', '% of cash per close paid as commission', 0.5, 0, 30, 0.5, '%'],
   ];
   const host = document.getElementById('cap-rows');
   host.innerHTML = rows.map(r =>

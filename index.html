@@ -190,8 +190,9 @@
   .funnel-snapshot .head {
     display: flex;
     justify-content: space-between;
-    align-items: baseline;
+    align-items: center;
     margin-bottom: 22px;
+    gap: 14px;
   }
   .funnel-snapshot .head .title {
     font-size: 12px;
@@ -204,7 +205,96 @@
     font-size: 13px;
     color: var(--text-secondary);
     font-variant-numeric: tabular-nums;
+    margin-left: auto;
   }
+
+  /* Notes toggle pill */
+  .notes-toggle {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 13px;
+    background: var(--surface-raised);
+    border: 1px solid transparent;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 12.5px;
+    color: var(--text-secondary);
+    font-weight: 500;
+    user-select: none;
+    transition: background 0.12s;
+  }
+  .notes-toggle:hover { background: var(--surface-pressed); color: var(--text); }
+  .notes-toggle.on {
+    background: var(--accent-tint);
+    color: var(--accent-hover);
+  }
+  .notes-toggle .dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--text-quaternary);
+  }
+  .notes-toggle.on .dot { background: var(--accent); }
+
+  /* Inline note input under funnel tile */
+  .funnel-stage .note-input-wrap { display: none; margin-top: 12px; }
+  .funnel-stages.notes-on .funnel-stage .note-input-wrap { display: block; }
+  .funnel-stage .note-input {
+    width: 100%;
+    background: var(--surface-input);
+    border: 1px solid var(--border-input);
+    border-radius: 7px;
+    color: var(--text);
+    font-size: 12px;
+    padding: 6px 8px;
+    font-family: inherit;
+    line-height: 1.4;
+    resize: vertical;
+    min-height: 44px;
+  }
+  .funnel-stage .note-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-tint);
+  }
+
+  /* Inline note inside channel + team cards */
+  .inline-note {
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: var(--surface-input);
+    border: 1px solid var(--border-input);
+    border-radius: 9px;
+  }
+  .inline-note .lbl {
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .inline-note .lbl::before {
+    content: '✎';
+    color: var(--accent);
+  }
+  .inline-note textarea {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    font-size: 13px;
+    font-family: inherit;
+    line-height: 1.5;
+    resize: vertical;
+    min-height: 44px;
+    padding: 0;
+  }
+  .inline-note textarea:focus { outline: none; }
   .funnel-stages {
     display: grid;
     grid-template-columns: repeat(7, 1fr);
@@ -765,6 +855,7 @@
   <div class="funnel-snapshot">
     <div class="head">
       <span class="title">Full funnel — what you need each month</span>
+      <button class="notes-toggle" id="notes-toggle"><span class="dot"></span><span>Show notes</span></button>
       <span class="summary" id="funnel-summary">—</span>
     </div>
     <div class="funnel-stages" id="funnel-stages"></div>
@@ -810,18 +901,6 @@
     </div>
     <div id="capacity-cards" class="capacity-grid"></div>
     <div id="cap-rows"></div>
-  </div>
-
-  <div class="section">
-    <div class="section-head">
-      <span class="title">Metric notes — what's the story behind the numbers</span>
-      <span class="summary">click any funnel tile above to add a note</span>
-    </div>
-    <div class="plan-card">
-      <h3><span class="icon notes-icon">✎</span>Notes per metric</h3>
-      <p class="sub">Drop a sentence explaining what's driving each stage — context, blockers, recent changes. These appear inline in the exported plan.</p>
-      <div id="notes-grid" class="notes-grid"></div>
-    </div>
   </div>
 
   <div class="section">
@@ -875,7 +954,8 @@
     <div class="modal-foot">
       <span class="status" id="plan-modal-status"></span>
       <button id="plan-open-notion" class="ghost">Open Notion</button>
-      <button id="plan-copy-btn" class="primary">Copy markdown</button>
+      <button id="plan-copy-btn" class="ghost">Copy markdown</button>
+      <button id="plan-publish-btn" class="primary">Publish to Notion →</button>
     </div>
   </div>
 </div>
@@ -1135,7 +1215,6 @@ function render() {
   renderMixRows(c);
   renderChannels(c);
   renderTeamCapacity(c);
-  renderNotesGrid();
   renderPlanFields();
 }
 
@@ -1165,60 +1244,69 @@ const FUNNEL_STAGES = [
   { lbl: 'Closes', noteKey: 'closes', valKey: 'closes', hero: true },
 ];
 
+let notesShown = false;  // global UI toggle for inline funnel notes
+
 function renderFunnelSnapshot(c) {
   const p = plan();
   const wkDivisor = p.workingDaysPerMonth / p.workingDaysPerWeek;
   const host = document.getElementById('funnel-stages');
+  host.classList.toggle('notes-on', notesShown);
   host.innerHTML = FUNNEL_STAGES.map((s, i) => {
     const note = (p.notes[s.noteKey] || '').trim();
+    const escaped = note.replace(/</g, '&lt;').replace(/>/g, '&gt;');
     return `
-      <div class="funnel-stage ${s.hero ? 'hero' : ''} ${note ? 'has-note' : ''}" data-note-key="${s.noteKey}" data-note-label="${s.lbl}" title="${note ? 'Note: ' + note : 'Click to add a note'}">
+      <div class="funnel-stage ${s.hero ? 'hero' : ''} ${note ? 'has-note' : ''}" data-note-key="${s.noteKey}">
         <span class="note-dot"></span>
         <div class="lbl">${s.lbl}</div>
         <div class="val">${num(ceil(c[s.valKey]))}</div>
         <div class="sub">${num(c[s.valKey] / wkDivisor, 1)} /wk</div>
+        <div class="note-input-wrap">
+          <textarea class="note-input" placeholder="note…" data-note-key="${s.noteKey}">${escaped}</textarea>
+        </div>
         ${i < FUNNEL_STAGES.length - 1 ? '<span class="funnel-arrow">›</span>' : ''}
       </div>
     `;
   }).join('');
+  // Tile click: when notes hidden, expand them; when notes shown, focus this tile's input
   host.querySelectorAll('.funnel-stage').forEach(el => {
-    el.addEventListener('click', () => {
-      const key = el.dataset.noteKey;
-      // Scroll to and focus the matching note textarea
-      const target = document.querySelector(`#notes-grid textarea[data-note-key="${key}"]`);
-      if (target) {
-        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        setTimeout(() => target.focus(), 250);
+    el.addEventListener('click', e => {
+      if (e.target.tagName === 'TEXTAREA') return;
+      if (!notesShown) {
+        notesShown = true;
+        document.getElementById('notes-toggle').classList.add('on');
+        host.classList.add('notes-on');
       }
+      const ta = el.querySelector('textarea');
+      if (ta) setTimeout(() => ta.focus(), 50);
+    });
+  });
+  host.querySelectorAll('textarea.note-input').forEach(ta => {
+    ta.addEventListener('click', e => e.stopPropagation());
+    ta.addEventListener('input', e => {
+      const key = e.target.dataset.noteKey;
+      p.notes[key] = e.target.value;
+      saveState();
+      const stage = e.target.closest('.funnel-stage');
+      if (stage) stage.classList.toggle('has-note', e.target.value.trim().length > 0);
     });
   });
   document.getElementById('funnel-summary').textContent =
     `${pct(c.bookingToClose * 100)} booking→close · ${money(c.revPerClose)}/close · ${money(p.revenueTarget)} target`;
 }
 
-function renderNotesGrid() {
-  const p = plan();
-  const items = [
-    ...FUNNEL_STAGES.map(s => ({ key: s.noteKey, label: s.lbl })),
-    { key: 'linkedin', label: 'LinkedIn' },
-    { key: 'email', label: 'Email' },
-    { key: 'team', label: 'Team capacity' },
-  ];
-  const host = document.getElementById('notes-grid');
-  if (!host) return;
-  host.innerHTML = items.map(it => `
-    <div class="note-block">
-      <span class="note-lbl">${it.label}</span>
-      <textarea data-note-key="${it.key}" placeholder="add note…">${(p.notes[it.key] || '').replace(/</g, '&lt;')}</textarea>
-    </div>
-  `).join('');
-  host.querySelectorAll('textarea').forEach(ta => {
+// Inline note input used inside channel + team cards
+function inlineNoteHtml(key, label = 'Note for this section') {
+  const v = (plan().notes[key] || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  return `<div class="inline-note">
+    <div class="lbl">${label}</div>
+    <textarea data-inline-note="${key}" placeholder="what's the story here? blockers, recent changes, ideas…">${v}</textarea>
+  </div>`;
+}
+function wireInlineNotes(host) {
+  host.querySelectorAll('textarea[data-inline-note]').forEach(ta => {
     ta.addEventListener('input', e => {
-      p.notes[e.target.dataset.noteKey] = e.target.value;
+      plan().notes[e.target.dataset.inlineNote] = e.target.value;
       saveState();
-      // Update the funnel tile's has-note state if this is a funnel key
-      const stageEl = document.querySelector(`.funnel-stage[data-note-key="${e.target.dataset.noteKey}"]`);
-      if (stageEl) stageEl.classList.toggle('has-note', e.target.value.trim().length > 0);
     });
   });
 }
@@ -1359,6 +1447,7 @@ function renderChannels(c) {
       wireRow(rowEl, () => p.channels[k][key], v => p.channels[k][key] = v, render);
     });
   });
+  wireInlineNotes(host);
 }
 
 function renderChannel(k, c) {
@@ -1430,7 +1519,10 @@ function renderChannel(k, c) {
       <div class="summary">${summary}</div>
       <div style="display:flex;align-items:center;gap:12px"><span class="mix-pct">${ch.mix}% mix</span><span class="toggle">›</span></div>
     </div>
-    <div class="channel-body">${body}</div>
+    <div class="channel-body">
+      ${body}
+      ${inlineNoteHtml(k, `Note for ${ch.label}`)}
+    </div>
   </div>`;
 }
 
@@ -1486,6 +1578,9 @@ function renderTeamCapacity(c) {
     const key = rows[i][0];
     wireRow(rowEl, () => t[key], v => t[key] = v, render);
   });
+  // Inline note under the team capacity section
+  host.insertAdjacentHTML('afterend', inlineNoteHtml('team', 'Note for team capacity'));
+  wireInlineNotes(host.parentElement);
   document.getElementById('cap-summary').textContent =
     `${num(ceil(c.shows1))} call 1s + ${num(ceil(c.shows2))} call 2s needed this month`;
 }
@@ -1695,6 +1790,51 @@ document.getElementById('plan-open-notion').addEventListener('click', () => {
   } else {
     window.open('https://www.notion.so/', '_blank', 'noopener');
   }
+});
+
+// ============================================================
+// Publish to Notion via the serverless function
+// ============================================================
+// Edit PUBLISH_API_URL after you deploy api/publish.js to Vercel.
+// e.g. 'https://reverse-engineering-josiah-lgtm.vercel.app/api/publish'
+// During local dev this auto-resolves to the same origin so you can
+// run `vercel dev` locally to test before deploying.
+const PUBLISH_API_URL = (window.PUBLISH_API_URL_OVERRIDE) || (
+  location.hostname === 'localhost'
+    ? '/api/publish'  // local: vercel dev
+    : 'https://reverse-engineering.vercel.app/api/publish'  // <- replace after deploy
+);
+
+document.getElementById('plan-publish-btn').addEventListener('click', async () => {
+  const btn = document.getElementById('plan-publish-btn');
+  const md = document.getElementById('plan-markdown').textContent;
+  const title = `${fmtMonth(state.activeMonth)} — Plan`;
+  modalStatus.textContent = 'Publishing…';
+  modalStatus.classList.remove('ok');
+  btn.disabled = true;
+  try {
+    const res = await fetch(PUBLISH_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title, markdown: md }),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status}`);
+    modalStatus.innerHTML = `Published — <a href="${data.page_url}" target="_blank" rel="noopener" style="color:var(--accent-hover);text-decoration:underline">open in Notion</a>`;
+    modalStatus.classList.add('ok');
+  } catch (err) {
+    modalStatus.textContent = `Publish failed: ${err.message}. (Falling back: copy markdown manually.)`;
+    modalStatus.style.color = 'var(--bad)';
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+// Notes toggle
+document.getElementById('notes-toggle').addEventListener('click', () => {
+  notesShown = !notesShown;
+  document.getElementById('notes-toggle').classList.toggle('on', notesShown);
+  document.getElementById('funnel-stages').classList.toggle('notes-on', notesShown);
 });
 
 document.getElementById('add-month-btn').addEventListener('click', () => {

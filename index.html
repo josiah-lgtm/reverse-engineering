@@ -490,6 +490,216 @@
     font-weight: 600;
   }
   button.primary:hover { background: var(--accent-hover); }
+
+  /* ==============================
+     Notes on funnel stages
+     ============================== */
+  .funnel-stage { cursor: pointer; transition: transform 0.1s, background 0.15s; }
+  .funnel-stage:hover { transform: translateY(-1px); }
+  .funnel-stage .note-dot {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--text-quaternary);
+    transition: background 0.15s;
+  }
+  .funnel-stage.has-note .note-dot { background: var(--accent); }
+  .funnel-stage.has-note { background: linear-gradient(135deg, var(--accent-tint), var(--surface-input)); }
+
+  /* ==============================
+     Plan section (announcements / pre-mortem / ideas + notes)
+     ============================== */
+  .plan-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 24px 28px;
+    margin-bottom: 14px;
+  }
+  .plan-card h3 {
+    font-size: 13px;
+    margin: 0 0 10px;
+    color: var(--text);
+    font-weight: 600;
+    letter-spacing: -0.005em;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .plan-card .icon {
+    width: 30px;
+    height: 30px;
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    background: var(--surface-input);
+  }
+  .plan-card .icon.announce { background: var(--accent-tint); color: var(--accent-hover); }
+  .plan-card .icon.premortem { background: var(--bad-tint); color: var(--bad); }
+  .plan-card .icon.ideas { background: var(--good-tint); color: var(--good); }
+  .plan-card .icon.notes-icon { background: var(--linkedin-tint); color: var(--linkedin); }
+  .plan-card .sub {
+    color: var(--text-tertiary);
+    font-size: 12.5px;
+    margin: 0 0 14px;
+  }
+  .plan-card textarea {
+    width: 100%;
+    min-height: 80px;
+    padding: 12px 14px;
+    background: var(--surface-input);
+    border: 1px solid var(--border-input);
+    border-radius: 9px;
+    color: var(--text);
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    line-height: 1.55;
+  }
+  .plan-card textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+
+  .notes-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  @media (max-width: 900px) {
+    .notes-grid { grid-template-columns: 1fr; }
+  }
+  .note-block { display: flex; flex-direction: column; gap: 6px; }
+  .note-block .note-lbl {
+    font-size: 11.5px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+  }
+  .note-block textarea {
+    min-height: 56px;
+    font-size: 13px;
+  }
+
+  .publish-bar {
+    background: linear-gradient(135deg, var(--accent-tint), var(--surface-raised));
+    border: 1px solid rgba(212, 160, 23, 0.30);
+    border-radius: 14px;
+    padding: 22px 26px;
+    margin-bottom: 14px;
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 18px;
+    align-items: center;
+  }
+  .publish-bar .text { color: var(--text); font-size: 14.5px; }
+  .publish-bar .text .small { color: var(--text-tertiary); font-size: 12.5px; display: block; margin-top: 3px; }
+  .publish-bar .field {
+    background: var(--surface-input);
+    border: 1px solid var(--border-input);
+    border-radius: 8px;
+    padding: 8px 12px;
+    color: var(--text);
+    font-size: 13px;
+    font-family: inherit;
+    min-width: 240px;
+  }
+  .publish-bar .field:focus { outline: none; border-color: var(--accent); }
+
+  /* ==============================
+     Markdown preview modal
+     ============================== */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    z-index: 1000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: 32px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: var(--bg);
+    border: 1px solid var(--border-strong);
+    border-radius: 16px;
+    max-width: 760px;
+    width: 100%;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  }
+  .modal-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 22px 26px;
+    border-bottom: 1px solid var(--separator);
+  }
+  .modal-head h2 { font-size: 19px; margin: 0; font-weight: 700; letter-spacing: -0.015em; }
+  .modal-head .x {
+    background: var(--surface-raised);
+    border: none;
+    color: var(--text);
+    width: 30px; height: 30px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+  }
+  .modal-head .x:hover { background: var(--surface-pressed); }
+  .modal-body {
+    padding: 22px 26px;
+    overflow-y: auto;
+    flex: 1;
+  }
+  .modal-body pre {
+    background: var(--surface-input);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 18px 20px;
+    font-family: "SF Mono", ui-monospace, Menlo, monospace;
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    margin: 0;
+  }
+  .modal-foot {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 18px 26px;
+    border-top: 1px solid var(--separator);
+    background: var(--surface);
+  }
+  .modal-foot .status {
+    margin-right: auto;
+    font-size: 13px;
+    color: var(--text-secondary);
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .modal-foot .status.ok::before {
+    content: '✓';
+    color: var(--good);
+    font-weight: 700;
+  }
   button.ghost {
     background: transparent;
     color: var(--text-secondary);
@@ -602,9 +812,71 @@
     <div id="cap-rows"></div>
   </div>
 
+  <div class="section">
+    <div class="section-head">
+      <span class="title">Metric notes — what's the story behind the numbers</span>
+      <span class="summary">click any funnel tile above to add a note</span>
+    </div>
+    <div class="plan-card">
+      <h3><span class="icon notes-icon">✎</span>Notes per metric</h3>
+      <p class="sub">Drop a sentence explaining what's driving each stage — context, blockers, recent changes. These appear inline in the exported plan.</p>
+      <div id="notes-grid" class="notes-grid"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-head">
+      <span class="title">Monthly plan</span>
+      <span class="summary">announcements · pre-mortem · ideas</span>
+    </div>
+    <div class="plan-card">
+      <h3><span class="icon announce">📢</span>Announcements</h3>
+      <p class="sub">What does the team need to know? New hires, comp changes, target shifts.</p>
+      <textarea id="note-announcements" placeholder="e.g. New SDR starting June 5 — first month ramp; Joshua taking 1 wk off mid-month..."></textarea>
+    </div>
+    <div class="plan-card">
+      <h3><span class="icon premortem">⚠</span>Pre-mortem</h3>
+      <p class="sub">If this month underperforms, what's the most likely reason? Name the risks before they happen.</p>
+      <textarea id="note-premortem" placeholder="e.g. LinkedIn accept rate has dipped 2pts MoM; if it keeps sliding we'll miss bookings target; mitigation = test 2 new connection scripts wk 2..."></textarea>
+    </div>
+    <div class="plan-card">
+      <h3><span class="icon ideas">💡</span>Ideas</h3>
+      <p class="sub">Experiments to test, channels to try, processes to improve.</p>
+      <textarea id="note-ideas" placeholder="e.g. Trial a 3rd email domain to spread sending load; rework call 2 confirmation SMS to bump show2 rate from 80→85..."></textarea>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="publish-bar">
+      <div class="text">
+        <b>Publish to Notion</b>
+        <span class="small">Build the full plan as Markdown — funnel numbers, sliders, channel breakdown, team capacity, all your notes — then paste into your Notion weekly/monthly page.</span>
+      </div>
+      <input id="notion-page-url" type="url" class="field" placeholder="Optional: your Notion plan URL" />
+      <button id="generate-plan-btn" class="primary">Generate plan →</button>
+    </div>
+  </div>
+
   <div class="footer">
-    Revenue → closes → sales funnel → bookings → channel mix → outreach → infrastructure → team capacity.<br>
+    Revenue → closes → sales funnel → bookings → channel mix → outreach → infrastructure → team capacity → notes & ideas.<br>
     Everything autosaves to localStorage. Switch months in the top bar to plan multiple scenarios.
+  </div>
+</div>
+
+<div class="modal-overlay" id="plan-modal">
+  <div class="modal">
+    <div class="modal-head">
+      <h2 id="plan-modal-title">Plan markdown</h2>
+      <button class="x" id="plan-modal-close">×</button>
+    </div>
+    <div class="modal-body">
+      <pre id="plan-markdown"></pre>
+    </div>
+    <div class="modal-foot">
+      <span class="status" id="plan-modal-status"></span>
+      <button id="plan-open-notion" class="ghost">Open Notion</button>
+      <button id="plan-copy-btn" class="primary">Copy markdown</button>
+    </div>
   </div>
 </div>
 
@@ -651,6 +923,19 @@ function defaultPlan() {
       srMinPerCall: 45,
       srHoursPerDay: 6,
     },
+    notes: {
+      // Per-funnel-stage notes
+      bookings: '', shows1: '', book2: '', shows2: '', qshows2: '', offers: '', closes: '',
+      // Per-channel notes
+      linkedin: '', email: '',
+      // Per-team notes
+      team: '',
+      // Plan-level sections
+      announcements: '',
+      premortem: '',
+      ideas: '',
+    },
+    notionPageUrl: '',  // optional: paste your Notion plan page URL here for one-click open
   };
 }
 
@@ -703,6 +988,8 @@ function loadState() {
         email: { ...dp.channels.email, ...((p.channels && p.channels.email) || {}) },
       };
       p.team = { ...dp.team, ...(p.team || {}) };
+      p.notes = { ...dp.notes, ...(p.notes || {}) };
+      if (p.notionPageUrl === undefined) p.notionPageUrl = '';
     });
     if (!s.activeMonth || !s.months[s.activeMonth]) {
       s.activeMonth = Object.keys(s.months || {})[0] || currentMonthId();
@@ -848,6 +1135,16 @@ function render() {
   renderMixRows(c);
   renderChannels(c);
   renderTeamCapacity(c);
+  renderNotesGrid();
+  renderPlanFields();
+}
+
+function renderPlanFields() {
+  const p = plan();
+  document.getElementById('note-announcements').value = p.notes.announcements || '';
+  document.getElementById('note-premortem').value = p.notes.premortem || '';
+  document.getElementById('note-ideas').value = p.notes.ideas || '';
+  document.getElementById('notion-page-url').value = p.notionPageUrl || '';
 }
 
 function populateMonthSelect() {
@@ -857,29 +1154,73 @@ function populateMonthSelect() {
   sel.value = state.activeMonth;
 }
 
+// Funnel stage metadata — labels + the note key in plan.notes
+const FUNNEL_STAGES = [
+  { lbl: 'Call 1 booked', noteKey: 'bookings', valKey: 'bookings', hero: true },
+  { lbl: 'Call 1 shows', noteKey: 'shows1', valKey: 'shows1' },
+  { lbl: 'Call 2 bookings', noteKey: 'book2', valKey: 'book2' },
+  { lbl: 'Call 2 shows', noteKey: 'shows2', valKey: 'shows2' },
+  { lbl: 'Call 2 qual shows', noteKey: 'qshows2', valKey: 'qshows2' },
+  { lbl: 'Offers', noteKey: 'offers', valKey: 'offers' },
+  { lbl: 'Closes', noteKey: 'closes', valKey: 'closes', hero: true },
+];
+
 function renderFunnelSnapshot(c) {
   const p = plan();
   const wkDivisor = p.workingDaysPerMonth / p.workingDaysPerWeek;
-  const stages = [
-    { lbl: 'Call 1 booked', val: c.bookings, hero: true },
-    { lbl: 'Call 1 shows', val: c.shows1 },
-    { lbl: 'Call 2 bookings', val: c.book2 },
-    { lbl: 'Call 2 shows', val: c.shows2 },
-    { lbl: 'Call 2 qual shows', val: c.qshows2 },
-    { lbl: 'Offers', val: c.offers },
-    { lbl: 'Closes', val: c.closes, hero: true },
-  ];
   const host = document.getElementById('funnel-stages');
-  host.innerHTML = stages.map((s, i) => `
-    <div class="funnel-stage ${s.hero ? 'hero' : ''}">
-      <div class="lbl">${s.lbl}</div>
-      <div class="val">${num(ceil(s.val))}</div>
-      <div class="sub">${num(s.val / wkDivisor, 1)} /wk</div>
-      ${i < stages.length - 1 ? '<span class="funnel-arrow">›</span>' : ''}
-    </div>
-  `).join('');
+  host.innerHTML = FUNNEL_STAGES.map((s, i) => {
+    const note = (p.notes[s.noteKey] || '').trim();
+    return `
+      <div class="funnel-stage ${s.hero ? 'hero' : ''} ${note ? 'has-note' : ''}" data-note-key="${s.noteKey}" data-note-label="${s.lbl}" title="${note ? 'Note: ' + note : 'Click to add a note'}">
+        <span class="note-dot"></span>
+        <div class="lbl">${s.lbl}</div>
+        <div class="val">${num(ceil(c[s.valKey]))}</div>
+        <div class="sub">${num(c[s.valKey] / wkDivisor, 1)} /wk</div>
+        ${i < FUNNEL_STAGES.length - 1 ? '<span class="funnel-arrow">›</span>' : ''}
+      </div>
+    `;
+  }).join('');
+  host.querySelectorAll('.funnel-stage').forEach(el => {
+    el.addEventListener('click', () => {
+      const key = el.dataset.noteKey;
+      // Scroll to and focus the matching note textarea
+      const target = document.querySelector(`#notes-grid textarea[data-note-key="${key}"]`);
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => target.focus(), 250);
+      }
+    });
+  });
   document.getElementById('funnel-summary').textContent =
     `${pct(c.bookingToClose * 100)} booking→close · ${money(c.revPerClose)}/close · ${money(p.revenueTarget)} target`;
+}
+
+function renderNotesGrid() {
+  const p = plan();
+  const items = [
+    ...FUNNEL_STAGES.map(s => ({ key: s.noteKey, label: s.lbl })),
+    { key: 'linkedin', label: 'LinkedIn' },
+    { key: 'email', label: 'Email' },
+    { key: 'team', label: 'Team capacity' },
+  ];
+  const host = document.getElementById('notes-grid');
+  if (!host) return;
+  host.innerHTML = items.map(it => `
+    <div class="note-block">
+      <span class="note-lbl">${it.label}</span>
+      <textarea data-note-key="${it.key}" placeholder="add note…">${(p.notes[it.key] || '').replace(/</g, '&lt;')}</textarea>
+    </div>
+  `).join('');
+  host.querySelectorAll('textarea').forEach(ta => {
+    ta.addEventListener('input', e => {
+      p.notes[e.target.dataset.noteKey] = e.target.value;
+      saveState();
+      // Update the funnel tile's has-note state if this is a funnel key
+      const stageEl = document.querySelector(`.funnel-stage[data-note-key="${e.target.dataset.noteKey}"]`);
+      if (stageEl) stageEl.classList.toggle('has-note', e.target.value.trim().length > 0);
+    });
+  });
 }
 
 function makeRow(opts) {
@@ -1168,6 +1509,194 @@ document.getElementById('month-select').addEventListener('change', e => {
   saveState();
   render();
 });
+// Plan textareas — autosave
+['announcements', 'premortem', 'ideas'].forEach(k => {
+  document.getElementById('note-' + k).addEventListener('input', e => {
+    plan().notes[k] = e.target.value;
+    saveState();
+  });
+});
+document.getElementById('notion-page-url').addEventListener('input', e => {
+  plan().notionPageUrl = e.target.value;
+  saveState();
+});
+
+// ============================================================
+// Plan markdown generation
+// ============================================================
+function generatePlanMarkdown() {
+  const p = plan();
+  const c = compute();
+  const wkDivisor = p.workingDaysPerMonth / p.workingDaysPerWeek;
+  const monthLabel = fmtMonth(state.activeMonth);
+  const lines = [];
+
+  lines.push(`# ${monthLabel} — Plan`);
+  lines.push('');
+  lines.push(`Revenue target: **${money(p.revenueTarget)}** · ${money(c.revPerClose)}/close · ${num(p.workingDaysPerMonth)} working days`);
+  lines.push('');
+
+  lines.push('## Full funnel — what we need each month');
+  lines.push('');
+  lines.push('| Stage | Monthly | Weekly | Daily | Note |');
+  lines.push('| --- | ---: | ---: | ---: | --- |');
+  FUNNEL_STAGES.forEach(s => {
+    const v = c[s.valKey];
+    const note = (p.notes[s.noteKey] || '').trim().replace(/\|/g, '\\|').replace(/\n/g, ' ');
+    lines.push(`| **${s.lbl}** | ${num(ceil(v))} | ${num(v / wkDivisor, 1)} | ${num(v / p.workingDaysPerMonth, 1)} | ${note || '—'} |`);
+  });
+  lines.push('');
+
+  lines.push('## Sales funnel rates');
+  lines.push('');
+  lines.push('| Stage | Rate |');
+  lines.push('| --- | ---: |');
+  [
+    ['show1Rate', 'Call 1 show rate'],
+    ['qual1Rate', 'Call 1 qualification'],
+    ['book2Rate', 'Call 2 booking'],
+    ['sched2Rate', 'Call 2 scheduled'],
+    ['show2Rate', 'Call 2 show rate'],
+    ['qshow2Rate', 'Call 2 qualified-show rate'],
+    ['offerRate', 'Offer rate'],
+    ['closeRate', 'Close rate'],
+  ].forEach(([k, l]) => lines.push(`| ${l} | ${p.sales[k]}% |`));
+  lines.push(`| **Booking → close** (cumulative) | **${pct(c.bookingToClose * 100)}** |`);
+  lines.push('');
+
+  // Channels
+  lines.push('## Channels');
+  lines.push('');
+  if (p.channels.linkedin.enabled) {
+    const out = c.channelOutputs.linkedin;
+    const li = p.channels.linkedin;
+    lines.push('### LinkedIn');
+    lines.push(`Mix: **${li.mix}%** · bookings target: **${num(ceil(out.bk))}/mo**`);
+    lines.push('');
+    lines.push('| Output | Monthly | Weekly | Daily |');
+    lines.push('| --- | ---: | ---: | ---: |');
+    lines.push(`| Connections | ${num(ceil(out.connections))} | ${num(ceil(out.connectionsPerWeek))} | ${num(ceil(out.connectionsPerDay))} |`);
+    lines.push(`| Accepts | ${num(ceil(out.accepts))} | ${num(ceil(out.accepts / wkDivisor))} | — |`);
+    lines.push(`| Positive replies | ${num(ceil(out.positives))} | ${num(ceil(out.positives / wkDivisor))} | — |`);
+    lines.push(`| Calendly clicks | ${num(ceil(out.calendlyClicks))} | ${num(ceil(out.calendlyClicks / wkDivisor))} | — |`);
+    lines.push(`| **Sender profiles needed** | **${out.profilesNeeded}** | — | (${li.connectsPerProfilePerDay}/day each) |`);
+    lines.push('');
+    lines.push(`Rates: ${li.acceptRate}% accept · ${li.prr}% PRR · ${li.csr}% CSR · ${li.abr}% ABR`);
+    if ((p.notes.linkedin || '').trim()) {
+      lines.push('');
+      lines.push(`> **Note:** ${p.notes.linkedin.trim()}`);
+    }
+    lines.push('');
+  }
+  if (p.channels.email.enabled) {
+    const out = c.channelOutputs.email;
+    const em = p.channels.email;
+    lines.push('### Email');
+    lines.push(`Mix: **${em.mix}%** · bookings target: **${num(ceil(out.bk))}/mo**`);
+    lines.push('');
+    lines.push('| Output | Monthly | Weekly | Daily |');
+    lines.push('| --- | ---: | ---: | ---: |');
+    lines.push(`| Sends | ${num(ceil(out.sends))} | ${num(ceil(out.sendsPerWeek))} | ${num(ceil(out.sendsPerDay))} |`);
+    lines.push(`| Replies | ${num(ceil(out.replies))} | ${num(ceil(out.replies / wkDivisor))} | — |`);
+    lines.push(`| Positive replies | ${num(ceil(out.positives))} | ${num(ceil(out.positives / wkDivisor))} | — |`);
+    lines.push(`| **Inboxes / Domains needed** | **${out.inboxesNeeded} / ${out.domainsNeeded}** | — | (${em.sendsPerInboxPerDay}/inbox · ${em.inboxesPerDomain} inboxes/domain) |`);
+    lines.push('');
+    lines.push(`Rates: ${em.replyRate}% reply · ${em.prr}% PRR · ${em.abr}% ABR`);
+    if ((p.notes.email || '').trim()) {
+      lines.push('');
+      lines.push(`> **Note:** ${p.notes.email.trim()}`);
+    }
+    lines.push('');
+  }
+
+  // Team capacity
+  const tcap = c.team;
+  const tt = p.team;
+  lines.push('## Team capacity');
+  lines.push('');
+  lines.push('| Role | Count | Min/call | Hrs/day | Capacity/mo | Needed/mo | Loaded |');
+  lines.push('| --- | ---: | ---: | ---: | ---: | ---: | ---: |');
+  lines.push(`| Junior closer (call 1) | ${tt.jrCloserCount} | ${tt.jrMinPerCall} | ${tt.jrHoursPerDay} | ${num(ceil(tcap.jrCapacityCalls))} | ${num(ceil(c.shows1))} | ${pct(tcap.jrUtilization)} |`);
+  lines.push(`| Senior closer (call 2) | ${tt.srCloserCount} | ${tt.srMinPerCall} | ${tt.srHoursPerDay} | ${num(ceil(tcap.srCapacityCalls))} | ${num(ceil(c.shows2))} | ${pct(tcap.srUtilization)} |`);
+  if (tcap.jrShortfall > 0) lines.push(`> ⚠️ Junior shortfall — need **${tcap.jrClosersNeeded}** junior closers total (have ${tt.jrCloserCount})`);
+  if (tcap.srShortfall > 0) lines.push(`> ⚠️ Senior shortfall — need **${tcap.srClosersNeeded}** senior closers total (have ${tt.srCloserCount})`);
+  if ((p.notes.team || '').trim()) {
+    lines.push('');
+    lines.push(`> **Note:** ${p.notes.team.trim()}`);
+  }
+  lines.push('');
+
+  // Announcements
+  if ((p.notes.announcements || '').trim()) {
+    lines.push('## 📢 Announcements');
+    lines.push('');
+    lines.push(p.notes.announcements.trim());
+    lines.push('');
+  }
+  // Pre-mortem
+  if ((p.notes.premortem || '').trim()) {
+    lines.push('## ⚠ Pre-mortem');
+    lines.push('');
+    lines.push(p.notes.premortem.trim());
+    lines.push('');
+  }
+  // Ideas
+  if ((p.notes.ideas || '').trim()) {
+    lines.push('## 💡 Ideas');
+    lines.push('');
+    lines.push(p.notes.ideas.trim());
+    lines.push('');
+  }
+
+  return lines.join('\n');
+}
+
+// ============================================================
+// Modal wiring
+// ============================================================
+const modal = document.getElementById('plan-modal');
+const modalStatus = document.getElementById('plan-modal-status');
+
+function openModal() {
+  const md = generatePlanMarkdown();
+  document.getElementById('plan-markdown').textContent = md;
+  document.getElementById('plan-modal-title').textContent = `${fmtMonth(state.activeMonth)} — plan markdown`;
+  modalStatus.textContent = '';
+  modalStatus.classList.remove('ok');
+  modal.classList.add('open');
+}
+function closeModal() { modal.classList.remove('open'); }
+
+document.getElementById('generate-plan-btn').addEventListener('click', openModal);
+document.getElementById('plan-modal-close').addEventListener('click', closeModal);
+modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+
+document.getElementById('plan-copy-btn').addEventListener('click', async () => {
+  const md = document.getElementById('plan-markdown').textContent;
+  try {
+    await navigator.clipboard.writeText(md);
+    modalStatus.textContent = 'Copied — paste into your Notion page (cmd+V)';
+    modalStatus.classList.add('ok');
+  } catch (e) {
+    // Fallback for older browsers
+    const ta = document.createElement('textarea');
+    ta.value = md; document.body.appendChild(ta);
+    ta.select(); document.execCommand('copy');
+    document.body.removeChild(ta);
+    modalStatus.textContent = 'Copied (fallback)';
+    modalStatus.classList.add('ok');
+  }
+});
+
+document.getElementById('plan-open-notion').addEventListener('click', () => {
+  const url = (plan().notionPageUrl || '').trim();
+  if (url) {
+    window.open(url, '_blank', 'noopener');
+  } else {
+    window.open('https://www.notion.so/', '_blank', 'noopener');
+  }
+});
+
 document.getElementById('add-month-btn').addEventListener('click', () => {
   const ids = Object.keys(state.months).sort();
   const last = ids[ids.length - 1] || currentMonthId();

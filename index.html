@@ -456,6 +456,163 @@
   }
   .we-row-actions .spacer { flex: 1; }
 
+  /* Tracker section head — title left, picker + actions right */
+  .tracker-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+  .tracker-title-block h2 { margin: 0 0 4px; font-size: 22px; letter-spacing: -0.01em; }
+  .tracker-title-block .sub { color: var(--text-tertiary); font-size: 13px; }
+  .tracker-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .tracker-controls .ghost { padding: 8px 14px; font-size: 13px; }
+  .tracker-controls .ghost.danger { color: var(--bad); }
+  .tracker-controls .ghost.danger:hover { background: rgba(255,69,58,0.10); }
+  .tracker-controls .ghost:disabled,
+  .tracker-controls .primary:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Dark picker chip — clickable, opens a dropdown of all entries */
+  .tracker-picker { position: relative; }
+  .tracker-picker .picker-trigger {
+    background: #0a0a0d;
+    color: var(--text);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 10px;
+    padding: 9px 14px 9px 16px;
+    font-size: 13.5px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 240px;
+    justify-content: space-between;
+    letter-spacing: -0.005em;
+    transition: border-color 0.15s, background 0.15s;
+  }
+  .tracker-picker .picker-trigger:hover { border-color: var(--accent); background: #050507; }
+  .tracker-picker.open .picker-trigger { border-color: var(--accent); background: #050507; }
+  .tracker-picker .caret { color: var(--text-tertiary); font-size: 11px; transition: transform 0.18s; }
+  .tracker-picker.open .caret { transform: rotate(180deg); color: var(--accent); }
+
+  .tracker-picker .picker-menu {
+    display: none;
+    position: absolute;
+    top: calc(100% + 6px);
+    left: 0;
+    min-width: 280px;
+    max-height: 360px;
+    overflow-y: auto;
+    background: #0a0a0d;
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 12px;
+    box-shadow: 0 14px 40px rgba(0,0,0,0.55), 0 0 0 1px rgba(0,0,0,0.5);
+    padding: 6px;
+    z-index: 50;
+  }
+  .tracker-picker.open .picker-menu { display: block; }
+  .tracker-picker .picker-option {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    width: 100%;
+    padding: 9px 12px;
+    border: none;
+    background: transparent;
+    color: var(--text);
+    text-align: left;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.12s;
+  }
+  .tracker-picker .picker-option:hover { background: rgba(255,255,255,0.04); }
+  .tracker-picker .picker-option.active { background: var(--accent-tint); }
+  .tracker-picker .picker-option.active .po-lbl { color: var(--accent-hover); }
+  .tracker-picker .po-lbl { font-size: 13.5px; font-weight: 600; }
+  .tracker-picker .po-meta { font-size: 11.5px; color: var(--text-tertiary); }
+  .tracker-picker .picker-empty { padding: 14px; color: var(--text-tertiary); font-size: 12.5px; text-align: center; }
+
+  /* Static (non-collapsible) head — used for active tracker card */
+  .we-head.static { cursor: default; }
+  .we-head.static:hover { background: transparent; }
+
+  /* Note toggles — collapsible per-section note inputs */
+  .note-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-top: 18px;
+  }
+  .note-section {
+    background: var(--surface-input);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.15s;
+  }
+  .note-section:hover { border-color: var(--border-strong); }
+  .note-section.has-content { border-color: rgba(212,160,23,0.30); }
+  .note-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    background: transparent;
+    border: none;
+    padding: 11px 14px;
+    color: var(--text);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 13.5px;
+    text-align: left;
+    font-weight: 500;
+  }
+  .note-toggle:hover { background: rgba(255,255,255,0.025); }
+  .note-icon { font-size: 16px; line-height: 1; }
+  .note-lbl { flex: 1; }
+  .note-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 6px var(--accent-shadow, var(--accent-tint));
+  }
+  .note-caret { color: var(--text-tertiary); font-size: 11px; transition: transform 0.18s; }
+  .note-section.open .note-caret { transform: rotate(180deg); color: var(--accent); }
+  .note-body {
+    display: none;
+    padding: 4px 14px 14px;
+    border-top: 1px solid var(--separator);
+  }
+  .note-section.open .note-body { display: block; }
+  .note-body textarea {
+    width: 100%;
+    min-height: 84px;
+    background: rgba(0,0,0,0.25);
+    border: 1px solid var(--border-input);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 13.5px;
+    padding: 10px 13px;
+    font-family: inherit;
+    line-height: 1.55;
+    resize: vertical;
+    margin-top: 10px;
+  }
+  .note-body textarea:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+
   /* Printable area for PDF — hidden on screen, visible only when printing */
   .we-print-area { display: none; }
   @media print {
@@ -2125,40 +2282,57 @@
 <div class="container view-pane hidden" data-view="business-data">
   <div class="header">
     <h1>Business Data</h1>
-    <div class="sub">Log what actually happened — weekly tracking against your war plan, plus a monthly history to give future plans context.</div>
+    <div class="sub">Log what actually happened — weekly and monthly tracking against your war plan, with notes split into announcements, wins, blockers, and pre-mortems. Each entry can publish to Notion or print as PDF.</div>
   </div>
 
-  <!-- Weekly tracking — actuals vs the war-plan targets -->
-  <div class="section">
-    <div class="section-head">
-      <div>
-        <h2 style="margin:0">📊 Weekly tracking</h2>
-        <div class="sub" style="margin-top:4px">Log this week's actuals and see how far you are from the war plan. Each entry can publish to Notion or print as PDF.</div>
+  <!-- Weekly tracking -->
+  <div class="section tracker-section" data-tracker-kind="weekly">
+    <div class="tracker-head">
+      <div class="tracker-title-block">
+        <h2>📊 Weekly tracking</h2>
+        <div class="sub" data-tracker-sub>vs war plan</div>
       </div>
-      <div class="bd-actions">
-        <button id="we-add-btn" class="primary">+ Add new weekly entry</button>
+      <div class="tracker-controls">
+        <div class="tracker-picker" data-tracker-picker>
+          <button class="picker-trigger" type="button" data-tracker-picker-trigger>
+            <span data-tracker-current>No entries yet</span>
+            <span class="caret">▾</span>
+          </button>
+          <div class="picker-menu" data-tracker-picker-menu></div>
+        </div>
+        <button class="primary" data-tracker-add>+ Add this week</button>
+        <button class="ghost" data-tracker-duplicate>Duplicate</button>
+        <button class="ghost danger" data-tracker-delete>Delete</button>
       </div>
     </div>
-    <div id="we-entries"></div>
+    <div data-tracker-card></div>
   </div>
 
-  <!-- Monthly historical -->
-  <div class="section" style="margin-top:32px">
-    <div class="section-head">
-      <div>
-        <h2 style="margin:0">🗓 Monthly history</h2>
-        <div class="sub" style="margin-top:4px">Log what actually happened each month — capture the story of why. Builds your history to compare against future plans.</div>
+  <!-- Monthly tracking -->
+  <div class="section tracker-section" data-tracker-kind="monthly" style="margin-top:32px">
+    <div class="tracker-head">
+      <div class="tracker-title-block">
+        <h2>🗓 Monthly tracking</h2>
+        <div class="sub" data-tracker-sub>vs war plan</div>
       </div>
-      <div class="bd-actions">
-        <button id="bd-add-btn" class="primary">+ Add a month of historical data</button>
-        <button id="bd-import-from-plans-btn" class="ghost" title="Pre-fill a row using one of your reverse-engineering plans">↪ Import from a plan</button>
+      <div class="tracker-controls">
+        <div class="tracker-picker" data-tracker-picker>
+          <button class="picker-trigger" type="button" data-tracker-picker-trigger>
+            <span data-tracker-current>No entries yet</span>
+            <span class="caret">▾</span>
+          </button>
+          <div class="picker-menu" data-tracker-picker-menu></div>
+        </div>
+        <button class="primary" data-tracker-add>+ Add this month</button>
+        <button class="ghost" data-tracker-duplicate>Duplicate</button>
+        <button class="ghost danger" data-tracker-delete>Delete</button>
       </div>
     </div>
-    <div id="bd-months"></div>
+    <div data-tracker-card></div>
   </div>
 
   <div class="footer">
-    Each row autosaves. Use the notes field to capture context — what we changed, what worked, what we'd do differently.
+    Every field autosaves. Use the note sections to capture context — announcements, wins, blockers, what we'd do differently next time.
   </div>
 </div>
 
@@ -2267,6 +2441,7 @@ function defaultState() {
     months: { [monthId]: defaultPlan() },
     businessData: {},
     weeklyEntries: {},
+    monthlyEntries: {},
     settings: defaultSettings(),
   };
 }
@@ -2359,7 +2534,60 @@ function loadState() {
     s.settings = { ...defaultSettings(), ...(s.settings || {}) };
     if (!s.businessData) s.businessData = {};
     if (!s.weeklyEntries) s.weeklyEntries = {};
+    if (!s.monthlyEntries) s.monthlyEntries = {};
     if (!s.activeView) s.activeView = 'reverse-engineering';
+    // Migrate weekly notes string → structured notes
+    Object.values(s.weeklyEntries).forEach(e => {
+      if (typeof e.notes === 'string') {
+        const old = e.notes;
+        e.notes = { announcements: '', wins: old, blockers: '', premortem: '' };
+      } else if (!e.notes || typeof e.notes !== 'object') {
+        e.notes = { announcements: '', wins: '', blockers: '', premortem: '' };
+      } else {
+        ['announcements', 'wins', 'blockers', 'premortem'].forEach(k => { if (e.notes[k] == null) e.notes[k] = ''; });
+      }
+      if (!e.openNotes) e.openNotes = {};
+      // id was implicit (object key) — also store on the entry for convenience
+      // weekStart already lives on the entry from prior versions
+    });
+    // Migrate old businessData → monthlyEntries with mapped actuals
+    const BD_MAP = {
+      revenueActual: 'wp_revenueTarget',
+      cashCollectedActual: 'wp_cashCollectedTarget',
+      closesActual: 'wp_closes',
+      bookingsActual: 'wp_bookings',
+      linkedinConnectionsActual: 'wp_li_connections',
+      emailSendsActual: 'wp_em_sends',
+    };
+    Object.entries(s.businessData).forEach(([id, data]) => {
+      if (s.monthlyEntries[id]) return;  // don't overwrite
+      const actuals = {};
+      Object.entries(BD_MAP).forEach(([oldK, newK]) => {
+        const v = Number(data[oldK]);
+        if (isFinite(v) && v > 0) actuals[newK] = v;
+      });
+      const notes = { announcements: '', wins: (data.notes || ''), blockers: '', premortem: '' };
+      const planMonth = s.months[id] ? id : (s.activeMonth || Object.keys(s.months || {})[0]);
+      s.monthlyEntries[id] = {
+        id,
+        planMonth,
+        actuals,
+        notes,
+        openNotes: {},
+        notionPageId: '',
+        notionPageUrl: '',
+      };
+    });
+    // Backfill notes structure on monthly entries created in newer versions
+    Object.values(s.monthlyEntries).forEach(e => {
+      if (typeof e.notes === 'string' || !e.notes || typeof e.notes !== 'object') {
+        const old = typeof e.notes === 'string' ? e.notes : '';
+        e.notes = { announcements: '', wins: old, blockers: '', premortem: '' };
+      } else {
+        ['announcements', 'wins', 'blockers', 'premortem'].forEach(k => { if (e.notes[k] == null) e.notes[k] = ''; });
+      }
+      if (!e.openNotes) e.openNotes = {};
+    });
     return s;
   } catch (e) { console.error(e); return null; }
 }
@@ -3582,9 +3810,10 @@ const modal = document.getElementById('plan-modal');
 const modalStatus = document.getElementById('plan-modal-status');
 
 function openModal() {
-  // Opening the war plan modal — clear any active weekly publish so the
+  // Opening the war plan modal — clear any active tracker publish so the
   // shared publish-button routes back to the war plan.
   if (typeof activeWeeklyPublishId !== 'undefined') activeWeeklyPublishId = null;
+  if (typeof activeTrackerPublishKind !== 'undefined') activeTrackerPublishKind = null;
   const md = generatePlanMarkdown();
   document.getElementById('plan-markdown').textContent = md;
   document.getElementById('plan-modal-title').textContent = `${fmtMonth(state.activeMonth)} — plan markdown`;
@@ -3650,15 +3879,17 @@ function getPublishApiUrl() {
 document.getElementById('plan-publish-btn').addEventListener('click', async () => {
   const btn = document.getElementById('plan-publish-btn');
   const md = document.getElementById('plan-markdown').textContent;
-  // Route to weekly publish if a weekly entry opened the modal
-  const weeklyId = typeof activeWeeklyPublishId !== 'undefined' ? activeWeeklyPublishId : null;
-  const weeklyEntry = weeklyId ? state.weeklyEntries[weeklyId] : null;
-  const title = weeklyEntry
-    ? `${fmtWeekLabel(weeklyId)} — Weekly report`
+  // Route to tracker entry publish if a weekly/monthly entry opened the modal
+  const tKind = typeof activeTrackerPublishKind !== 'undefined' ? activeTrackerPublishKind : null;
+  const tId = typeof activeWeeklyPublishId !== 'undefined' ? activeWeeklyPublishId : null;
+  const trackerEntry = (tKind && tId) ? (trackerStore(tKind)[tId] || null) : null;
+  const trackerFmtLabel = tKind ? TRACKERS[tKind].fmtLabel : null;
+  const title = trackerEntry
+    ? `${trackerFmtLabel(tId)} — ${tKind === 'weekly' ? 'Weekly' : 'Monthly'} report`
     : `${fmtMonth(state.activeMonth)} — Plan`;
   const p = plan();
-  const existingPageId = weeklyEntry
-    ? ((weeklyEntry.notionPageId || '').trim() || undefined)
+  const existingPageId = trackerEntry
+    ? ((trackerEntry.notionPageId || '').trim() || undefined)
     : ((p.notionPageId || '').trim() || undefined);
   const apiUrl = getPublishApiUrl();
   if (!apiUrl) {
@@ -3679,11 +3910,11 @@ document.getElementById('plan-publish-btn').addEventListener('click', async () =
     const data = await res.json().catch(() => ({}));
     if (!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status}`);
     // Remember the page id + url so the next publish updates the same Notion
-    // page instead of creating a duplicate. Store on the weekly entry when
-    // publishing a weekly report, otherwise on the war plan.
-    if (weeklyEntry) {
-      weeklyEntry.notionPageId = data.page_id;
-      weeklyEntry.notionPageUrl = data.page_url;
+    // page instead of creating a duplicate. Store on the tracker entry when
+    // publishing a weekly/monthly report, otherwise on the war plan.
+    if (trackerEntry) {
+      trackerEntry.notionPageId = data.page_id;
+      trackerEntry.notionPageUrl = data.page_url;
     } else {
       p.notionPageId = data.page_id;
       p.notionPageUrl = data.page_url;
@@ -3831,106 +4062,13 @@ document.querySelectorAll('.sidenav .nav-item').forEach(el => {
 });
 
 // ============================================================
-// Business Data — historical actuals + notes per month
+// Trackers — weekly + monthly actuals vs the war plan
+// Shared module: same UI, same metric set, same notes structure;
+// the only difference is the time-divisor and id format.
 // ============================================================
-const BD_FIELDS = [
-  ['revenueActual', 'Revenue actual (£)', 'number'],
-  ['cashCollectedActual', 'Cash collected actual (£)', 'number'],
-  ['closesActual', 'Closes (#)', 'number'],
-  ['bookingsActual', 'Call 1 bookings (#)', 'number'],
-  ['linkedinConnectionsActual', 'LinkedIn connections sent (#)', 'number'],
-  ['emailSendsActual', 'Email sends (#)', 'number'],
-];
-
-function bdMonth(id) {
-  if (!state.businessData[id]) state.businessData[id] = {};
-  return state.businessData[id];
-}
-
-function fmtBdMonth(id) {
-  if (!id) return '—';
-  const [y, m] = id.split('-').map(Number);
-  return new Date(y, m - 1, 1).toLocaleString('en-GB', { month: 'long', year: 'numeric' });
-}
-
-function renderBusinessData() {
-  renderWeeklyEntries();
-  const host = document.getElementById('bd-months');
-  const ids = Object.keys(state.businessData).sort().reverse();  // newest first
-  if (!ids.length) {
-    host.innerHTML = `<div class="bd-empty">
-      <h3>No historical data yet</h3>
-      <p>Click <b>+ Add a month</b> above to log what actually happened in a past month. Your future plans will gain context as your history grows.</p>
-    </div>`;
-    return;
-  }
-  host.innerHTML = ids.map(id => {
-    const data = state.businessData[id];
-    const escNotes = (data.notes || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    const summary = [];
-    if (data.revenueActual) summary.push(money(data.revenueActual) + ' rev');
-    if (data.closesActual) summary.push(data.closesActual + ' closes');
-    if (data.bookingsActual) summary.push(data.bookingsActual + ' bookings');
-    return `<div class="bd-month-card ${data.open ? 'open' : ''}" data-month-id="${id}">
-      <div class="bd-month-head" data-toggle-bd>
-        <div class="lbl">${fmtBdMonth(id)}</div>
-        <div class="summary">${summary.join(' · ') || 'no data yet'}</div>
-        <div class="toggle">›</div>
-      </div>
-      <div class="bd-month-body">
-        <div class="bd-fields">
-          ${BD_FIELDS.map(([key, label]) => `<div class="bd-field">
-            <label>${label}</label>
-            <input type="number" min="0" step="1" data-bd-field="${key}" value="${data[key] != null ? data[key] : ''}" />
-          </div>`).join('')}
-        </div>
-        <div class="bd-notes">
-          <label>What happened this month — context, blockers, wins, what we'd do differently</label>
-          <textarea data-bd-field="notes" placeholder="e.g. Joshua started mid-month, LinkedIn accept rate dipped 2pts, closed 2 enterprise deals…">${escNotes}</textarea>
-        </div>
-        <div class="bd-delete-row">
-          <button class="bd-delete-btn" data-delete-bd>Delete this month</button>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-  // Wire toggle / inputs / delete
-  host.querySelectorAll('.bd-month-card').forEach(card => {
-    const id = card.dataset.monthId;
-    card.querySelector('[data-toggle-bd]').addEventListener('click', e => {
-      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'BUTTON') return;
-      const d = bdMonth(id);
-      d.open = !d.open;
-      saveState();
-      card.classList.toggle('open', d.open);
-    });
-    card.querySelectorAll('[data-bd-field]').forEach(inp => {
-      inp.addEventListener('input', e => {
-        const k = e.target.dataset.bdField;
-        const v = e.target.type === 'number' ? (parseFloat(e.target.value) || 0) : e.target.value;
-        bdMonth(id)[k] = v;
-        saveState();
-        // Update summary text
-        const data = state.businessData[id];
-        const summary = [];
-        if (data.revenueActual) summary.push(money(data.revenueActual) + ' rev');
-        if (data.closesActual) summary.push(data.closesActual + ' closes');
-        if (data.bookingsActual) summary.push(data.bookingsActual + ' bookings');
-        card.querySelector('.summary').textContent = summary.join(' · ') || 'no data yet';
-      });
-    });
-    card.querySelector('[data-delete-bd]').addEventListener('click', () => {
-      if (!confirm(`Delete all data for ${fmtBdMonth(id)}?`)) return;
-      delete state.businessData[id];
-      saveState();
-      renderBusinessData();
-    });
-  });
-}
-
-// ============================================================
-// Weekly tracking — actuals vs war-plan targets
-// ============================================================
+// ────────────────────────────────────────────────────────────────────
+// Date helpers
+// ────────────────────────────────────────────────────────────────────
 function weekStartFor(date) {
   // ISO week — Monday start
   const d = new Date(date);
@@ -3949,71 +4087,154 @@ function fmtWeekLabel(weekStart) {
   const a = new Date(weekStart);
   const b = weekEndIso(weekStart);
   const MO = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const aM = MO[a.getMonth()];
-  const bM = MO[b.getMonth()];
   if (a.getMonth() === b.getMonth()) {
-    return `Week of ${aM} ${a.getDate()}–${b.getDate()}, ${b.getFullYear()}`;
+    return `Week of ${MO[a.getMonth()]} ${a.getDate()}–${b.getDate()}, ${b.getFullYear()}`;
   }
-  return `Week of ${aM} ${a.getDate()} – ${bM} ${b.getDate()}, ${b.getFullYear()}`;
+  return `Week of ${MO[a.getMonth()]} ${a.getDate()} – ${MO[b.getMonth()]} ${b.getDate()}, ${b.getFullYear()}`;
 }
 function weekPlanMonth(weekStart) {
   const d = new Date(weekStart);
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
 }
 
-// Run a fn with a temporarily different state.activeMonth and restore after.
+// Temporarily switch state.activeMonth so we can pull compute()'s outputs
+// for any plan-month without disturbing the user's currently-active month.
 function withActiveMonth(monthId, fn) {
   const saved = state.activeMonth;
   if (state.months[monthId]) state.activeMonth = monthId;
   try { return fn(); } finally { state.activeMonth = saved; }
 }
 
-// Build the weekly-target row set for a given plan-month.
-// Returns rows in the same shape/order as renderWarPlan so the UI is identical.
-function weeklyTargetRows(planMonth) {
+// ────────────────────────────────────────────────────────────────────
+// Note sections — the four collapsible note types, shared by all entries
+// ────────────────────────────────────────────────────────────────────
+const NOTE_SECTIONS = [
+  { k: 'announcements', icon: '📢', lbl: 'Announcements', placeholder: 'New hires, comp changes, target shifts the team needs to know about…' },
+  { k: 'wins',          icon: '🏆', lbl: 'Wins',          placeholder: 'What worked this period — best campaigns, biggest deals, team wins…' },
+  { k: 'blockers',      icon: '⛔', lbl: 'Blockers',      placeholder: 'What slowed us down — tooling failures, dependency gaps, lost time…' },
+  { k: 'premortem',     icon: '⚠',  lbl: 'Pre-mortem',    placeholder: 'If the next period underperforms, what\'s the most likely reason? Name the risks now…' },
+];
+
+function emptyNotes() {
+  const o = {};
+  NOTE_SECTIONS.forEach(n => o[n.k] = '');
+  return o;
+}
+
+// ────────────────────────────────────────────────────────────────────
+// Tracker kind config — weekly vs monthly differ only here.
+// ────────────────────────────────────────────────────────────────────
+const TRACKERS = {
+  weekly: {
+    storeKey: 'weeklyEntries',
+    activeKey: 'activeWeeklyId',
+    targetHeader: 'Weekly target',
+    divisor: (p) => p.workingDaysPerMonth / p.workingDaysPerWeek,
+    fmtLabel: (id) => fmtWeekLabel(id),
+    fmtShortLabel: (id) => fmtWeekLabel(id).replace(/^Week of /, ''),
+    suggestId: () => weekStartFor(new Date()),
+    inferPlanMonth: (id) => weekPlanMonth(id),
+    addLabel: '+ Add this week',
+    pickerInputType: 'date',
+    incrementId: (id, delta) => {
+      const d = new Date(id);
+      d.setDate(d.getDate() + 7 * delta);
+      return weekStartFor(d);
+    },
+  },
+  monthly: {
+    storeKey: 'monthlyEntries',
+    activeKey: 'activeMonthlyId',
+    targetHeader: 'Monthly target',
+    divisor: () => 1,
+    fmtLabel: (id) => fmtMonth(id),
+    fmtShortLabel: (id) => fmtMonth(id),
+    suggestId: () => currentMonthId(),
+    inferPlanMonth: (id) => id,
+    addLabel: '+ Add this month',
+    pickerInputType: 'month',
+    incrementId: (id, delta) => {
+      const [y, m] = id.split('-').map(Number);
+      const d = new Date(y, m - 1 + delta, 1);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    },
+  },
+};
+
+function trackerStore(kind) {
+  if (!state[TRACKERS[kind].storeKey]) state[TRACKERS[kind].storeKey] = {};
+  return state[TRACKERS[kind].storeKey];
+}
+
+// ────────────────────────────────────────────────────────────────────
+// Target row generator — same metrics, scaled by the kind's divisor.
+// Conversion rate rows (cv_*) are scale-invariant — they're rates, not
+// volumes — so they appear identically in both weekly and monthly views.
+// ────────────────────────────────────────────────────────────────────
+function trackerTargetRows(kind, planMonth) {
   return withActiveMonth(planMonth, () => {
     const p = plan();
     const c = compute();
-    const wkDiv = p.workingDaysPerMonth / p.workingDaysPerWeek;
-    const toWeekly = (mo) => mo / wkDiv;
+    const div = TRACKERS[kind].divisor(p);
+    const scale = (mo) => mo / div;
     const rows = [];
     rows.push({ section: 'Revenue & sales funnel' });
-    rows.push({ k: 'wp_revenueTarget', lbl: 'Contracted revenue', target: toWeekly(p.revenueTarget), money: true });
-    rows.push({ k: 'wp_cashCollectedTarget', lbl: 'Cash collected', target: toWeekly(c.cashCollectedTarget), money: true, conv: `${p.cashCollectedPct}% of contracted` });
-    rows.push({ k: 'wp_closes', lbl: 'Closes', target: toWeekly(c.closes), conv: `${money(c.packagePrice)} per close` });
-    rows.push({ k: 'wp_offers', lbl: 'Offers', target: toWeekly(c.offers), conv: `${p.sales.closeRate}% close rate` });
-    rows.push({ k: 'wp_qshows2', lbl: 'Call 2 qualified shows', target: toWeekly(c.qshows2), conv: `${p.sales.offerRate}% offer rate` });
-    rows.push({ k: 'wp_shows2', lbl: 'Call 2 shows', target: toWeekly(c.shows2), conv: `${p.sales.qshow2Rate}% qual-show rate` });
-    rows.push({ k: 'wp_book2', lbl: 'Call 2 bookings', target: toWeekly(c.book2), conv: `${p.sales.book2Rate}% → call 2 booked` });
-    rows.push({ k: 'wp_shows1', lbl: 'Call 1 shows', target: toWeekly(c.shows1), conv: `${p.sales.show1Rate}% show rate` });
-    rows.push({ k: 'wp_bookings', lbl: 'Call 1 bookings', target: toWeekly(c.bookings) });
+    rows.push({ k: 'wp_revenueTarget', lbl: 'Contracted revenue', target: scale(p.revenueTarget), money: true });
+    rows.push({ k: 'wp_cashCollectedTarget', lbl: 'Cash collected', target: scale(c.cashCollectedTarget), money: true, conv: `${p.cashCollectedPct}% of contracted` });
+    rows.push({ k: 'wp_closes', lbl: 'Closes', target: scale(c.closes), conv: `${money(c.packagePrice)} per close` });
+    rows.push({ k: 'wp_offers', lbl: 'Offers', target: scale(c.offers), conv: `${p.sales.closeRate}% close rate` });
+    rows.push({ k: 'wp_qshows2', lbl: 'Call 2 qualified shows', target: scale(c.qshows2), conv: `${p.sales.offerRate}% offer rate` });
+    rows.push({ k: 'wp_shows2', lbl: 'Call 2 shows', target: scale(c.shows2), conv: `${p.sales.qshow2Rate}% qual-show rate` });
+    rows.push({ k: 'wp_book2', lbl: 'Call 2 bookings', target: scale(c.book2), conv: `${p.sales.book2Rate}% → call 2 booked` });
+    rows.push({ k: 'wp_shows1', lbl: 'Call 1 shows', target: scale(c.shows1), conv: `${p.sales.show1Rate}% show rate` });
+    rows.push({ k: 'wp_bookings', lbl: 'Call 1 bookings', target: scale(c.bookings) });
 
-    rows.push({ section: 'Channels — outreach' });
+    rows.push({ section: 'Channels — outreach volume' });
     Object.entries(c.channelOutputs).forEach(([k, out]) => {
       const ch = p.channels[k];
       if (!ch.enabled) return;
       if (k === 'linkedin') {
-        rows.push({ k: 'wp_li_connections', lbl: 'LinkedIn connections', target: toWeekly(out.connections), conv: `${ch.acceptRate}% accept · ${ch.prr}% PRR` });
-        rows.push({ k: 'wp_li_profiles', lbl: 'LinkedIn profiles needed', target: out.profilesNeeded, conv: 'monthly headcount', noDelta: true });
+        rows.push({ k: 'wp_li_connections', lbl: 'LinkedIn connections sent', target: scale(out.connections) });
+        rows.push({ k: 'wp_li_accepts',     lbl: 'LinkedIn accepts',          target: scale(out.accepts), conv: 'depends on accept rate' });
+        rows.push({ k: 'wp_li_positives',   lbl: 'LinkedIn positive replies', target: scale(out.positives), conv: 'depends on PRR' });
+        rows.push({ k: 'wp_li_calendly',    lbl: 'LinkedIn Calendly clicks',  target: scale(out.calendlyClicks), conv: 'depends on CSR' });
+        rows.push({ k: 'wp_li_profiles',    lbl: 'LinkedIn sender profiles', target: out.profilesNeeded, conv: 'monthly headcount', noDelta: true });
       }
       if (k === 'email') {
-        rows.push({ k: 'wp_em_sends', lbl: 'Email sends', target: toWeekly(out.sends), conv: `${ch.replyRate}% reply · ${ch.prr}% PRR` });
-        rows.push({ k: 'wp_em_inboxes', lbl: 'Email inboxes', target: out.inboxesNeeded, conv: 'monthly headcount', noDelta: true });
+        rows.push({ k: 'wp_em_sends',     lbl: 'Email sends',            target: scale(out.sends) });
+        rows.push({ k: 'wp_em_replies',   lbl: 'Email replies',          target: scale(out.replies), conv: 'depends on reply rate' });
+        rows.push({ k: 'wp_em_positives', lbl: 'Email positive replies', target: scale(out.positives), conv: 'depends on PRR' });
+        rows.push({ k: 'wp_em_inboxes',   lbl: 'Email inboxes',          target: out.inboxesNeeded, conv: 'monthly headcount', noDelta: true });
       }
     });
 
+    // Conversion rate rows — user types the % they actually achieved.
+    rows.push({ section: 'Conversion rates — actuals vs targets' });
+    if (p.channels.linkedin && p.channels.linkedin.enabled) {
+      const li = p.channels.linkedin;
+      rows.push({ k: 'cv_li_acceptRate', lbl: 'LinkedIn accept rate', target: li.acceptRate, rate: true, conv: '% of connections accepted' });
+      rows.push({ k: 'cv_li_prr',        lbl: 'LinkedIn positive reply rate', target: li.prr, rate: true, conv: '% of accepts replying positively' });
+      rows.push({ k: 'cv_li_csr',        lbl: 'LinkedIn Calendly schedule rate', target: li.csr, rate: true, conv: '% of positives clicking Calendly' });
+      rows.push({ k: 'cv_li_abr',        lbl: 'LinkedIn appointment book rate', target: li.abr, rate: true, conv: '% of Calendly clicks that book' });
+    }
+    if (p.channels.email && p.channels.email.enabled) {
+      const em = p.channels.email;
+      rows.push({ k: 'cv_em_replyRate', lbl: 'Email reply rate', target: em.replyRate, rate: true, conv: '% of sends that reply' });
+      rows.push({ k: 'cv_em_prr',       lbl: 'Email positive reply rate', target: em.prr, rate: true, conv: '% of replies that are positive' });
+      rows.push({ k: 'cv_em_abr',       lbl: 'Email appointment book rate', target: em.abr, rate: true, conv: '% of positives that book' });
+    }
+
     rows.push({ section: 'Spend & profit' });
-    rows.push({ k: 'wp_marketing', lbl: 'Marketing spend', target: toWeekly(c.economics.totalMarketing), money: true, lowerBetter: true });
-    rows.push({ k: 'wp_commissions', lbl: 'Commission spend', target: toWeekly(c.economics.totalCommissions), money: true, lowerBetter: true });
-    rows.push({ k: 'wp_total_sm', lbl: 'Total S+M spend', target: toWeekly(c.economics.totalSalesAndMarketing), money: true, lowerBetter: true });
-    rows.push({ k: 'wp_profit', lbl: 'Profit on M+S', target: toWeekly(c.economics.profitAfterSM), money: true });
+    rows.push({ k: 'wp_marketing',  lbl: 'Marketing spend',    target: scale(c.economics.totalMarketing),         money: true, lowerBetter: true });
+    rows.push({ k: 'wp_commissions',lbl: 'Commission spend',   target: scale(c.economics.totalCommissions),       money: true, lowerBetter: true });
+    rows.push({ k: 'wp_total_sm',   lbl: 'Total S+M spend',    target: scale(c.economics.totalSalesAndMarketing), money: true, lowerBetter: true });
+    rows.push({ k: 'wp_profit',     lbl: 'Profit on M+S',      target: scale(c.economics.profitAfterSM),          money: true });
     return rows;
   });
 }
 
-// Status classification: how the actual stacks up against the target.
-// "lowerBetter" inverts the colours so coming in under is good (spend).
-function weeklyStatus(target, actual, lowerBetter) {
+// Status pill — how the actual stacks up against the target.
+function trackerStatus(target, actual, lowerBetter) {
   if (!target || target <= 0) return { pct: null, cls: 'neutral', label: '—' };
   if (!actual || actual <= 0) return { pct: null, cls: 'neutral', label: 'not entered' };
   const pct = (actual / target) * 100;
@@ -4024,16 +4245,16 @@ function weeklyStatus(target, actual, lowerBetter) {
   return { pct, cls: 'bad', label: `${pct.toFixed(0)}% · behind` };
 }
 
-function fmtRow(target, money) {
-  if (target == null || !isFinite(target)) return '—';
-  if (money) return CURRENCY_SYMBOLS[state.settings.currency] + Math.round(target).toLocaleString('en-GB');
-  if (target >= 100) return Math.round(target).toLocaleString('en-GB');
-  return target.toFixed(1);
+function fmtNum(v, opts = {}) {
+  if (v == null || !isFinite(v)) return '—';
+  if (opts.money) return CURRENCY_SYMBOLS[state.settings.currency] + Math.round(v).toLocaleString('en-GB');
+  if (opts.rate) return `${v.toFixed(1)}%`;
+  if (Math.abs(v) >= 100) return Math.round(v).toLocaleString('en-GB');
+  return v.toFixed(1);
 }
 
-// Aggregate score for the head pill — % of rows ahead of target.
-function weeklyEntryScore(entry) {
-  const rows = weeklyTargetRows(entry.planMonth);
+function trackerEntryScore(kind, entry) {
+  const rows = trackerTargetRows(kind, entry.planMonth);
   let scored = 0, hit = 0;
   rows.forEach(r => {
     if (r.section || r.noDelta) return;
@@ -4049,71 +4270,137 @@ function weeklyEntryScore(entry) {
   return { hit, scored, pct, cls };
 }
 
-function renderWeeklyEntries() {
-  const host = document.getElementById('we-entries');
-  if (!host) return;
-  const ids = Object.keys(state.weeklyEntries).sort().reverse();
-  if (!ids.length) {
-    host.innerHTML = `<div class="bd-empty">
-      <h3>No weekly entries yet</h3>
-      <p>Click <b>+ Add new weekly entry</b> above to log this week's actuals against your war plan.</p>
-    </div>`;
-    return;
-  }
-  host.innerHTML = ids.map(id => renderWeeklyEntryCard(id)).join('');
-  ids.forEach(id => wireWeeklyEntryCard(id));
+function createEntry(kind, id) {
+  const t = TRACKERS[kind];
+  const planMonth = state.months[t.inferPlanMonth(id)] ? t.inferPlanMonth(id) : state.activeMonth;
+  return {
+    id,
+    planMonth,
+    actuals: {},
+    notes: emptyNotes(),
+    openNotes: {},        // which note sections are expanded
+    notionPageId: '',
+    notionPageUrl: '',
+  };
 }
 
-function renderWeeklyEntryCard(id) {
-  const e = state.weeklyEntries[id];
-  if (!e) return '';
-  const score = weeklyEntryScore(e);
+// ────────────────────────────────────────────────────────────────────
+// Render a tracker section (picker chip + actions + active card)
+// ────────────────────────────────────────────────────────────────────
+function renderTracker(kind) {
+  const section = document.querySelector(`.tracker-section[data-tracker-kind="${kind}"]`);
+  if (!section) return;
+  const store = trackerStore(kind);
+  const ids = Object.keys(store).sort().reverse();
+  const t = TRACKERS[kind];
+  let activeId = state[t.activeKey];
+  if (!ids.length) {
+    activeId = null;
+  } else if (!activeId || !store[activeId]) {
+    activeId = ids[0];
+    state[t.activeKey] = activeId;
+  }
+  // Picker trigger label
+  const trigger = section.querySelector('[data-tracker-current]');
+  trigger.textContent = activeId ? t.fmtLabel(activeId) : 'No entries yet';
+  section.querySelector('[data-tracker-sub]').textContent = activeId
+    ? `vs ${fmtMonth(store[activeId].planMonth)} war plan`
+    : 'No entries yet';
+  // Picker menu — list of all entries newest first
+  const menu = section.querySelector('[data-tracker-picker-menu]');
+  menu.innerHTML = ids.length
+    ? ids.map(id => {
+        const e = store[id];
+        const score = trackerEntryScore(kind, e);
+        const scoreTxt = score.scored ? ` · ${Math.round(score.pct)}%` : '';
+        return `<button type="button" class="picker-option ${id === activeId ? 'active' : ''}" data-tracker-pick="${id}">
+          <span class="po-lbl">${t.fmtLabel(id)}</span>
+          <span class="po-meta">vs ${fmtMonth(e.planMonth)}${scoreTxt}</span>
+        </button>`;
+      }).join('')
+    : `<div class="picker-empty">Click <b>${t.addLabel}</b> to create one.</div>`;
+  // Active card
+  const cardHost = section.querySelector('[data-tracker-card]');
+  if (!activeId) {
+    cardHost.innerHTML = `<div class="bd-empty">
+      <h3>No ${kind === 'weekly' ? 'weekly' : 'monthly'} entries yet</h3>
+      <p>Click <b>${t.addLabel}</b> above to log this ${kind === 'weekly' ? 'week' : 'month'}'s actuals against your war plan.</p>
+    </div>`;
+  } else {
+    cardHost.innerHTML = renderTrackerCardHtml(kind, activeId);
+    wireTrackerCard(kind, activeId);
+  }
+  // Duplicate/Delete enable state
+  const dupBtn = section.querySelector('[data-tracker-duplicate]');
+  const delBtn = section.querySelector('[data-tracker-delete]');
+  dupBtn.disabled = !activeId;
+  delBtn.disabled = !activeId;
+}
+
+function renderTrackerCardHtml(kind, id) {
+  const t = TRACKERS[kind];
+  const e = trackerStore(kind)[id];
+  const score = trackerEntryScore(kind, e);
   const scoreHtml = score.scored
     ? `<span class="we-score ${score.cls}">${score.hit}/${score.scored} ahead · ${Math.round(score.pct)}%</span>`
     : `<span class="we-score">no data yet</span>`;
   const planMonths = Object.keys(state.months).sort().reverse();
   const planOpts = planMonths.map(m => `<option value="${m}" ${m === e.planMonth ? 'selected' : ''}>${fmtMonth(m)}</option>`).join('');
-  return `<div class="we-card ${e.open ? 'open' : ''}" data-we-id="${id}">
-    <div class="we-head" data-we-toggle>
+  const rows = trackerTargetRows(kind, e.planMonth);
+  return `<div class="we-card open" data-tracker-card-id="${id}">
+    <div class="we-head static">
       <div>
-        <div class="lbl">${fmtWeekLabel(id)}</div>
+        <div class="lbl">${t.fmtLabel(id)}</div>
         <div class="summary">vs ${fmtMonth(e.planMonth)} war plan</div>
       </div>
       ${scoreHtml}
-      <div class="summary"></div>
-      <div class="toggle">›</div>
+      <div></div>
+      <div></div>
     </div>
     <div class="we-body">
       <div class="we-meta">
-        <div><label>Week starting (Monday)</label><input type="date" data-we-meta="weekStart" value="${id}" /></div>
-        <div><label>Compare to war plan for</label><select data-we-meta="planMonth">${planOpts}</select></div>
+        <div><label>${kind === 'weekly' ? 'Week starting (Monday)' : 'Month'}</label>
+          <input type="${t.pickerInputType}" data-tracker-meta="id" value="${id}" />
+        </div>
+        <div><label>Compare to war plan for</label>
+          <select data-tracker-meta="planMonth">${planOpts}</select>
+        </div>
       </div>
-      <div data-we-table-wrap></div>
-      <div class="bd-notes">
-        <label>What happened this week — wins, blockers, anomalies</label>
-        <textarea data-we-meta="notes" placeholder="e.g. 2 closes from a single LinkedIn campaign; email send rate dipped Friday because of GoLogin issues…">${(e.notes || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
+      <div data-tracker-table-wrap>${renderTrackerTableHtml(kind, id, rows)}</div>
+      <div class="note-stack">
+        ${NOTE_SECTIONS.map(n => {
+          const val = (e.notes && e.notes[n.k]) || '';
+          const open = !!(e.openNotes && e.openNotes[n.k]) || !!val.trim();
+          const hasContent = !!val.trim();
+          return `<div class="note-section ${open ? 'open' : ''} ${hasContent ? 'has-content' : ''}" data-note-key="${n.k}">
+            <button type="button" class="note-toggle" data-note-toggle>
+              <span class="note-icon">${n.icon}</span>
+              <span class="note-lbl">${n.lbl}</span>
+              ${hasContent ? '<span class="note-dot" title="has content"></span>' : ''}
+              <span class="note-caret">▾</span>
+            </button>
+            <div class="note-body">
+              <textarea data-note-input="${n.k}" placeholder="${n.placeholder}">${val.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
+            </div>
+          </div>`;
+        }).join('')}
       </div>
       <div class="we-row-actions">
-        <button class="ghost" data-we-act="print">Print / Save as PDF</button>
-        <button class="primary" data-we-act="publish">Publish to Notion →</button>
-        <span class="spacer"></span>
-        <button class="bd-delete-btn" data-we-act="delete">Delete entry</button>
+        <button class="ghost" data-tracker-act="print">Print / Save as PDF</button>
+        <button class="primary" data-tracker-act="publish">Publish to Notion →</button>
       </div>
     </div>
   </div>`;
 }
 
-function renderWeeklyEntryTable(id) {
-  const e = state.weeklyEntries[id];
-  const card = document.querySelector(`.we-card[data-we-id="${id}"]`);
-  if (!card || !e) return;
-  const wrap = card.querySelector('[data-we-table-wrap]');
-  const rows = weeklyTargetRows(e.planMonth);
-  const html = `<table class="we-table">
+function renderTrackerTableHtml(kind, id, rows) {
+  const t = TRACKERS[kind];
+  const e = trackerStore(kind)[id];
+  return `<table class="we-table">
     <thead>
       <tr>
         <th>Metric</th>
-        <th class="num">Weekly target</th>
+        <th class="num">${t.targetHeader}</th>
         <th class="num">Actual</th>
         <th class="num">Δ</th>
         <th class="num">Status</th>
@@ -4125,16 +4412,16 @@ function renderWeeklyEntryTable(id) {
         if (r.section) return `<tr class="section-row"><td colspan="6">${r.section}</td></tr>`;
         const actual = Number((e.actuals || {})[r.k]) || 0;
         const delta = actual - r.target;
-        const status = r.noDelta
-          ? { cls: 'neutral', label: '—' }
-          : weeklyStatus(r.target, actual, !!r.lowerBetter);
+        const status = r.noDelta ? { cls: 'neutral', label: '—' } : trackerStatus(r.target, actual, !!r.lowerBetter);
         const showDelta = !r.noDelta && actual > 0;
-        const deltaTxt = showDelta ? (delta >= 0 ? '+' : '−') + fmtRow(Math.abs(delta), r.money) : '—';
+        const fmtOpts = { money: !!r.money, rate: !!r.rate };
+        const deltaTxt = showDelta ? (delta >= 0 ? '+' : '−') + fmtNum(Math.abs(delta), fmtOpts) : '—';
         const deltaColor = showDelta ? (delta >= 0 ? 'var(--good)' : 'var(--bad)') : 'var(--text-tertiary)';
+        const step = r.money ? '1' : r.rate ? '0.1' : '0.1';
         return `<tr data-we-row="${r.k}">
           <td class="lbl">${r.lbl}</td>
-          <td class="num">${fmtRow(r.target, r.money)}</td>
-          <td class="num"><input type="number" min="0" step="${r.money ? '1' : '0.1'}" class="we-actual" data-we-actual="${r.k}" value="${actual || ''}" placeholder="0" /></td>
+          <td class="num">${fmtNum(r.target, fmtOpts)}</td>
+          <td class="num"><input type="number" min="0" step="${step}" class="we-actual" data-tracker-actual="${r.k}" value="${actual || ''}" placeholder="0" /></td>
           <td class="num" style="color:${deltaColor};font-weight:600">${deltaTxt}</td>
           <td class="num"><span class="we-status-pill ${status.cls}">${status.label}</span></td>
           <td class="conv">${r.conv || ''}</td>
@@ -4142,24 +4429,35 @@ function renderWeeklyEntryTable(id) {
       }).join('')}
     </tbody>
   </table>`;
-  wrap.innerHTML = html;
-  wrap.querySelectorAll('.we-actual').forEach(inp => {
+}
+
+function wireTrackerCard(kind, id) {
+  const t = TRACKERS[kind];
+  const store = trackerStore(kind);
+  const e = store[id];
+  const section = document.querySelector(`.tracker-section[data-tracker-kind="${kind}"]`);
+  const card = section.querySelector('[data-tracker-card-id]');
+  if (!card) return;
+  // Actuals
+  card.querySelectorAll('[data-tracker-actual]').forEach(inp => {
     inp.addEventListener('input', ev => {
       if (!e.actuals) e.actuals = {};
-      const k = ev.target.dataset.weActual;
+      const k = ev.target.dataset.trackerActual;
       const v = parseFloat(ev.target.value);
       if (isFinite(v) && v > 0) e.actuals[k] = v;
       else delete e.actuals[k];
       saveState();
-      // Update just this row's delta / pill so we don't lose input focus
-      const row = ev.target.closest('tr');
+      // Update row inline (no re-render so focus stays)
+      const rows = trackerTargetRows(kind, e.planMonth);
       const rDef = rows.find(rr => rr.k === k);
       const actual = Number(e.actuals[k]) || 0;
       const delta = actual - rDef.target;
-      const status = rDef.noDelta ? { cls: 'neutral', label: '—' } : weeklyStatus(rDef.target, actual, !!rDef.lowerBetter);
+      const status = rDef.noDelta ? { cls: 'neutral', label: '—' } : trackerStatus(rDef.target, actual, !!rDef.lowerBetter);
       const showDelta = !rDef.noDelta && actual > 0;
-      const deltaTxt = showDelta ? (delta >= 0 ? '+' : '−') + fmtRow(Math.abs(delta), rDef.money) : '—';
+      const fmtOpts = { money: !!rDef.money, rate: !!rDef.rate };
+      const deltaTxt = showDelta ? (delta >= 0 ? '+' : '−') + fmtNum(Math.abs(delta), fmtOpts) : '—';
       const deltaColor = showDelta ? (delta >= 0 ? 'var(--good)' : 'var(--bad)') : 'var(--text-tertiary)';
+      const row = ev.target.closest('tr');
       const deltaCell = row.querySelector('td:nth-child(4)');
       deltaCell.style.color = deltaColor;
       deltaCell.style.fontWeight = '600';
@@ -4167,129 +4465,200 @@ function renderWeeklyEntryTable(id) {
       const pill = row.querySelector('.we-status-pill');
       pill.className = `we-status-pill ${status.cls}`;
       pill.textContent = status.label;
-      // Update head score pill
-      const headPill = document.querySelector(`.we-card[data-we-id="${id}"] .we-score`);
-      const score = weeklyEntryScore(e);
+      const headPill = card.querySelector('.we-score');
+      const score = trackerEntryScore(kind, e);
       headPill.className = `we-score ${score.cls || ''}`;
       headPill.textContent = score.scored ? `${score.hit}/${score.scored} ahead · ${Math.round(score.pct)}%` : 'no data yet';
     });
   });
-}
-
-function wireWeeklyEntryCard(id) {
-  const card = document.querySelector(`.we-card[data-we-id="${id}"]`);
-  if (!card) return;
-  const e = state.weeklyEntries[id];
-  card.querySelector('[data-we-toggle]').addEventListener('click', ev => {
-    if (ev.target.closest('input,select,textarea,button')) return;
-    e.open = !e.open;
-    card.classList.toggle('open', e.open);
-    saveState();
-    if (e.open) renderWeeklyEntryTable(id);
-  });
-  card.querySelectorAll('[data-we-meta]').forEach(inp => {
+  // Meta inputs (id rename + planMonth)
+  card.querySelectorAll('[data-tracker-meta]').forEach(inp => {
     inp.addEventListener('input', ev => {
-      const k = ev.target.dataset.weMeta;
-      e[k] = ev.target.value;
-      saveState();
-      if (k === 'planMonth') renderWeeklyEntryTable(id);
-      if (k === 'weekStart') {
-        // Re-key the entry under the new Monday
+      const k = ev.target.dataset.trackerMeta;
+      if (k === 'planMonth') {
+        e.planMonth = ev.target.value;
+        saveState();
+        renderTracker(kind);
+      } else if (k === 'id') {
         const newId = ev.target.value;
-        if (newId && newId !== id && !state.weeklyEntries[newId]) {
-          state.weeklyEntries[newId] = e;
-          delete state.weeklyEntries[id];
+        if (newId && newId !== id && !store[newId]) {
+          store[newId] = e;
+          delete store[id];
+          state[t.activeKey] = newId;
           saveState();
-          renderWeeklyEntries();
+          renderTracker(kind);
         }
       }
     });
   });
-  card.querySelector('[data-we-act="delete"]').addEventListener('click', () => {
-    if (!confirm(`Delete this weekly entry (${fmtWeekLabel(id)})?`)) return;
-    delete state.weeklyEntries[id];
-    saveState();
-    renderWeeklyEntries();
+  // Note toggles
+  card.querySelectorAll('.note-section').forEach(sec => {
+    const k = sec.dataset.noteKey;
+    sec.querySelector('[data-note-toggle]').addEventListener('click', () => {
+      if (!e.openNotes) e.openNotes = {};
+      e.openNotes[k] = !sec.classList.contains('open');
+      sec.classList.toggle('open', e.openNotes[k]);
+      saveState();
+    });
+    sec.querySelector('[data-note-input]').addEventListener('input', ev => {
+      if (!e.notes) e.notes = emptyNotes();
+      e.notes[k] = ev.target.value;
+      sec.classList.toggle('has-content', !!ev.target.value.trim());
+      // Update the dot indicator
+      const existingDot = sec.querySelector('.note-dot');
+      const hasContent = !!ev.target.value.trim();
+      if (hasContent && !existingDot) {
+        const dot = document.createElement('span');
+        dot.className = 'note-dot';
+        dot.title = 'has content';
+        sec.querySelector('.note-caret').before(dot);
+      } else if (!hasContent && existingDot) {
+        existingDot.remove();
+      }
+      saveState();
+    });
   });
-  card.querySelector('[data-we-act="print"]').addEventListener('click', () => printWeeklyEntry(id));
-  card.querySelector('[data-we-act="publish"]').addEventListener('click', () => openWeeklyPublishModal(id));
-  if (e.open) renderWeeklyEntryTable(id);
+  // Actions
+  card.querySelector('[data-tracker-act="print"]').addEventListener('click', () => printTrackerEntry(kind, id));
+  card.querySelector('[data-tracker-act="publish"]').addEventListener('click', () => openTrackerPublishModal(kind, id));
 }
 
 // ────────────────────────────────────────────────────────────────────
-// Markdown report for Notion publish (and the source for the PDF print)
+// Picker dropdown, add, duplicate, delete
 // ────────────────────────────────────────────────────────────────────
-function weeklyEntryMarkdown(id) {
-  const e = state.weeklyEntries[id];
+function trackerSetActive(kind, id) {
+  state[TRACKERS[kind].activeKey] = id;
+  saveState();
+  renderTracker(kind);
+}
+
+function trackerAdd(kind) {
+  const t = TRACKERS[kind];
+  const store = trackerStore(kind);
+  let id = t.suggestId();
+  // If the suggested id already exists, just focus it
+  if (store[id]) {
+    trackerSetActive(kind, id);
+    return;
+  }
+  store[id] = createEntry(kind, id);
+  trackerSetActive(kind, id);
+}
+
+function trackerDuplicate(kind) {
+  const t = TRACKERS[kind];
+  const store = trackerStore(kind);
+  const srcId = state[t.activeKey];
+  const src = store[srcId];
+  if (!src) return;
+  // Find next available id by incrementing
+  let newId = t.incrementId(srcId, 1);
+  while (store[newId]) newId = t.incrementId(newId, 1);
+  store[newId] = {
+    ...createEntry(kind, newId),
+    planMonth: t.inferPlanMonth(newId),
+    actuals: { ...(src.actuals || {}) },
+    notes: { ...emptyNotes(), ...(src.notes || {}) },
+    openNotes: { ...(src.openNotes || {}) },
+  };
+  trackerSetActive(kind, newId);
+}
+
+function trackerDelete(kind) {
+  const t = TRACKERS[kind];
+  const store = trackerStore(kind);
+  const id = state[t.activeKey];
+  if (!id || !store[id]) return;
+  if (!confirm(`Delete this entry (${t.fmtLabel(id)})? This can't be undone.`)) return;
+  delete store[id];
+  // Pick a new active id (next newest)
+  const remaining = Object.keys(store).sort().reverse();
+  state[t.activeKey] = remaining[0] || null;
+  saveState();
+  renderTracker(kind);
+}
+
+// ────────────────────────────────────────────────────────────────────
+// Markdown for Notion publish + the printable PDF
+// ────────────────────────────────────────────────────────────────────
+function trackerEntryMarkdown(kind, id) {
+  const t = TRACKERS[kind];
+  const e = trackerStore(kind)[id];
   if (!e) return '';
-  const rows = weeklyTargetRows(e.planMonth);
-  const sym = CURRENCY_SYMBOLS[state.settings.currency];
+  const rows = trackerTargetRows(kind, e.planMonth);
   const lines = [];
-  lines.push(`# ${fmtWeekLabel(id)}`);
+  lines.push(`# ${t.fmtLabel(id)}`);
   lines.push('');
   lines.push(`_Compared to ${fmtMonth(e.planMonth)} war plan._`);
   lines.push('');
-  const score = weeklyEntryScore(e);
+  const score = trackerEntryScore(kind, e);
   if (score.scored) {
     lines.push(`**Aggregate:** ${score.hit}/${score.scored} metrics ahead of target (${Math.round(score.pct)}%)`);
     lines.push('');
   }
-  lines.push('| Metric | Weekly target | Actual | Δ | Status |');
+  lines.push(`| Metric | ${t.targetHeader} | Actual | Δ | Status |`);
   lines.push('| --- | ---: | ---: | ---: | :---: |');
   rows.forEach(r => {
     if (r.section) { lines.push(`| **${r.section}** | | | | |`); return; }
     const actual = Number((e.actuals || {})[r.k]) || 0;
     const delta = actual - r.target;
-    const status = r.noDelta ? '—' : weeklyStatus(r.target, actual, !!r.lowerBetter).label;
-    const t = fmtRow(r.target, r.money);
-    const a = actual ? fmtRow(actual, r.money) : '—';
-    const d = r.noDelta || !actual ? '—' : (delta >= 0 ? '+' : '') + fmtRow(delta, r.money);
-    lines.push(`| ${r.lbl} | ${t} | ${a} | ${d} | ${status} |`);
+    const status = r.noDelta ? '—' : trackerStatus(r.target, actual, !!r.lowerBetter).label;
+    const fmtOpts = { money: !!r.money, rate: !!r.rate };
+    const a = actual ? fmtNum(actual, fmtOpts) : '—';
+    const d = r.noDelta || !actual ? '—' : (delta >= 0 ? '+' : '') + fmtNum(delta, fmtOpts);
+    lines.push(`| ${r.lbl} | ${fmtNum(r.target, fmtOpts)} | ${a} | ${d} | ${status} |`);
   });
-  if ((e.notes || '').trim()) {
+  // Notes — only sections that have content
+  NOTE_SECTIONS.forEach(n => {
+    const v = ((e.notes || {})[n.k] || '').trim();
+    if (!v) return;
     lines.push('');
-    lines.push('## Notes');
+    lines.push(`## ${n.icon} ${n.lbl}`);
     lines.push('');
-    lines.push(e.notes.trim());
-  }
+    lines.push(v);
+  });
   return lines.join('\n');
 }
 
-// ────────────────────────────────────────────────────────────────────
-// PDF — browser print of the entry summary
-// ────────────────────────────────────────────────────────────────────
-function printWeeklyEntry(id) {
-  const e = state.weeklyEntries[id];
+function printTrackerEntry(kind, id) {
+  const t = TRACKERS[kind];
+  const e = trackerStore(kind)[id];
   if (!e) return;
-  const rows = weeklyTargetRows(e.planMonth);
+  const rows = trackerTargetRows(kind, e.planMonth);
+  const stClsMap = { good: 'we-print-good', warn: 'we-print-warn', bad: 'we-print-bad', neutral: '' };
   const tableRows = rows.map(r => {
     if (r.section) return `<tr class="section-row"><td colspan="5">${r.section}</td></tr>`;
     const actual = Number((e.actuals || {})[r.k]) || 0;
     const delta = actual - r.target;
-    const status = r.noDelta ? { cls: 'neutral', label: '—' } : weeklyStatus(r.target, actual, !!r.lowerBetter);
-    const deltaTxt = r.noDelta || !actual ? '—' : (delta >= 0 ? '+' : '') + fmtRow(delta, r.money);
+    const status = r.noDelta ? { cls: 'neutral', label: '—' } : trackerStatus(r.target, actual, !!r.lowerBetter);
+    const fmtOpts = { money: !!r.money, rate: !!r.rate };
+    const deltaTxt = r.noDelta || !actual ? '—' : (delta >= 0 ? '+' : '') + fmtNum(delta, fmtOpts);
     const deltaCls = !actual || r.noDelta ? '' : (delta >= 0 ? 'we-print-good' : 'we-print-bad');
-    const stClsMap = { good: 'we-print-good', warn: 'we-print-warn', bad: 'we-print-bad', neutral: '' };
     return `<tr>
       <td>${r.lbl}</td>
-      <td class="num">${fmtRow(r.target, r.money)}</td>
-      <td class="num">${actual ? fmtRow(actual, r.money) : '—'}</td>
+      <td class="num">${fmtNum(r.target, fmtOpts)}</td>
+      <td class="num">${actual ? fmtNum(actual, fmtOpts) : '—'}</td>
       <td class="num ${deltaCls}">${deltaTxt}</td>
       <td class="num ${stClsMap[status.cls]}">${status.label}</td>
     </tr>`;
   }).join('');
-  const score = weeklyEntryScore(e);
+  const score = trackerEntryScore(kind, e);
+  const notesHtml = NOTE_SECTIONS.map(n => {
+    const v = ((e.notes || {})[n.k] || '').trim();
+    if (!v) return '';
+    return `<h2 style="font-size:14px;margin:18px 0 4px">${n.icon} ${n.lbl}</h2><div style="font-size:12px;white-space:pre-line">${v.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>`;
+  }).join('');
   const html = `
-    <h1 style="margin:0 0 6px;font-size:22px">${fmtWeekLabel(id)}</h1>
+    <h1 style="margin:0 0 6px;font-size:22px">${t.fmtLabel(id)}</h1>
     <div style="color:#666;font-size:13px;margin-bottom:14px">Compared to ${fmtMonth(e.planMonth)} war plan</div>
     ${score.scored ? `<div style="font-weight:600;margin-bottom:14px">${score.hit}/${score.scored} metrics ahead of target (${Math.round(score.pct)}%)</div>` : ''}
     <table>
       <thead><tr>
-        <th>Metric</th><th class="num">Weekly target</th><th class="num">Actual</th><th class="num">Δ</th><th class="num">Status</th>
+        <th>Metric</th><th class="num">${t.targetHeader}</th><th class="num">Actual</th><th class="num">Δ</th><th class="num">Status</th>
       </tr></thead>
       <tbody>${tableRows}</tbody>
     </table>
-    ${(e.notes || '').trim() ? `<h2 style="font-size:14px;margin:20px 0 6px">Notes</h2><div style="font-size:12px;white-space:pre-line">${(e.notes || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>` : ''}
+    ${notesHtml}
   `;
   let area = document.getElementById('we-print-area');
   if (!area) {
@@ -4302,16 +4671,17 @@ function printWeeklyEntry(id) {
   window.print();
 }
 
-// ────────────────────────────────────────────────────────────────────
-// Notion publish — reuses the existing plan-modal + api/publish.js
-// ────────────────────────────────────────────────────────────────────
-let activeWeeklyPublishId = null;
-function openWeeklyPublishModal(id) {
+let activeWeeklyPublishId = null;   // legacy name — also tracks monthly now
+let activeTrackerPublishKind = null;
+function openTrackerPublishModal(kind, id) {
+  const t = TRACKERS[kind];
+  const e = trackerStore(kind)[id];
+  if (!e) return;
   activeWeeklyPublishId = id;
-  const e = state.weeklyEntries[id];
-  const md = weeklyEntryMarkdown(id);
+  activeTrackerPublishKind = kind;
+  const md = trackerEntryMarkdown(kind, id);
   document.getElementById('plan-markdown').textContent = md;
-  document.getElementById('plan-modal-title').textContent = `${fmtWeekLabel(id)} — weekly report`;
+  document.getElementById('plan-modal-title').textContent = `${t.fmtLabel(id)} — ${kind} report`;
   modalStatus.textContent = '';
   modalStatus.classList.remove('ok');
   modalStatus.style.color = '';
@@ -4324,85 +4694,48 @@ function openWeeklyPublishModal(id) {
   modal.classList.add('open');
 }
 
-// Hook into the existing plan-publish-btn click flow so weekly publishes
-// route to the same Vercel endpoint as the war plan. We patch the click
-// handler at boot — see the bd-add-btn wiring below.
+// ────────────────────────────────────────────────────────────────────
+// Picker + action wiring (delegated, applies to both kinds)
+// ────────────────────────────────────────────────────────────────────
+function wireTrackerSection(kind) {
+  const section = document.querySelector(`.tracker-section[data-tracker-kind="${kind}"]`);
+  if (!section) return;
+  // Adjust add button label to suit kind
+  const addBtn = section.querySelector('[data-tracker-add]');
+  addBtn.textContent = TRACKERS[kind].addLabel;
+  // Picker trigger
+  const trigger = section.querySelector('[data-tracker-picker-trigger]');
+  const picker = section.querySelector('[data-tracker-picker]');
+  trigger.addEventListener('click', e => {
+    e.stopPropagation();
+    // Close other open pickers
+    document.querySelectorAll('.tracker-picker.open').forEach(p => { if (p !== picker) p.classList.remove('open'); });
+    picker.classList.toggle('open');
+  });
+  section.querySelector('[data-tracker-picker-menu]').addEventListener('click', e => {
+    const btn = e.target.closest('[data-tracker-pick]');
+    if (!btn) return;
+    trackerSetActive(kind, btn.dataset.trackerPick);
+    picker.classList.remove('open');
+  });
+  // Actions
+  addBtn.addEventListener('click', () => trackerAdd(kind));
+  section.querySelector('[data-tracker-duplicate]').addEventListener('click', () => trackerDuplicate(kind));
+  section.querySelector('[data-tracker-delete]').addEventListener('click', () => trackerDelete(kind));
+}
 
-document.getElementById('we-add-btn').addEventListener('click', () => {
-  const today = new Date();
-  const monday = weekStartFor(today);
-  if (state.weeklyEntries[monday]) {
-    // Already exists — open it
-    state.weeklyEntries[monday].open = true;
-    saveState();
-    renderWeeklyEntries();
-    document.querySelector(`.we-card[data-we-id="${monday}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    return;
-  }
-  const planMonth = state.months[weekPlanMonth(monday)] ? weekPlanMonth(monday) : state.activeMonth;
-  state.weeklyEntries[monday] = {
-    weekStart: monday,
-    planMonth,
-    actuals: {},
-    notes: '',
-    open: true,
-    notionPageId: '',
-    notionPageUrl: '',
-  };
-  saveState();
-  renderWeeklyEntries();
+// Close pickers on outside click
+document.addEventListener('click', () => {
+  document.querySelectorAll('.tracker-picker.open').forEach(p => p.classList.remove('open'));
 });
 
-document.getElementById('bd-add-btn').addEventListener('click', () => {
-  const ids = Object.keys(state.businessData).sort();
-  // Suggest prior month from latest, or current month
-  let suggested;
-  if (ids.length) {
-    const last = ids[ids.length - 1];
-    const [y, m] = last.split('-').map(Number);
-    const d = new Date(y, m, 1);
-    suggested = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-  } else {
-    const now = new Date();
-    const d = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-    suggested = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-  }
-  const input = prompt('Month to add (YYYY-MM):', suggested);
-  if (!input) return;
-  if (!/^\d{4}-\d{2}$/.test(input)) { alert('Use YYYY-MM format'); return; }
-  if (state.businessData[input]) { alert('That month already exists'); return; }
-  state.businessData[input] = { open: true };
-  saveState();
-  renderBusinessData();
-});
+function renderBusinessData() {
+  renderTracker('weekly');
+  renderTracker('monthly');
+}
 
-document.getElementById('bd-import-from-plans-btn').addEventListener('click', () => {
-  const planIds = Object.keys(state.months).sort().reverse();
-  if (!planIds.length) { alert('No plans to import from'); return; }
-  const pickFrom = prompt(`Import which plan? Options:\n${planIds.join(', ')}`, planIds[0]);
-  if (!pickFrom || !state.months[pickFrom]) return;
-  const targetMonth = prompt('Save the data under which historical month (YYYY-MM)?', pickFrom);
-  if (!targetMonth || !/^\d{4}-\d{2}$/.test(targetMonth)) { alert('Use YYYY-MM format'); return; }
-  // Run compute on the source plan
-  const savedActive = state.activeMonth;
-  state.activeMonth = pickFrom;
-  const c = compute();
-  state.activeMonth = savedActive;
-  const liOut = c.channelOutputs.linkedin;
-  const emOut = c.channelOutputs.email;
-  state.businessData[targetMonth] = {
-    open: true,
-    revenueActual: Math.round(c.contractedRevenueMo),
-    cashCollectedActual: Math.round(c.cashCollectedMo),
-    closesActual: Math.ceil(c.closes),
-    bookingsActual: Math.ceil(c.bookings),
-    linkedinConnectionsActual: liOut ? Math.ceil(liOut.connections) : 0,
-    emailSendsActual: emOut ? Math.ceil(emOut.sends) : 0,
-    notes: `Imported from ${fmtMonth(pickFrom)} plan.`,
-  };
-  saveState();
-  renderBusinessData();
-});
+wireTrackerSection('weekly');
+wireTrackerSection('monthly');
 
 render();
 switchView(state.activeView || 'reverse-engineering');

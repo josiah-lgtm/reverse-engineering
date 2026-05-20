@@ -113,11 +113,186 @@
   /* ==============================
      Page container
      ============================== */
+  .app-shell {
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    min-height: calc(100vh - 60px);
+  }
+  @media (max-width: 800px) { .app-shell { grid-template-columns: 1fr; } }
+  .sidenav {
+    background: rgba(28, 28, 30, 0.4);
+    border-right: 1px solid var(--separator);
+    padding: 28px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  @media (max-width: 800px) {
+    .sidenav { flex-direction: row; padding: 10px 16px; overflow-x: auto; border-bottom: 1px solid var(--separator); border-right: none; }
+  }
+  .sidenav .nav-item {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text-secondary);
+    padding: 11px 14px;
+    border-radius: 9px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.12s, color 0.12s;
+    letter-spacing: -0.005em;
+  }
+  .sidenav .nav-item:hover { background: var(--surface-raised); color: var(--text); }
+  .sidenav .nav-item.active { background: var(--accent-tint); color: var(--accent-hover); font-weight: 600; }
+  .sidenav .nav-item .dot {
+    width: 8px; height: 8px; border-radius: 50%;
+    background: var(--text-quaternary);
+    transition: background 0.15s;
+  }
+  .sidenav .nav-item.active .dot { background: var(--accent); }
+  .view-host { min-width: 0; }
+  .view-pane { display: block; }
+  .view-pane.hidden { display: none !important; }
+
   .container {
     max-width: 1280px;
     margin: 0 auto;
     padding: 40px 32px 100px;
   }
+
+  /* Business Data view */
+  .bd-actions {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+  }
+  .bd-month-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 14px;
+    overflow: hidden;
+    transition: border-color 0.15s;
+  }
+  .bd-month-card:hover { border-color: var(--border-strong); }
+  .bd-month-head {
+    display: grid;
+    grid-template-columns: 200px 1fr auto;
+    gap: 18px;
+    align-items: center;
+    padding: 18px 22px;
+    cursor: pointer;
+  }
+  .bd-month-head:hover { background: rgba(255,255,255,0.02); }
+  .bd-month-head .lbl {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .bd-month-head .summary { color: var(--text-secondary); font-size: 13px; font-variant-numeric: tabular-nums; }
+  .bd-month-head .toggle {
+    color: var(--text-tertiary);
+    font-size: 20px;
+    transition: transform 0.18s;
+    line-height: 1;
+  }
+  .bd-month-card.open .toggle { transform: rotate(90deg); }
+  .bd-month-body {
+    display: none;
+    padding: 4px 22px 22px;
+    border-top: 1px solid var(--separator);
+  }
+  .bd-month-card.open .bd-month-body { display: block; }
+  .bd-fields {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    padding: 18px 0;
+  }
+  @media (max-width: 800px) { .bd-fields { grid-template-columns: 1fr; } }
+  .bd-field label {
+    font-size: 11.5px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .bd-field input {
+    width: 100%;
+    background: var(--surface-input);
+    border: 1px solid var(--border-input);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 14px;
+    padding: 9px 12px;
+    font-family: inherit;
+    font-variant-numeric: tabular-nums;
+  }
+  .bd-field input:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  .bd-notes {
+    margin-top: 8px;
+  }
+  .bd-notes label {
+    display: block;
+    font-size: 11.5px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .bd-notes textarea {
+    width: 100%;
+    min-height: 90px;
+    background: var(--surface-input);
+    border: 1px solid var(--border-input);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 14px;
+    padding: 10px 13px;
+    font-family: inherit;
+    line-height: 1.55;
+    resize: vertical;
+  }
+  .bd-notes textarea:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  .bd-delete-row {
+    margin-top: 14px;
+    display: flex;
+    justify-content: flex-end;
+  }
+  .bd-delete-btn {
+    background: var(--bad-tint);
+    color: var(--bad);
+    border: none;
+    padding: 6px 12px;
+    border-radius: 7px;
+    font-size: 12.5px;
+    cursor: pointer;
+    font-weight: 500;
+  }
+  .bd-delete-btn:hover { background: rgba(255, 69, 58, 0.22); }
+  .bd-empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-tertiary);
+    background: var(--surface);
+    border: 1px dashed var(--border-strong);
+    border-radius: 14px;
+  }
+  .bd-empty h3 { color: var(--text); margin: 0 0 8px; font-size: 17px; }
 
   .header { margin-bottom: 36px; }
   .header h1 {
@@ -1521,8 +1696,8 @@
     <img src="logo.png" alt="" />
     <span class="name">Agency Advanta</span>
   </div>
-  <span class="title">REVERSE ENGINEERING</span>
-  <div class="month-picker">
+  <span class="title" id="topbar-view-title">REVERSE ENGINEERING</span>
+  <div class="month-picker" id="month-picker-wrap">
     <label for="month-select">Month</label>
     <select id="month-select"></select>
     <button id="add-month-btn" title="New month">+</button>
@@ -1540,7 +1715,15 @@
   <button id="reset-btn" class="ghost">Reset month</button>
 </div>
 
-<div class="container">
+<div class="app-shell">
+  <aside class="sidenav">
+    <button class="nav-item active" data-view="reverse-engineering"><span class="dot"></span>Reverse Engineering</button>
+    <button class="nav-item" data-view="business-data"><span class="dot"></span>Business Data</button>
+  </aside>
+
+  <main class="view-host">
+
+<div class="container view-pane" data-view="reverse-engineering">
   <div class="header">
     <h1>Reverse Engineering</h1>
     <div class="sub">Set a revenue target. The math walks it backwards — through your sales funnel and channel mix — to tell you exactly how many sends, connections, and calls you need to hit it. Save a separate plan per month.</div>
@@ -1589,7 +1772,6 @@
   <div class="funnel-snapshot">
     <div class="head">
       <span class="title">Full funnel — what you need each month</span>
-      <button class="notes-toggle" id="notes-toggle"><span class="dot"></span><span>Show notes</span></button>
       <span class="summary" id="funnel-summary">—</span>
     </div>
     <div class="funnel-stages" id="funnel-stages"></div>
@@ -1649,28 +1831,6 @@
     <div id="cap-rows"></div>
   </div>
 
-  <div class="section">
-    <div class="section-head">
-      <span class="title">Monthly plan</span>
-      <span class="summary">announcements · pre-mortem · ideas</span>
-    </div>
-    <div class="plan-card">
-      <h3><span class="icon announce">📢</span>Announcements</h3>
-      <p class="sub">What does the team need to know? New hires, comp changes, target shifts.</p>
-      <textarea id="note-announcements" placeholder="e.g. New SDR starting June 5 — first month ramp; Joshua taking 1 wk off mid-month..."></textarea>
-    </div>
-    <div class="plan-card">
-      <h3><span class="icon premortem">⚠</span>Pre-mortem</h3>
-      <p class="sub">If this month underperforms, what's the most likely reason? Name the risks before they happen.</p>
-      <textarea id="note-premortem" placeholder="e.g. LinkedIn accept rate has dipped 2pts MoM; if it keeps sliding we'll miss bookings target; mitigation = test 2 new connection scripts wk 2..."></textarea>
-    </div>
-    <div class="plan-card">
-      <h3><span class="icon ideas">💡</span>Ideas</h3>
-      <p class="sub">Experiments to test, channels to try, processes to improve.</p>
-      <textarea id="note-ideas" placeholder="e.g. Trial a 3rd email domain to spread sending load; rework call 2 confirmation SMS to bump show2 rate from 80→85..."></textarea>
-    </div>
-  </div>
-
   <!-- War plan — the printable cheat sheet that goes to Notion -->
   <div class="section">
     <div class="section-head">
@@ -1687,6 +1847,34 @@
         <input id="notion-page-url" type="url" class="field" placeholder="Optional: your Notion plan URL" />
         <button id="generate-plan-btn" class="primary">Send war plan to Notion →</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Monthly plan — sits below war plan -->
+  <div class="section">
+    <div class="section-head">
+      <span class="title">Monthly plan</span>
+      <span class="summary">announcements · pre-mortem · team notes · ideas</span>
+    </div>
+    <div class="plan-card">
+      <h3><span class="icon announce">📢</span>Announcements</h3>
+      <p class="sub">What does the team need to know? New hires, comp changes, target shifts.</p>
+      <textarea id="note-announcements" placeholder="e.g. New SDR starting June 5 — first month ramp; Joshua taking 1 wk off mid-month..."></textarea>
+    </div>
+    <div class="plan-card">
+      <h3><span class="icon premortem">⚠</span>Pre-mortem</h3>
+      <p class="sub">If this month underperforms, what's the most likely reason? Name the risks before they happen.</p>
+      <textarea id="note-premortem" placeholder="e.g. LinkedIn accept rate has dipped 2pts MoM; if it keeps sliding we'll miss bookings target..."></textarea>
+    </div>
+    <div class="plan-card">
+      <h3><span class="icon notes-icon">👥</span>Team notes</h3>
+      <p class="sub">Per-person context — workload, ramp status, performance, anything the team needs to see.</p>
+      <textarea id="note-team" placeholder="e.g. Daniel: 14 closes month-over-month, ready for senior role; Sev: needs more pipeline support; new junior ramps in week 3..."></textarea>
+    </div>
+    <div class="plan-card">
+      <h3><span class="icon ideas">💡</span>Ideas</h3>
+      <p class="sub">Experiments to test, channels to try, processes to improve.</p>
+      <textarea id="note-ideas" placeholder="e.g. Trial a 3rd email domain to spread sending load; rework call 2 confirmation SMS to bump show2 rate from 80→85..."></textarea>
     </div>
   </div>
 
@@ -1741,6 +1929,30 @@
     Revenue → closes → sales funnel → bookings → channel mix → outreach → infrastructure → team capacity → notes & ideas.<br>
     Everything autosaves to localStorage. Switch months in the top bar to plan multiple scenarios.
   </div>
+</div>
+
+<!-- Business Data view — historical actuals + notes per month -->
+<div class="container view-pane hidden" data-view="business-data">
+  <div class="header">
+    <h1>Business Data</h1>
+    <div class="sub">Log what actually happened each month — revenue, closes, bookings, channel volumes — and capture the story of why. Builds your history to compare against future reverse-engineered plans.</div>
+  </div>
+
+  <div class="section">
+    <div class="bd-actions">
+      <button id="bd-add-btn" class="primary">+ Add a month of historical data</button>
+      <button id="bd-import-from-plans-btn" class="ghost" title="Pre-fill a row using one of your reverse-engineering plans">↪ Import from a plan</button>
+    </div>
+  </div>
+
+  <div id="bd-months"></div>
+
+  <div class="footer">
+    Each row autosaves. Use the notes field to capture context — what we changed, what worked, what we'd do differently.
+  </div>
+</div>
+
+  </main>
 </div>
 
 <div class="modal-overlay" id="plan-modal">
@@ -1830,6 +2042,7 @@ function defaultPlan() {
       announcements: '',
       premortem: '',
       ideas: '',
+      team: '',
     },
     notionPageUrl: '',  // optional: paste your Notion plan page URL here for one-click open
     notionPageId: '',   // set automatically after first publish — enables idempotent re-publish
@@ -1840,7 +2053,9 @@ function defaultState() {
   const monthId = currentMonthId();
   return {
     activeMonth: monthId,
+    activeView: 'reverse-engineering',
     months: { [monthId]: defaultPlan() },
+    businessData: {},
     settings: defaultSettings(),
   };
 }
@@ -1931,6 +2146,8 @@ function loadState() {
       s.activeMonth = Object.keys(s.months || {})[0] || currentMonthId();
     }
     s.settings = { ...defaultSettings(), ...(s.settings || {}) };
+    if (!s.businessData) s.businessData = {};
+    if (!s.activeView) s.activeView = 'reverse-engineering';
     return s;
   } catch (e) { console.error(e); return null; }
 }
@@ -2339,10 +2556,12 @@ function renderEconomics(c) {
 
 function renderPlanFields() {
   const p = plan();
-  document.getElementById('note-announcements').value = p.notes.announcements || '';
-  document.getElementById('note-premortem').value = p.notes.premortem || '';
-  document.getElementById('note-ideas').value = p.notes.ideas || '';
-  document.getElementById('notion-page-url').value = p.notionPageUrl || '';
+  ['announcements', 'premortem', 'ideas', 'team'].forEach(k => {
+    const el = document.getElementById('note-' + k);
+    if (el) el.value = p.notes[k] || '';
+  });
+  const u = document.getElementById('notion-page-url');
+  if (u) u.value = p.notionPageUrl || '';
 }
 
 function populateMonthSelect() {
@@ -2391,56 +2610,21 @@ function renderFunnelSnapshot(c) {
   const wkDivisor = p.workingDaysPerMonth / p.workingDaysPerWeek;
   const mDivisor = p.workingDaysPerMonth;
   const host = document.getElementById('funnel-stages');
-  host.classList.toggle('notes-on', notesShown);
-  // Compound the per-stage variance through the funnel. We use sqrt-of-sum-of-squares
-  // (independent errors propagate quadratically). 7 stages × σ_each → larger σ at closes.
+  // Variance only on hero tiles (Call 1 booked + Closes)
   const epsPerStage = (state.settings.errorPct || 0) / 100;
   const errorAtStage = i => epsPerStage > 0 ? Math.sqrt(i + 1) * epsPerStage : 0;
   host.innerHTML = FUNNEL_STAGES.map((s, i) => {
-    const note = (p.notes[s.noteKey] || '').trim();
-    const escaped = note.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    // Stage 0 = call-1 booked is at the bottom (furthest from closes). Compounding
-    // count rises as you move UP the funnel from closes. Bookings is index 0,
-    // closes is index 6 (last). For UX we display variance only on the hero
-    // tiles (call 1 booked + closes) since they're the headline numbers.
     const err = errorAtStage(s.hero ? (i === 0 ? FUNNEL_STAGES.length - 1 : 0) : 0);
     const errChip = (s.hero && err > 0) ? `<div class="err-chip">±${(err * 100).toFixed(0)}%</div>` : '';
     return `
-      <div class="funnel-stage ${s.hero ? 'hero' : ''} ${note ? 'has-note' : ''}" data-note-key="${s.noteKey}">
-        <span class="note-dot"></span>
+      <div class="funnel-stage ${s.hero ? 'hero' : ''}" data-stage="${s.noteKey}">
         <div class="lbl">${s.lbl}</div>
         <div class="val">${num(ceil(c[s.valKey]))}${errChip}</div>
         <div class="sub">${num(c[s.valKey] / wkDivisor, 1)} /wk · ${num(c[s.valKey] / mDivisor, 1)} /day</div>
-        <div class="note-input-wrap">
-          <textarea class="note-input" placeholder="note…" data-note-key="${s.noteKey}">${escaped}</textarea>
-        </div>
         ${i < FUNNEL_STAGES.length - 1 ? '<span class="funnel-arrow">›</span>' : ''}
       </div>
     `;
   }).join('');
-  // Tile click: when notes hidden, expand them; when notes shown, focus this tile's input
-  host.querySelectorAll('.funnel-stage').forEach(el => {
-    el.addEventListener('click', e => {
-      if (e.target.tagName === 'TEXTAREA') return;
-      if (!notesShown) {
-        notesShown = true;
-        document.getElementById('notes-toggle').classList.add('on');
-        host.classList.add('notes-on');
-      }
-      const ta = el.querySelector('textarea');
-      if (ta) setTimeout(() => ta.focus(), 50);
-    });
-  });
-  host.querySelectorAll('textarea.note-input').forEach(ta => {
-    ta.addEventListener('click', e => e.stopPropagation());
-    ta.addEventListener('input', e => {
-      const key = e.target.dataset.noteKey;
-      p.notes[key] = e.target.value;
-      saveState();
-      const stage = e.target.closest('.funnel-stage');
-      if (stage) stage.classList.toggle('has-note', e.target.value.trim().length > 0);
-    });
-  });
   document.getElementById('funnel-summary').textContent =
     `${pct(c.bookingToClose * 100)} booking→close · ${money(c.revPerClose)}/close · ${money(p.revenueTarget)} target`;
 }
@@ -2463,57 +2647,28 @@ function wireInlineNotes(host) {
 }
 
 function makeRow(opts) {
-  const note = opts.noteKey ? ((plan().notes[opts.noteKey] || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')) : '';
-  const hasNote = note.trim().length > 0;
-  return `<div class="row ${hasNote ? 'has-row-note' : ''}" data-key="${opts.key || ''}" data-note-key="${opts.noteKey || ''}">
-    <div class="lbl">${opts.label}${opts.hint ? `<span class="hint">${opts.hint}</span>` : ''}${opts.noteKey ? `<button type="button" class="row-note-btn" title="${hasNote ? 'Edit note' : 'Add note'}" data-toggle-note>${hasNote ? '✎' : '+'}</button>` : ''}</div>
+  return `<div class="row" data-key="${opts.key || ''}">
+    <div class="lbl">${opts.label}${opts.hint ? `<span class="hint">${opts.hint}</span>` : ''}</div>
     <div class="slider-wrap">
       <input type="range" min="${opts.min}" max="${opts.max}" step="${opts.step}" value="${opts.value}" />
     </div>
     <input type="number" min="${opts.min}" max="${opts.max * 5}" step="${opts.step}" value="${opts.value}" />
     <span class="unit">${opts.unit || ''}</span>
-    ${opts.noteKey ? `<div class="row-note-wrap"><textarea class="row-note" placeholder="note for ${opts.label}…" data-row-note="${opts.noteKey}">${note}</textarea></div>` : ''}
   </div>`;
 }
 
 // Channel rows need an extra data-field attribute on top of makeRow.
 function makeRowInChannel(channelKey, fieldKey, label, hint, value, min, max, step, unit) {
-  const noteKey = `${channelKey}_${fieldKey}`;
-  const note = (plan().notes[noteKey] || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-  const hasNote = note.trim().length > 0;
-  return `<div class="row ${hasNote ? 'has-row-note' : ''}" data-field="${fieldKey}" data-note-key="${noteKey}">
-    <div class="lbl">${label}<span class="hint">${hint}</span><button type="button" class="row-note-btn" title="${hasNote ? 'Edit note' : 'Add note'}" data-toggle-note>${hasNote ? '✎' : '+'}</button></div>
+  return `<div class="row" data-field="${fieldKey}">
+    <div class="lbl">${label}<span class="hint">${hint}</span></div>
     <div class="slider-wrap"><input type="range" min="${min}" max="${max}" step="${step}" value="${value}" /></div>
     <input type="number" min="${min}" max="${max * 5}" step="${step}" value="${value}" />
     <span class="unit">${unit}</span>
-    <div class="row-note-wrap"><textarea class="row-note" data-row-note="${noteKey}" placeholder="note for ${label}…">${note}</textarea></div>
   </div>`;
 }
 
 function wireRowNote(rowEl) {
-  const ta = rowEl.querySelector('textarea.row-note');
-  const btn = rowEl.querySelector('button.row-note-btn');
-  if (btn) {
-    btn.addEventListener('click', e => {
-      e.preventDefault();
-      e.stopPropagation();
-      const open = rowEl.classList.toggle('note-open');
-      if (open && ta) setTimeout(() => ta.focus(), 50);
-    });
-  }
-  if (!ta) return;
-  ta.addEventListener('input', e => {
-    const key = e.target.dataset.rowNote;
-    plan().notes[key] = e.target.value;
-    saveState();
-    const has = e.target.value.trim().length > 0;
-    rowEl.classList.toggle('has-row-note', has);
-    if (btn) {
-      btn.textContent = has ? '✎' : '+';
-      btn.title = has ? 'Edit note' : 'Add note';
-    }
-  });
-  ta.addEventListener('click', e => e.stopPropagation());
+  // Removed — per-row notes now live only in the War Plan section.
 }
 
 // Slider/number pair. Drag = live cheap updates (text only, no DOM rebuild).
@@ -3058,8 +3213,10 @@ document.getElementById('currency-select').addEventListener('change', e => {
   render();
 });
 // Plan textareas — autosave
-['announcements', 'premortem', 'ideas'].forEach(k => {
-  document.getElementById('note-' + k).addEventListener('input', e => {
+['announcements', 'premortem', 'ideas', 'team'].forEach(k => {
+  const el = document.getElementById('note-' + k);
+  if (!el) return;
+  el.addEventListener('input', e => {
     plan().notes[k] = e.target.value;
     saveState();
   });
@@ -3188,6 +3345,13 @@ function generatePlanMarkdown() {
     lines.push(p.notes.premortem.trim());
     lines.push('');
   }
+  // Team notes
+  if ((p.notes.team || '').trim()) {
+    lines.push('## 👥 Team notes');
+    lines.push('');
+    lines.push(p.notes.team.trim());
+    lines.push('');
+  }
   // Ideas
   if ((p.notes.ideas || '').trim()) {
     lines.push('## 💡 Ideas');
@@ -3310,14 +3474,7 @@ document.getElementById('plan-publish-btn').addEventListener('click', async () =
   }
 });
 
-// Notes toggle — flips both the funnel notes AND the global body class
-// so every dial row's inline note input is revealed too.
-document.getElementById('notes-toggle').addEventListener('click', () => {
-  notesShown = !notesShown;
-  document.getElementById('notes-toggle').classList.toggle('on', notesShown);
-  document.getElementById('funnel-stages').classList.toggle('notes-on', notesShown);
-  document.body.classList.toggle('notes-on', notesShown);
-});
+// (Old global notes toggle removed — per-row notes now live only in the War Plan.)
 
 // ============================================================
 // Settings panel wiring
@@ -3414,7 +3571,187 @@ document.getElementById('add-month-btn').addEventListener('click', () => {
   render();
 });
 
+// ============================================================
+// View switcher (Reverse Engineering / Business Data)
+// ============================================================
+function switchView(view) {
+  state.activeView = view;
+  saveState();
+  document.querySelectorAll('.sidenav .nav-item').forEach(el => {
+    el.classList.toggle('active', el.dataset.view === view);
+  });
+  document.querySelectorAll('.view-pane').forEach(el => {
+    el.classList.toggle('hidden', el.dataset.view !== view);
+  });
+  // Topbar title + hide month picker on business-data
+  const title = document.getElementById('topbar-view-title');
+  const mpWrap = document.getElementById('month-picker-wrap');
+  const resetBtn = document.getElementById('reset-btn');
+  if (view === 'business-data') {
+    title.textContent = 'BUSINESS DATA';
+    if (mpWrap) mpWrap.style.display = 'none';
+    if (resetBtn) resetBtn.style.display = 'none';
+    renderBusinessData();
+  } else {
+    title.textContent = 'REVERSE ENGINEERING';
+    if (mpWrap) mpWrap.style.display = '';
+    if (resetBtn) resetBtn.style.display = '';
+  }
+}
+document.querySelectorAll('.sidenav .nav-item').forEach(el => {
+  el.addEventListener('click', () => switchView(el.dataset.view));
+});
+
+// ============================================================
+// Business Data — historical actuals + notes per month
+// ============================================================
+const BD_FIELDS = [
+  ['revenueActual', 'Revenue actual (£)', 'number'],
+  ['cashCollectedActual', 'Cash collected actual (£)', 'number'],
+  ['closesActual', 'Closes (#)', 'number'],
+  ['bookingsActual', 'Call 1 bookings (#)', 'number'],
+  ['linkedinConnectionsActual', 'LinkedIn connections sent (#)', 'number'],
+  ['emailSendsActual', 'Email sends (#)', 'number'],
+];
+
+function bdMonth(id) {
+  if (!state.businessData[id]) state.businessData[id] = {};
+  return state.businessData[id];
+}
+
+function fmtBdMonth(id) {
+  if (!id) return '—';
+  const [y, m] = id.split('-').map(Number);
+  return new Date(y, m - 1, 1).toLocaleString('en-GB', { month: 'long', year: 'numeric' });
+}
+
+function renderBusinessData() {
+  const host = document.getElementById('bd-months');
+  const ids = Object.keys(state.businessData).sort().reverse();  // newest first
+  if (!ids.length) {
+    host.innerHTML = `<div class="bd-empty">
+      <h3>No historical data yet</h3>
+      <p>Click <b>+ Add a month</b> above to log what actually happened in a past month. Your future plans will gain context as your history grows.</p>
+    </div>`;
+    return;
+  }
+  host.innerHTML = ids.map(id => {
+    const data = state.businessData[id];
+    const escNotes = (data.notes || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const summary = [];
+    if (data.revenueActual) summary.push(money(data.revenueActual) + ' rev');
+    if (data.closesActual) summary.push(data.closesActual + ' closes');
+    if (data.bookingsActual) summary.push(data.bookingsActual + ' bookings');
+    return `<div class="bd-month-card ${data.open ? 'open' : ''}" data-month-id="${id}">
+      <div class="bd-month-head" data-toggle-bd>
+        <div class="lbl">${fmtBdMonth(id)}</div>
+        <div class="summary">${summary.join(' · ') || 'no data yet'}</div>
+        <div class="toggle">›</div>
+      </div>
+      <div class="bd-month-body">
+        <div class="bd-fields">
+          ${BD_FIELDS.map(([key, label]) => `<div class="bd-field">
+            <label>${label}</label>
+            <input type="number" min="0" step="1" data-bd-field="${key}" value="${data[key] != null ? data[key] : ''}" />
+          </div>`).join('')}
+        </div>
+        <div class="bd-notes">
+          <label>What happened this month — context, blockers, wins, what we'd do differently</label>
+          <textarea data-bd-field="notes" placeholder="e.g. Joshua started mid-month, LinkedIn accept rate dipped 2pts, closed 2 enterprise deals…">${escNotes}</textarea>
+        </div>
+        <div class="bd-delete-row">
+          <button class="bd-delete-btn" data-delete-bd>Delete this month</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  // Wire toggle / inputs / delete
+  host.querySelectorAll('.bd-month-card').forEach(card => {
+    const id = card.dataset.monthId;
+    card.querySelector('[data-toggle-bd]').addEventListener('click', e => {
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'BUTTON') return;
+      const d = bdMonth(id);
+      d.open = !d.open;
+      saveState();
+      card.classList.toggle('open', d.open);
+    });
+    card.querySelectorAll('[data-bd-field]').forEach(inp => {
+      inp.addEventListener('input', e => {
+        const k = e.target.dataset.bdField;
+        const v = e.target.type === 'number' ? (parseFloat(e.target.value) || 0) : e.target.value;
+        bdMonth(id)[k] = v;
+        saveState();
+        // Update summary text
+        const data = state.businessData[id];
+        const summary = [];
+        if (data.revenueActual) summary.push(money(data.revenueActual) + ' rev');
+        if (data.closesActual) summary.push(data.closesActual + ' closes');
+        if (data.bookingsActual) summary.push(data.bookingsActual + ' bookings');
+        card.querySelector('.summary').textContent = summary.join(' · ') || 'no data yet';
+      });
+    });
+    card.querySelector('[data-delete-bd]').addEventListener('click', () => {
+      if (!confirm(`Delete all data for ${fmtBdMonth(id)}?`)) return;
+      delete state.businessData[id];
+      saveState();
+      renderBusinessData();
+    });
+  });
+}
+
+document.getElementById('bd-add-btn').addEventListener('click', () => {
+  const ids = Object.keys(state.businessData).sort();
+  // Suggest prior month from latest, or current month
+  let suggested;
+  if (ids.length) {
+    const last = ids[ids.length - 1];
+    const [y, m] = last.split('-').map(Number);
+    const d = new Date(y, m, 1);
+    suggested = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  } else {
+    const now = new Date();
+    const d = new Date(now.getFullYear(), now.getMonth() - 1, 1);
+    suggested = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  }
+  const input = prompt('Month to add (YYYY-MM):', suggested);
+  if (!input) return;
+  if (!/^\d{4}-\d{2}$/.test(input)) { alert('Use YYYY-MM format'); return; }
+  if (state.businessData[input]) { alert('That month already exists'); return; }
+  state.businessData[input] = { open: true };
+  saveState();
+  renderBusinessData();
+});
+
+document.getElementById('bd-import-from-plans-btn').addEventListener('click', () => {
+  const planIds = Object.keys(state.months).sort().reverse();
+  if (!planIds.length) { alert('No plans to import from'); return; }
+  const pickFrom = prompt(`Import which plan? Options:\n${planIds.join(', ')}`, planIds[0]);
+  if (!pickFrom || !state.months[pickFrom]) return;
+  const targetMonth = prompt('Save the data under which historical month (YYYY-MM)?', pickFrom);
+  if (!targetMonth || !/^\d{4}-\d{2}$/.test(targetMonth)) { alert('Use YYYY-MM format'); return; }
+  // Run compute on the source plan
+  const savedActive = state.activeMonth;
+  state.activeMonth = pickFrom;
+  const c = compute();
+  state.activeMonth = savedActive;
+  const liOut = c.channelOutputs.linkedin;
+  const emOut = c.channelOutputs.email;
+  state.businessData[targetMonth] = {
+    open: true,
+    revenueActual: Math.round(c.contractedRevenueMo),
+    cashCollectedActual: Math.round(c.cashCollectedMo),
+    closesActual: Math.ceil(c.closes),
+    bookingsActual: Math.ceil(c.bookings),
+    linkedinConnectionsActual: liOut ? Math.ceil(liOut.connections) : 0,
+    emailSendsActual: emOut ? Math.ceil(emOut.sends) : 0,
+    notes: `Imported from ${fmtMonth(pickFrom)} plan.`,
+  };
+  saveState();
+  renderBusinessData();
+});
+
 render();
+switchView(state.activeView || 'reverse-engineering');
 </script>
 </body>
 </html>

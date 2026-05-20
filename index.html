@@ -434,6 +434,69 @@
     outline: none; border-color: var(--accent);
     box-shadow: 0 0 0 3px var(--accent-tint);
   }
+  /* Auto-computed (derived) actual — read-only display */
+  .we-table .we-actual.derived {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    justify-content: flex-end;
+    padding: 6px 10px;
+    background: rgba(212,160,23,0.06);
+    border: 1px solid rgba(212,160,23,0.18);
+    border-radius: 7px;
+    color: var(--accent-hover);
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    width: 110px;
+  }
+  .we-table .we-actual.derived .derived-tag {
+    font-size: 9.5px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    opacity: 0.7;
+  }
+
+  /* Per-row note button + inline note row */
+  .we-table tr td .we-note-btn {
+    margin-left: 8px;
+    width: 22px; height: 22px;
+    padding: 0;
+    line-height: 1;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 6px;
+    color: var(--text-tertiary);
+    font-size: 11px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    vertical-align: middle;
+    transition: background 0.12s, color 0.12s, border-color 0.12s;
+  }
+  .we-table tr td .we-note-btn:hover { background: var(--accent-tint); color: var(--accent-hover); }
+  .we-table tr.has-note td .we-note-btn { background: var(--accent-tint); color: var(--accent-hover); border-color: rgba(212,160,23,0.25); }
+  .we-table tr.note-open td .we-note-btn { background: var(--accent); color: #1a1a1a; border-color: var(--accent); }
+  .we-table tr.has-note td { background: linear-gradient(to right, rgba(212,160,23,0.05), transparent); }
+  .we-table tr.we-note-row td { padding: 6px 14px 12px; border-bottom: 1px solid var(--separator); background: rgba(0,0,0,0.18); }
+  .we-table tr.we-note-row textarea {
+    width: 100%;
+    min-height: 60px;
+    background: rgba(0,0,0,0.25);
+    border: 1px solid var(--border-input);
+    border-radius: 7px;
+    color: var(--text);
+    font-size: 12.5px;
+    padding: 8px 11px;
+    font-family: inherit;
+    line-height: 1.5;
+    resize: vertical;
+  }
+  .we-table tr.we-note-row textarea:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
   .we-status-pill {
     display: inline-block;
     padding: 2px 9px;
@@ -2547,8 +2610,7 @@ function loadState() {
         ['announcements', 'wins', 'blockers', 'premortem'].forEach(k => { if (e.notes[k] == null) e.notes[k] = ''; });
       }
       if (!e.openNotes) e.openNotes = {};
-      // id was implicit (object key) — also store on the entry for convenience
-      // weekStart already lives on the entry from prior versions
+      if (!e.rowNotes) e.rowNotes = {};
     });
     // Migrate old businessData → monthlyEntries with mapped actuals
     const BD_MAP = {
@@ -2587,6 +2649,7 @@ function loadState() {
         ['announcements', 'wins', 'blockers', 'premortem'].forEach(k => { if (e.notes[k] == null) e.notes[k] = ''; });
       }
       if (!e.openNotes) e.openNotes = {};
+      if (!e.rowNotes) e.rowNotes = {};
     });
     return s;
   } catch (e) { console.error(e); return null; }
@@ -4195,33 +4258,46 @@ function trackerTargetRows(kind, planMonth) {
       if (!ch.enabled) return;
       if (k === 'linkedin') {
         rows.push({ k: 'wp_li_connections', lbl: 'LinkedIn connections sent', target: scale(out.connections) });
-        rows.push({ k: 'wp_li_accepts',     lbl: 'LinkedIn accepts',          target: scale(out.accepts), conv: 'depends on accept rate' });
-        rows.push({ k: 'wp_li_positives',   lbl: 'LinkedIn positive replies', target: scale(out.positives), conv: 'depends on PRR' });
-        rows.push({ k: 'wp_li_calendly',    lbl: 'LinkedIn Calendly clicks',  target: scale(out.calendlyClicks), conv: 'depends on CSR' });
+        rows.push({ k: 'wp_li_accepts',     lbl: 'LinkedIn accepts',          target: scale(out.accepts), conv: 'feeds accept rate' });
+        rows.push({ k: 'wp_li_positives',   lbl: 'LinkedIn positive replies', target: scale(out.positives), conv: 'feeds PRR' });
+        rows.push({ k: 'wp_li_calendly',    lbl: 'LinkedIn Calendly clicks',  target: scale(out.calendlyClicks), conv: 'feeds CSR' });
+        rows.push({ k: 'wp_li_bookings',    lbl: 'LinkedIn bookings',         target: scale(out.bk), conv: 'feeds ABR' });
         rows.push({ k: 'wp_li_profiles',    lbl: 'LinkedIn sender profiles', target: out.profilesNeeded, conv: 'monthly headcount', noDelta: true });
       }
       if (k === 'email') {
         rows.push({ k: 'wp_em_sends',     lbl: 'Email sends',            target: scale(out.sends) });
-        rows.push({ k: 'wp_em_replies',   lbl: 'Email replies',          target: scale(out.replies), conv: 'depends on reply rate' });
-        rows.push({ k: 'wp_em_positives', lbl: 'Email positive replies', target: scale(out.positives), conv: 'depends on PRR' });
+        rows.push({ k: 'wp_em_replies',   lbl: 'Email replies',          target: scale(out.replies), conv: 'feeds reply rate' });
+        rows.push({ k: 'wp_em_positives', lbl: 'Email positive replies', target: scale(out.positives), conv: 'feeds PRR' });
+        rows.push({ k: 'wp_em_bookings',  lbl: 'Email bookings',         target: scale(out.bk), conv: 'feeds ABR' });
         rows.push({ k: 'wp_em_inboxes',   lbl: 'Email inboxes',          target: out.inboxesNeeded, conv: 'monthly headcount', noDelta: true });
       }
     });
 
-    // Conversion rate rows — user types the % they actually achieved.
-    rows.push({ section: 'Conversion rates — actuals vs targets' });
+    // Conversion rate rows — auto-computed from the volume actuals above.
+    // If both source volumes have actuals, the rate field shows the derived %
+    // (read-only). If volumes are blank, the user can type the rate manually.
+    rows.push({ section: 'Conversion rates — auto-computed from your volume actuals' });
     if (p.channels.linkedin && p.channels.linkedin.enabled) {
       const li = p.channels.linkedin;
-      rows.push({ k: 'cv_li_acceptRate', lbl: 'LinkedIn accept rate', target: li.acceptRate, rate: true, conv: '% of connections accepted' });
-      rows.push({ k: 'cv_li_prr',        lbl: 'LinkedIn positive reply rate', target: li.prr, rate: true, conv: '% of accepts replying positively' });
-      rows.push({ k: 'cv_li_csr',        lbl: 'LinkedIn Calendly schedule rate', target: li.csr, rate: true, conv: '% of positives clicking Calendly' });
-      rows.push({ k: 'cv_li_abr',        lbl: 'LinkedIn appointment book rate', target: li.abr, rate: true, conv: '% of Calendly clicks that book' });
+      const ratePct = (num, den) => (num && den) ? (num / den) * 100 : null;
+      rows.push({ k: 'cv_li_acceptRate', lbl: 'LinkedIn accept rate', target: li.acceptRate, rate: true, conv: '= accepts ÷ connections',
+                  derive: (a) => ratePct(a.wp_li_accepts, a.wp_li_connections) });
+      rows.push({ k: 'cv_li_prr', lbl: 'LinkedIn positive reply rate', target: li.prr, rate: true, conv: '= positives ÷ accepts',
+                  derive: (a) => ratePct(a.wp_li_positives, a.wp_li_accepts) });
+      rows.push({ k: 'cv_li_csr', lbl: 'LinkedIn Calendly schedule rate', target: li.csr, rate: true, conv: '= Calendly clicks ÷ positives',
+                  derive: (a) => ratePct(a.wp_li_calendly, a.wp_li_positives) });
+      rows.push({ k: 'cv_li_abr', lbl: 'LinkedIn appointment book rate', target: li.abr, rate: true, conv: '= bookings ÷ Calendly clicks',
+                  derive: (a) => ratePct(a.wp_li_bookings, a.wp_li_calendly) });
     }
     if (p.channels.email && p.channels.email.enabled) {
       const em = p.channels.email;
-      rows.push({ k: 'cv_em_replyRate', lbl: 'Email reply rate', target: em.replyRate, rate: true, conv: '% of sends that reply' });
-      rows.push({ k: 'cv_em_prr',       lbl: 'Email positive reply rate', target: em.prr, rate: true, conv: '% of replies that are positive' });
-      rows.push({ k: 'cv_em_abr',       lbl: 'Email appointment book rate', target: em.abr, rate: true, conv: '% of positives that book' });
+      const ratePct = (num, den) => (num && den) ? (num / den) * 100 : null;
+      rows.push({ k: 'cv_em_replyRate', lbl: 'Email reply rate', target: em.replyRate, rate: true, conv: '= replies ÷ sends',
+                  derive: (a) => ratePct(a.wp_em_replies, a.wp_em_sends) });
+      rows.push({ k: 'cv_em_prr', lbl: 'Email positive reply rate', target: em.prr, rate: true, conv: '= positives ÷ replies',
+                  derive: (a) => ratePct(a.wp_em_positives, a.wp_em_replies) });
+      rows.push({ k: 'cv_em_abr', lbl: 'Email appointment book rate', target: em.abr, rate: true, conv: '= bookings ÷ positives',
+                  derive: (a) => ratePct(a.wp_em_bookings, a.wp_em_positives) });
     }
 
     rows.push({ section: 'Spend & profit' });
@@ -4277,8 +4353,9 @@ function createEntry(kind, id) {
     id,
     planMonth,
     actuals: {},
+    rowNotes: {},        // per-metric notes (toggled inline under each row)
     notes: emptyNotes(),
-    openNotes: {},        // which note sections are expanded
+    openNotes: {},        // which section-note sections are expanded
     notionPageId: '',
     notionPageUrl: '',
   };
@@ -4393,9 +4470,23 @@ function renderTrackerCardHtml(kind, id) {
   </div>`;
 }
 
+// Effective actual for a row: derived value (rate from volumes) if available,
+// else the manually-entered actual. Derived rows are read-only unless source
+// volumes are blank — then the user can override manually.
+function trackerEffectiveActual(r, actuals) {
+  if (r.derive) {
+    const derived = r.derive(actuals);
+    if (derived != null && isFinite(derived)) return { value: derived, derived: true };
+  }
+  const v = Number((actuals || {})[r.k]) || 0;
+  return { value: v, derived: false };
+}
+
 function renderTrackerTableHtml(kind, id, rows) {
   const t = TRACKERS[kind];
   const e = trackerStore(kind)[id];
+  const actuals = e.actuals || {};
+  const rowNotes = e.rowNotes || {};
   return `<table class="we-table">
     <thead>
       <tr>
@@ -4410,7 +4501,9 @@ function renderTrackerTableHtml(kind, id, rows) {
     <tbody>
       ${rows.map(r => {
         if (r.section) return `<tr class="section-row"><td colspan="6">${r.section}</td></tr>`;
-        const actual = Number((e.actuals || {})[r.k]) || 0;
+        const eff = trackerEffectiveActual(r, actuals);
+        const actual = eff.value;
+        const isDerived = eff.derived;
         const delta = actual - r.target;
         const status = r.noDelta ? { cls: 'neutral', label: '—' } : trackerStatus(r.target, actual, !!r.lowerBetter);
         const showDelta = !r.noDelta && actual > 0;
@@ -4418,14 +4511,22 @@ function renderTrackerTableHtml(kind, id, rows) {
         const deltaTxt = showDelta ? (delta >= 0 ? '+' : '−') + fmtNum(Math.abs(delta), fmtOpts) : '—';
         const deltaColor = showDelta ? (delta >= 0 ? 'var(--good)' : 'var(--bad)') : 'var(--text-tertiary)';
         const step = r.money ? '1' : r.rate ? '0.1' : '0.1';
-        return `<tr data-we-row="${r.k}">
-          <td class="lbl">${r.lbl}</td>
+        const note = (rowNotes[r.k] || '').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const hasNote = note.trim().length > 0;
+        const actualCell = isDerived
+          ? `<div class="we-actual derived" title="Auto-computed from your volume actuals">${fmtNum(actual, fmtOpts)}<span class="derived-tag">auto</span></div>`
+          : `<input type="number" min="0" step="${step}" class="we-actual" data-tracker-actual="${r.k}" value="${(Number(actuals[r.k]) || 0) || ''}" placeholder="0" />`;
+        const noteRowHtml = `<tr class="we-note-row" data-we-note-row-for="${r.k}" style="display:none">
+          <td colspan="6"><textarea data-tracker-note="${r.k}" placeholder="note on ${r.lbl.replace(/"/g, '&quot;')}…">${note}</textarea></td>
+        </tr>`;
+        return `<tr class="${hasNote ? 'has-note' : ''}" data-we-row="${r.k}">
+          <td class="lbl">${r.lbl}<button type="button" class="we-note-btn" data-toggle-row-note title="${hasNote ? 'Edit note' : 'Add note'}">${hasNote ? '✎' : '+'}</button></td>
           <td class="num">${fmtNum(r.target, fmtOpts)}</td>
-          <td class="num"><input type="number" min="0" step="${step}" class="we-actual" data-tracker-actual="${r.k}" value="${actual || ''}" placeholder="0" /></td>
+          <td class="num">${actualCell}</td>
           <td class="num" style="color:${deltaColor};font-weight:600">${deltaTxt}</td>
           <td class="num"><span class="we-status-pill ${status.cls}">${status.label}</span></td>
           <td class="conv">${r.conv || ''}</td>
-        </tr>`;
+        </tr>${noteRowHtml}`;
       }).join('')}
     </tbody>
   </table>`;
@@ -4438,37 +4539,103 @@ function wireTrackerCard(kind, id) {
   const section = document.querySelector(`.tracker-section[data-tracker-kind="${kind}"]`);
   const card = section.querySelector('[data-tracker-card-id]');
   if (!card) return;
-  // Actuals
+  const rows = trackerTargetRows(kind, e.planMonth);
+
+  // Refresh a single row's actual cell / delta / status pill in place.
+  // Used both when its own input changes and when any volume row a derived
+  // rate depends on changes.
+  function refreshRow(r) {
+    const row = card.querySelector(`tr[data-we-row="${r.k}"]`);
+    if (!row) return;
+    const eff = trackerEffectiveActual(r, e.actuals || {});
+    const actual = eff.value;
+    const delta = actual - r.target;
+    const status = r.noDelta ? { cls: 'neutral', label: '—' } : trackerStatus(r.target, actual, !!r.lowerBetter);
+    const showDelta = !r.noDelta && actual > 0;
+    const fmtOpts = { money: !!r.money, rate: !!r.rate };
+    // Actual cell — re-render only if derived (the auto-computed value changed).
+    // For non-derived rows the user-typed value already lives in the input.
+    if (r.derive) {
+      const cell = row.querySelector('td:nth-child(3)');
+      if (eff.derived) {
+        cell.innerHTML = `<div class="we-actual derived" title="Auto-computed from your volume actuals">${fmtNum(actual, fmtOpts)}<span class="derived-tag">auto</span></div>`;
+      } else {
+        const step = r.rate ? '0.1' : '0.1';
+        const v = Number((e.actuals || {})[r.k]) || 0;
+        cell.innerHTML = `<input type="number" min="0" step="${step}" class="we-actual" data-tracker-actual="${r.k}" value="${v || ''}" placeholder="0" />`;
+        // Re-attach listener since we just blew the input away
+        cell.querySelector('[data-tracker-actual]').addEventListener('input', onActualInput);
+      }
+    }
+    const deltaTxt = showDelta ? (delta >= 0 ? '+' : '−') + fmtNum(Math.abs(delta), fmtOpts) : '—';
+    const deltaColor = showDelta ? (delta >= 0 ? 'var(--good)' : 'var(--bad)') : 'var(--text-tertiary)';
+    const deltaCell = row.querySelector('td:nth-child(4)');
+    deltaCell.style.color = deltaColor;
+    deltaCell.style.fontWeight = '600';
+    deltaCell.textContent = deltaTxt;
+    const pill = row.querySelector('.we-status-pill');
+    pill.className = `we-status-pill ${status.cls}`;
+    pill.textContent = status.label;
+  }
+
+  function refreshHeadScore() {
+    const headPill = card.querySelector('.we-score');
+    const score = trackerEntryScore(kind, e);
+    headPill.className = `we-score ${score.cls || ''}`;
+    headPill.textContent = score.scored ? `${score.hit}/${score.scored} ahead · ${Math.round(score.pct)}%` : 'no data yet';
+  }
+
+  function onActualInput(ev) {
+    if (!e.actuals) e.actuals = {};
+    const k = ev.target.dataset.trackerActual;
+    const v = parseFloat(ev.target.value);
+    if (isFinite(v) && v > 0) e.actuals[k] = v;
+    else delete e.actuals[k];
+    saveState();
+    // Update the changed row first
+    const rDef = rows.find(rr => rr.k === k);
+    if (rDef) refreshRow(rDef);
+    // Then refresh any derived row that depends on this volume
+    rows.forEach(rr => { if (rr.derive) refreshRow(rr); });
+    refreshHeadScore();
+  }
+
   card.querySelectorAll('[data-tracker-actual]').forEach(inp => {
-    inp.addEventListener('input', ev => {
-      if (!e.actuals) e.actuals = {};
-      const k = ev.target.dataset.trackerActual;
-      const v = parseFloat(ev.target.value);
-      if (isFinite(v) && v > 0) e.actuals[k] = v;
-      else delete e.actuals[k];
+    inp.addEventListener('input', onActualInput);
+  });
+
+  // Per-row note toggles
+  card.querySelectorAll('[data-toggle-row-note]').forEach(btn => {
+    btn.addEventListener('click', ev => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      const tr = btn.closest('tr');
+      const k = tr.dataset.weRow;
+      const noteRow = card.querySelector(`tr.we-note-row[data-we-note-row-for="${k}"]`);
+      const isOpen = noteRow.style.display !== 'none';
+      noteRow.style.display = isOpen ? 'none' : 'table-row';
+      tr.classList.toggle('note-open', !isOpen);
+      if (!isOpen) {
+        const ta = noteRow.querySelector('textarea');
+        setTimeout(() => ta && ta.focus(), 40);
+      }
+    });
+  });
+  card.querySelectorAll('[data-tracker-note]').forEach(ta => {
+    ta.addEventListener('input', ev => {
+      if (!e.rowNotes) e.rowNotes = {};
+      const k = ev.target.dataset.trackerNote;
+      const v = ev.target.value;
+      if (v.trim()) e.rowNotes[k] = v;
+      else delete e.rowNotes[k];
       saveState();
-      // Update row inline (no re-render so focus stays)
-      const rows = trackerTargetRows(kind, e.planMonth);
-      const rDef = rows.find(rr => rr.k === k);
-      const actual = Number(e.actuals[k]) || 0;
-      const delta = actual - rDef.target;
-      const status = rDef.noDelta ? { cls: 'neutral', label: '—' } : trackerStatus(rDef.target, actual, !!rDef.lowerBetter);
-      const showDelta = !rDef.noDelta && actual > 0;
-      const fmtOpts = { money: !!rDef.money, rate: !!rDef.rate };
-      const deltaTxt = showDelta ? (delta >= 0 ? '+' : '−') + fmtNum(Math.abs(delta), fmtOpts) : '—';
-      const deltaColor = showDelta ? (delta >= 0 ? 'var(--good)' : 'var(--bad)') : 'var(--text-tertiary)';
-      const row = ev.target.closest('tr');
-      const deltaCell = row.querySelector('td:nth-child(4)');
-      deltaCell.style.color = deltaColor;
-      deltaCell.style.fontWeight = '600';
-      deltaCell.textContent = deltaTxt;
-      const pill = row.querySelector('.we-status-pill');
-      pill.className = `we-status-pill ${status.cls}`;
-      pill.textContent = status.label;
-      const headPill = card.querySelector('.we-score');
-      const score = trackerEntryScore(kind, e);
-      headPill.className = `we-score ${score.cls || ''}`;
-      headPill.textContent = score.scored ? `${score.hit}/${score.scored} ahead · ${Math.round(score.pct)}%` : 'no data yet';
+      const tr = card.querySelector(`tr[data-we-row="${k}"]`);
+      if (tr) {
+        const has = v.trim().length > 0;
+        tr.classList.toggle('has-note', has);
+        const btn = tr.querySelector('.we-note-btn');
+        if (btn) { btn.textContent = has ? '✎' : '+'; btn.title = has ? 'Edit note' : 'Add note'; }
+      }
     });
   });
   // Meta inputs (id rename + planMonth)
@@ -4596,19 +4763,22 @@ function trackerEntryMarkdown(kind, id) {
     lines.push(`**Aggregate:** ${score.hit}/${score.scored} metrics ahead of target (${Math.round(score.pct)}%)`);
     lines.push('');
   }
-  lines.push(`| Metric | ${t.targetHeader} | Actual | Δ | Status |`);
-  lines.push('| --- | ---: | ---: | ---: | :---: |');
+  lines.push(`| Metric | ${t.targetHeader} | Actual | Δ | Status | Note |`);
+  lines.push('| --- | ---: | ---: | ---: | :---: | --- |');
   rows.forEach(r => {
-    if (r.section) { lines.push(`| **${r.section}** | | | | |`); return; }
-    const actual = Number((e.actuals || {})[r.k]) || 0;
+    if (r.section) { lines.push(`| **${r.section}** | | | | | |`); return; }
+    const eff = trackerEffectiveActual(r, e.actuals || {});
+    const actual = eff.value;
     const delta = actual - r.target;
     const status = r.noDelta ? '—' : trackerStatus(r.target, actual, !!r.lowerBetter).label;
     const fmtOpts = { money: !!r.money, rate: !!r.rate };
-    const a = actual ? fmtNum(actual, fmtOpts) : '—';
-    const d = r.noDelta || !actual ? '—' : (delta >= 0 ? '+' : '') + fmtNum(delta, fmtOpts);
-    lines.push(`| ${r.lbl} | ${fmtNum(r.target, fmtOpts)} | ${a} | ${d} | ${status} |`);
+    const a = actual ? (eff.derived ? `${fmtNum(actual, fmtOpts)} _(auto)_` : fmtNum(actual, fmtOpts)) : '—';
+    const d = r.noDelta || !actual ? '—' : (delta >= 0 ? '+' : '−') + fmtNum(Math.abs(delta), fmtOpts);
+    const noteRaw = ((e.rowNotes || {})[r.k] || '').trim();
+    const note = noteRaw ? noteRaw.replace(/\|/g, '\\|').replace(/\n/g, ' ') : '';
+    lines.push(`| ${r.lbl} | ${fmtNum(r.target, fmtOpts)} | ${a} | ${d} | ${status} | ${note} |`);
   });
-  // Notes — only sections that have content
+  // Section notes — only sections that have content
   NOTE_SECTIONS.forEach(n => {
     const v = ((e.notes || {})[n.k] || '').trim();
     if (!v) return;
@@ -4627,19 +4797,23 @@ function printTrackerEntry(kind, id) {
   const rows = trackerTargetRows(kind, e.planMonth);
   const stClsMap = { good: 'we-print-good', warn: 'we-print-warn', bad: 'we-print-bad', neutral: '' };
   const tableRows = rows.map(r => {
-    if (r.section) return `<tr class="section-row"><td colspan="5">${r.section}</td></tr>`;
-    const actual = Number((e.actuals || {})[r.k]) || 0;
+    if (r.section) return `<tr class="section-row"><td colspan="6">${r.section}</td></tr>`;
+    const eff = trackerEffectiveActual(r, e.actuals || {});
+    const actual = eff.value;
     const delta = actual - r.target;
     const status = r.noDelta ? { cls: 'neutral', label: '—' } : trackerStatus(r.target, actual, !!r.lowerBetter);
     const fmtOpts = { money: !!r.money, rate: !!r.rate };
-    const deltaTxt = r.noDelta || !actual ? '—' : (delta >= 0 ? '+' : '') + fmtNum(delta, fmtOpts);
+    const deltaTxt = r.noDelta || !actual ? '—' : (delta >= 0 ? '+' : '−') + fmtNum(Math.abs(delta), fmtOpts);
     const deltaCls = !actual || r.noDelta ? '' : (delta >= 0 ? 'we-print-good' : 'we-print-bad');
+    const note = ((e.rowNotes || {})[r.k] || '').trim().replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const actualTxt = actual ? (eff.derived ? `${fmtNum(actual, fmtOpts)} <span style="font-size:9px;color:#999">(auto)</span>` : fmtNum(actual, fmtOpts)) : '—';
     return `<tr>
       <td>${r.lbl}</td>
       <td class="num">${fmtNum(r.target, fmtOpts)}</td>
-      <td class="num">${actual ? fmtNum(actual, fmtOpts) : '—'}</td>
+      <td class="num">${actualTxt}</td>
       <td class="num ${deltaCls}">${deltaTxt}</td>
       <td class="num ${stClsMap[status.cls]}">${status.label}</td>
+      <td style="font-size:11px;color:#444">${note}</td>
     </tr>`;
   }).join('');
   const score = trackerEntryScore(kind, e);
@@ -4654,7 +4828,7 @@ function printTrackerEntry(kind, id) {
     ${score.scored ? `<div style="font-weight:600;margin-bottom:14px">${score.hit}/${score.scored} metrics ahead of target (${Math.round(score.pct)}%)</div>` : ''}
     <table>
       <thead><tr>
-        <th>Metric</th><th class="num">${t.targetHeader}</th><th class="num">Actual</th><th class="num">Δ</th><th class="num">Status</th>
+        <th>Metric</th><th class="num">${t.targetHeader}</th><th class="num">Actual</th><th class="num">Δ</th><th class="num">Status</th><th>Note</th>
       </tr></thead>
       <tbody>${tableRows}</tbody>
     </table>

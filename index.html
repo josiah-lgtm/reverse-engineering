@@ -294,6 +294,196 @@
   }
   .bd-empty h3 { color: var(--text); margin: 0 0 8px; font-size: 17px; }
 
+  /* Section head — title left, action buttons right */
+  .section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 24px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+  .section-head .bd-actions { margin-bottom: 0; }
+
+  /* Weekly tracking cards — mirror war plan styling */
+  .we-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    margin-bottom: 14px;
+    overflow: hidden;
+    transition: border-color 0.15s;
+  }
+  .we-card:hover { border-color: var(--border-strong); }
+  .we-head {
+    display: grid;
+    grid-template-columns: minmax(240px, 1fr) auto auto auto;
+    gap: 18px;
+    align-items: center;
+    padding: 18px 22px;
+    cursor: pointer;
+  }
+  .we-head:hover { background: rgba(255,255,255,0.02); }
+  .we-head .lbl {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text);
+    letter-spacing: -0.01em;
+  }
+  .we-head .summary { color: var(--text-secondary); font-size: 13px; font-variant-numeric: tabular-nums; }
+  .we-head .we-score {
+    font-size: 12.5px; font-weight: 600; padding: 3px 10px; border-radius: 999px;
+    font-variant-numeric: tabular-nums;
+  }
+  .we-head .we-score.good { background: var(--good-tint); color: var(--good); }
+  .we-head .we-score.warn { background: var(--warn-tint); color: var(--warn); }
+  .we-head .we-score.bad { background: var(--bad-tint); color: var(--bad); }
+  .we-head .toggle {
+    color: var(--text-tertiary); font-size: 20px;
+    transition: transform 0.18s; line-height: 1;
+  }
+  .we-card.open .toggle { transform: rotate(90deg); }
+  .we-body {
+    display: none;
+    padding: 4px 22px 22px;
+    border-top: 1px solid var(--separator);
+  }
+  .we-card.open .we-body { display: block; }
+
+  .we-meta {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    padding: 16px 0 6px;
+  }
+  .we-meta label {
+    display: block;
+    font-size: 11.5px;
+    color: var(--text-tertiary);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .we-meta input, .we-meta select {
+    width: 100%;
+    background: var(--surface-input);
+    border: 1px solid var(--border-input);
+    border-radius: 8px;
+    color: var(--text);
+    font-size: 14px;
+    padding: 8px 12px;
+    font-family: inherit;
+  }
+  .we-meta input:focus, .we-meta select:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+
+  /* Comparison table — mirrors warplan-table */
+  .we-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 14px;
+  }
+  .we-table th {
+    text-align: right;
+    padding: 12px 14px;
+    color: var(--text-tertiary);
+    font-size: 11.5px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    border-bottom: 1px solid var(--separator);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+  .we-table th:first-child { text-align: left; }
+  .we-table td {
+    padding: 11px 14px;
+    border-bottom: 1px solid var(--separator);
+    font-variant-numeric: tabular-nums;
+    font-size: 13.5px;
+  }
+  .we-table td.lbl { font-weight: 500; color: var(--text); }
+  .we-table td.num { text-align: right; }
+  .we-table td.conv { color: var(--text-tertiary); font-size: 12px; }
+  .we-table tr.section-row td {
+    background: rgba(255,255,255,0.025);
+    color: var(--text-tertiary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    padding: 8px 14px;
+    border-top: 1px solid var(--separator);
+  }
+  .we-table input.we-actual {
+    width: 110px;
+    background: var(--surface-input);
+    border: 1px solid var(--border-input);
+    border-radius: 7px;
+    color: var(--text);
+    font-size: 13.5px;
+    padding: 6px 10px;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    font-family: inherit;
+  }
+  .we-table input.we-actual:focus {
+    outline: none; border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-tint);
+  }
+  .we-status-pill {
+    display: inline-block;
+    padding: 2px 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+  .we-status-pill.good { background: var(--good-tint); color: var(--good); }
+  .we-status-pill.warn { background: var(--warn-tint); color: var(--warn); }
+  .we-status-pill.bad { background: var(--bad-tint); color: var(--bad); }
+  .we-status-pill.neutral { background: rgba(255,255,255,0.05); color: var(--text-tertiary); }
+
+  .we-row-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 18px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .we-row-actions .spacer { flex: 1; }
+
+  /* Printable area for PDF — hidden on screen, visible only when printing */
+  .we-print-area { display: none; }
+  @media print {
+    body * { visibility: hidden !important; }
+    .we-print-area, .we-print-area * { visibility: visible !important; }
+    .we-print-area {
+      display: block !important;
+      position: absolute !important;
+      left: 0; top: 0; right: 0;
+      background: #fff !important;
+      color: #111 !important;
+      padding: 24px 32px !important;
+      font-family: -apple-system, "SF Pro Display", "Helvetica Neue", Arial, sans-serif;
+    }
+    .we-print-area h1, .we-print-area h2, .we-print-area h3, .we-print-area td, .we-print-area th,
+    .we-print-area .lbl, .we-print-area .sub, .we-print-area p { color: #111 !important; }
+    .we-print-area table { width: 100%; border-collapse: collapse; }
+    .we-print-area th, .we-print-area td {
+      padding: 6px 10px; border-bottom: 1px solid #ddd; font-size: 12px;
+    }
+    .we-print-area th { text-align: left; color: #666 !important; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .we-print-area th.num, .we-print-area td.num { text-align: right; }
+    .we-print-area .we-print-good { color: #137b3c !important; }
+    .we-print-area .we-print-bad { color: #b32a2a !important; }
+    .we-print-area .we-print-warn { color: #b06f00 !important; }
+    .we-print-area tr.section-row td { background: #f4f3ee !important; color: #666 !important; font-weight: 700; font-size: 10px; }
+  }
+
   .header { margin-bottom: 36px; }
   .header h1 {
     font-size: 40px;
@@ -1935,17 +2125,37 @@
 <div class="container view-pane hidden" data-view="business-data">
   <div class="header">
     <h1>Business Data</h1>
-    <div class="sub">Log what actually happened each month — revenue, closes, bookings, channel volumes — and capture the story of why. Builds your history to compare against future reverse-engineered plans.</div>
+    <div class="sub">Log what actually happened — weekly tracking against your war plan, plus a monthly history to give future plans context.</div>
   </div>
 
+  <!-- Weekly tracking — actuals vs the war-plan targets -->
   <div class="section">
-    <div class="bd-actions">
-      <button id="bd-add-btn" class="primary">+ Add a month of historical data</button>
-      <button id="bd-import-from-plans-btn" class="ghost" title="Pre-fill a row using one of your reverse-engineering plans">↪ Import from a plan</button>
+    <div class="section-head">
+      <div>
+        <h2 style="margin:0">📊 Weekly tracking</h2>
+        <div class="sub" style="margin-top:4px">Log this week's actuals and see how far you are from the war plan. Each entry can publish to Notion or print as PDF.</div>
+      </div>
+      <div class="bd-actions">
+        <button id="we-add-btn" class="primary">+ Add new weekly entry</button>
+      </div>
     </div>
+    <div id="we-entries"></div>
   </div>
 
-  <div id="bd-months"></div>
+  <!-- Monthly historical -->
+  <div class="section" style="margin-top:32px">
+    <div class="section-head">
+      <div>
+        <h2 style="margin:0">🗓 Monthly history</h2>
+        <div class="sub" style="margin-top:4px">Log what actually happened each month — capture the story of why. Builds your history to compare against future plans.</div>
+      </div>
+      <div class="bd-actions">
+        <button id="bd-add-btn" class="primary">+ Add a month of historical data</button>
+        <button id="bd-import-from-plans-btn" class="ghost" title="Pre-fill a row using one of your reverse-engineering plans">↪ Import from a plan</button>
+      </div>
+    </div>
+    <div id="bd-months"></div>
+  </div>
 
   <div class="footer">
     Each row autosaves. Use the notes field to capture context — what we changed, what worked, what we'd do differently.
@@ -2056,6 +2266,7 @@ function defaultState() {
     activeView: 'reverse-engineering',
     months: { [monthId]: defaultPlan() },
     businessData: {},
+    weeklyEntries: {},
     settings: defaultSettings(),
   };
 }
@@ -2147,6 +2358,7 @@ function loadState() {
     }
     s.settings = { ...defaultSettings(), ...(s.settings || {}) };
     if (!s.businessData) s.businessData = {};
+    if (!s.weeklyEntries) s.weeklyEntries = {};
     if (!s.activeView) s.activeView = 'reverse-engineering';
     return s;
   } catch (e) { console.error(e); return null; }
@@ -3370,6 +3582,9 @@ const modal = document.getElementById('plan-modal');
 const modalStatus = document.getElementById('plan-modal-status');
 
 function openModal() {
+  // Opening the war plan modal — clear any active weekly publish so the
+  // shared publish-button routes back to the war plan.
+  if (typeof activeWeeklyPublishId !== 'undefined') activeWeeklyPublishId = null;
   const md = generatePlanMarkdown();
   document.getElementById('plan-markdown').textContent = md;
   document.getElementById('plan-modal-title').textContent = `${fmtMonth(state.activeMonth)} — plan markdown`;
@@ -3435,9 +3650,16 @@ function getPublishApiUrl() {
 document.getElementById('plan-publish-btn').addEventListener('click', async () => {
   const btn = document.getElementById('plan-publish-btn');
   const md = document.getElementById('plan-markdown').textContent;
-  const title = `${fmtMonth(state.activeMonth)} — Plan`;
+  // Route to weekly publish if a weekly entry opened the modal
+  const weeklyId = typeof activeWeeklyPublishId !== 'undefined' ? activeWeeklyPublishId : null;
+  const weeklyEntry = weeklyId ? state.weeklyEntries[weeklyId] : null;
+  const title = weeklyEntry
+    ? `${fmtWeekLabel(weeklyId)} — Weekly report`
+    : `${fmtMonth(state.activeMonth)} — Plan`;
   const p = plan();
-  const existingPageId = (p.notionPageId || '').trim() || undefined;
+  const existingPageId = weeklyEntry
+    ? ((weeklyEntry.notionPageId || '').trim() || undefined)
+    : ((p.notionPageId || '').trim() || undefined);
   const apiUrl = getPublishApiUrl();
   if (!apiUrl) {
     modalStatus.textContent = 'Publish endpoint not configured. Set it in Settings → Notion API.';
@@ -3456,11 +3678,17 @@ document.getElementById('plan-publish-btn').addEventListener('click', async () =
     });
     const data = await res.json().catch(() => ({}));
     if (!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status}`);
-    // Remember the page id + url so the next publish for THIS month updates
-    // the same Notion page instead of creating a duplicate.
-    p.notionPageId = data.page_id;
-    p.notionPageUrl = data.page_url;
-    document.getElementById('notion-page-url').value = data.page_url;
+    // Remember the page id + url so the next publish updates the same Notion
+    // page instead of creating a duplicate. Store on the weekly entry when
+    // publishing a weekly report, otherwise on the war plan.
+    if (weeklyEntry) {
+      weeklyEntry.notionPageId = data.page_id;
+      weeklyEntry.notionPageUrl = data.page_url;
+    } else {
+      p.notionPageId = data.page_id;
+      p.notionPageUrl = data.page_url;
+      document.getElementById('notion-page-url').value = data.page_url;
+    }
     saveState();
     const verb = data.updated ? 'Updated' : 'Published';
     modalStatus.innerHTML = `${verb} — <a href="${data.page_url}" target="_blank" rel="noopener" style="color:var(--accent-hover);text-decoration:underline">open in Notion</a>`;
@@ -3626,6 +3854,7 @@ function fmtBdMonth(id) {
 }
 
 function renderBusinessData() {
+  renderWeeklyEntries();
   const host = document.getElementById('bd-months');
   const ids = Object.keys(state.businessData).sort().reverse();  // newest first
   if (!ids.length) {
@@ -3698,6 +3927,431 @@ function renderBusinessData() {
     });
   });
 }
+
+// ============================================================
+// Weekly tracking — actuals vs war-plan targets
+// ============================================================
+function weekStartFor(date) {
+  // ISO week — Monday start
+  const d = new Date(date);
+  d.setHours(0, 0, 0, 0);
+  const dow = d.getDay();
+  const diff = dow === 0 ? -6 : 1 - dow;
+  d.setDate(d.getDate() + diff);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+}
+function weekEndIso(weekStart) {
+  const d = new Date(weekStart);
+  d.setDate(d.getDate() + 6);
+  return d;
+}
+function fmtWeekLabel(weekStart) {
+  const a = new Date(weekStart);
+  const b = weekEndIso(weekStart);
+  const MO = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const aM = MO[a.getMonth()];
+  const bM = MO[b.getMonth()];
+  if (a.getMonth() === b.getMonth()) {
+    return `Week of ${aM} ${a.getDate()}–${b.getDate()}, ${b.getFullYear()}`;
+  }
+  return `Week of ${aM} ${a.getDate()} – ${bM} ${b.getDate()}, ${b.getFullYear()}`;
+}
+function weekPlanMonth(weekStart) {
+  const d = new Date(weekStart);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+}
+
+// Run a fn with a temporarily different state.activeMonth and restore after.
+function withActiveMonth(monthId, fn) {
+  const saved = state.activeMonth;
+  if (state.months[monthId]) state.activeMonth = monthId;
+  try { return fn(); } finally { state.activeMonth = saved; }
+}
+
+// Build the weekly-target row set for a given plan-month.
+// Returns rows in the same shape/order as renderWarPlan so the UI is identical.
+function weeklyTargetRows(planMonth) {
+  return withActiveMonth(planMonth, () => {
+    const p = plan();
+    const c = compute();
+    const wkDiv = p.workingDaysPerMonth / p.workingDaysPerWeek;
+    const toWeekly = (mo) => mo / wkDiv;
+    const rows = [];
+    rows.push({ section: 'Revenue & sales funnel' });
+    rows.push({ k: 'wp_revenueTarget', lbl: 'Contracted revenue', target: toWeekly(p.revenueTarget), money: true });
+    rows.push({ k: 'wp_cashCollectedTarget', lbl: 'Cash collected', target: toWeekly(c.cashCollectedTarget), money: true, conv: `${p.cashCollectedPct}% of contracted` });
+    rows.push({ k: 'wp_closes', lbl: 'Closes', target: toWeekly(c.closes), conv: `${money(c.packagePrice)} per close` });
+    rows.push({ k: 'wp_offers', lbl: 'Offers', target: toWeekly(c.offers), conv: `${p.sales.closeRate}% close rate` });
+    rows.push({ k: 'wp_qshows2', lbl: 'Call 2 qualified shows', target: toWeekly(c.qshows2), conv: `${p.sales.offerRate}% offer rate` });
+    rows.push({ k: 'wp_shows2', lbl: 'Call 2 shows', target: toWeekly(c.shows2), conv: `${p.sales.qshow2Rate}% qual-show rate` });
+    rows.push({ k: 'wp_book2', lbl: 'Call 2 bookings', target: toWeekly(c.book2), conv: `${p.sales.book2Rate}% → call 2 booked` });
+    rows.push({ k: 'wp_shows1', lbl: 'Call 1 shows', target: toWeekly(c.shows1), conv: `${p.sales.show1Rate}% show rate` });
+    rows.push({ k: 'wp_bookings', lbl: 'Call 1 bookings', target: toWeekly(c.bookings) });
+
+    rows.push({ section: 'Channels — outreach' });
+    Object.entries(c.channelOutputs).forEach(([k, out]) => {
+      const ch = p.channels[k];
+      if (!ch.enabled) return;
+      if (k === 'linkedin') {
+        rows.push({ k: 'wp_li_connections', lbl: 'LinkedIn connections', target: toWeekly(out.connections), conv: `${ch.acceptRate}% accept · ${ch.prr}% PRR` });
+        rows.push({ k: 'wp_li_profiles', lbl: 'LinkedIn profiles needed', target: out.profilesNeeded, conv: 'monthly headcount', noDelta: true });
+      }
+      if (k === 'email') {
+        rows.push({ k: 'wp_em_sends', lbl: 'Email sends', target: toWeekly(out.sends), conv: `${ch.replyRate}% reply · ${ch.prr}% PRR` });
+        rows.push({ k: 'wp_em_inboxes', lbl: 'Email inboxes', target: out.inboxesNeeded, conv: 'monthly headcount', noDelta: true });
+      }
+    });
+
+    rows.push({ section: 'Spend & profit' });
+    rows.push({ k: 'wp_marketing', lbl: 'Marketing spend', target: toWeekly(c.economics.totalMarketing), money: true, lowerBetter: true });
+    rows.push({ k: 'wp_commissions', lbl: 'Commission spend', target: toWeekly(c.economics.totalCommissions), money: true, lowerBetter: true });
+    rows.push({ k: 'wp_total_sm', lbl: 'Total S+M spend', target: toWeekly(c.economics.totalSalesAndMarketing), money: true, lowerBetter: true });
+    rows.push({ k: 'wp_profit', lbl: 'Profit on M+S', target: toWeekly(c.economics.profitAfterSM), money: true });
+    return rows;
+  });
+}
+
+// Status classification: how the actual stacks up against the target.
+// "lowerBetter" inverts the colours so coming in under is good (spend).
+function weeklyStatus(target, actual, lowerBetter) {
+  if (!target || target <= 0) return { pct: null, cls: 'neutral', label: '—' };
+  if (!actual || actual <= 0) return { pct: null, cls: 'neutral', label: 'not entered' };
+  const pct = (actual / target) * 100;
+  const isAhead = lowerBetter ? actual <= target : actual >= target;
+  const near = Math.abs(pct - 100) <= 15;
+  if (isAhead) return { pct, cls: 'good', label: lowerBetter ? `${pct.toFixed(0)}% of cap` : `${pct.toFixed(0)}% · on track` };
+  if (near) return { pct, cls: 'warn', label: `${pct.toFixed(0)}% · close` };
+  return { pct, cls: 'bad', label: `${pct.toFixed(0)}% · behind` };
+}
+
+function fmtRow(target, money) {
+  if (target == null || !isFinite(target)) return '—';
+  if (money) return CURRENCY_SYMBOLS[state.settings.currency] + Math.round(target).toLocaleString('en-GB');
+  if (target >= 100) return Math.round(target).toLocaleString('en-GB');
+  return target.toFixed(1);
+}
+
+// Aggregate score for the head pill — % of rows ahead of target.
+function weeklyEntryScore(entry) {
+  const rows = weeklyTargetRows(entry.planMonth);
+  let scored = 0, hit = 0;
+  rows.forEach(r => {
+    if (r.section || r.noDelta) return;
+    const actual = Number((entry.actuals || {})[r.k]);
+    if (!isFinite(actual) || actual === 0) return;
+    scored++;
+    const ahead = r.lowerBetter ? actual <= r.target : actual >= r.target;
+    if (ahead) hit++;
+  });
+  if (!scored) return { hit: 0, scored: 0, pct: null, cls: 'neutral' };
+  const pct = (hit / scored) * 100;
+  const cls = pct >= 75 ? 'good' : pct >= 50 ? 'warn' : 'bad';
+  return { hit, scored, pct, cls };
+}
+
+function renderWeeklyEntries() {
+  const host = document.getElementById('we-entries');
+  if (!host) return;
+  const ids = Object.keys(state.weeklyEntries).sort().reverse();
+  if (!ids.length) {
+    host.innerHTML = `<div class="bd-empty">
+      <h3>No weekly entries yet</h3>
+      <p>Click <b>+ Add new weekly entry</b> above to log this week's actuals against your war plan.</p>
+    </div>`;
+    return;
+  }
+  host.innerHTML = ids.map(id => renderWeeklyEntryCard(id)).join('');
+  ids.forEach(id => wireWeeklyEntryCard(id));
+}
+
+function renderWeeklyEntryCard(id) {
+  const e = state.weeklyEntries[id];
+  if (!e) return '';
+  const score = weeklyEntryScore(e);
+  const scoreHtml = score.scored
+    ? `<span class="we-score ${score.cls}">${score.hit}/${score.scored} ahead · ${Math.round(score.pct)}%</span>`
+    : `<span class="we-score">no data yet</span>`;
+  const planMonths = Object.keys(state.months).sort().reverse();
+  const planOpts = planMonths.map(m => `<option value="${m}" ${m === e.planMonth ? 'selected' : ''}>${fmtMonth(m)}</option>`).join('');
+  return `<div class="we-card ${e.open ? 'open' : ''}" data-we-id="${id}">
+    <div class="we-head" data-we-toggle>
+      <div>
+        <div class="lbl">${fmtWeekLabel(id)}</div>
+        <div class="summary">vs ${fmtMonth(e.planMonth)} war plan</div>
+      </div>
+      ${scoreHtml}
+      <div class="summary"></div>
+      <div class="toggle">›</div>
+    </div>
+    <div class="we-body">
+      <div class="we-meta">
+        <div><label>Week starting (Monday)</label><input type="date" data-we-meta="weekStart" value="${id}" /></div>
+        <div><label>Compare to war plan for</label><select data-we-meta="planMonth">${planOpts}</select></div>
+      </div>
+      <div data-we-table-wrap></div>
+      <div class="bd-notes">
+        <label>What happened this week — wins, blockers, anomalies</label>
+        <textarea data-we-meta="notes" placeholder="e.g. 2 closes from a single LinkedIn campaign; email send rate dipped Friday because of GoLogin issues…">${(e.notes || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
+      </div>
+      <div class="we-row-actions">
+        <button class="ghost" data-we-act="print">Print / Save as PDF</button>
+        <button class="primary" data-we-act="publish">Publish to Notion →</button>
+        <span class="spacer"></span>
+        <button class="bd-delete-btn" data-we-act="delete">Delete entry</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderWeeklyEntryTable(id) {
+  const e = state.weeklyEntries[id];
+  const card = document.querySelector(`.we-card[data-we-id="${id}"]`);
+  if (!card || !e) return;
+  const wrap = card.querySelector('[data-we-table-wrap]');
+  const rows = weeklyTargetRows(e.planMonth);
+  const html = `<table class="we-table">
+    <thead>
+      <tr>
+        <th>Metric</th>
+        <th class="num">Weekly target</th>
+        <th class="num">Actual</th>
+        <th class="num">Δ</th>
+        <th class="num">Status</th>
+        <th>Context</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${rows.map(r => {
+        if (r.section) return `<tr class="section-row"><td colspan="6">${r.section}</td></tr>`;
+        const actual = Number((e.actuals || {})[r.k]) || 0;
+        const delta = actual - r.target;
+        const status = r.noDelta
+          ? { cls: 'neutral', label: '—' }
+          : weeklyStatus(r.target, actual, !!r.lowerBetter);
+        const showDelta = !r.noDelta && actual > 0;
+        const deltaTxt = showDelta ? (delta >= 0 ? '+' : '−') + fmtRow(Math.abs(delta), r.money) : '—';
+        const deltaColor = showDelta ? (delta >= 0 ? 'var(--good)' : 'var(--bad)') : 'var(--text-tertiary)';
+        return `<tr data-we-row="${r.k}">
+          <td class="lbl">${r.lbl}</td>
+          <td class="num">${fmtRow(r.target, r.money)}</td>
+          <td class="num"><input type="number" min="0" step="${r.money ? '1' : '0.1'}" class="we-actual" data-we-actual="${r.k}" value="${actual || ''}" placeholder="0" /></td>
+          <td class="num" style="color:${deltaColor};font-weight:600">${deltaTxt}</td>
+          <td class="num"><span class="we-status-pill ${status.cls}">${status.label}</span></td>
+          <td class="conv">${r.conv || ''}</td>
+        </tr>`;
+      }).join('')}
+    </tbody>
+  </table>`;
+  wrap.innerHTML = html;
+  wrap.querySelectorAll('.we-actual').forEach(inp => {
+    inp.addEventListener('input', ev => {
+      if (!e.actuals) e.actuals = {};
+      const k = ev.target.dataset.weActual;
+      const v = parseFloat(ev.target.value);
+      if (isFinite(v) && v > 0) e.actuals[k] = v;
+      else delete e.actuals[k];
+      saveState();
+      // Update just this row's delta / pill so we don't lose input focus
+      const row = ev.target.closest('tr');
+      const rDef = rows.find(rr => rr.k === k);
+      const actual = Number(e.actuals[k]) || 0;
+      const delta = actual - rDef.target;
+      const status = rDef.noDelta ? { cls: 'neutral', label: '—' } : weeklyStatus(rDef.target, actual, !!rDef.lowerBetter);
+      const showDelta = !rDef.noDelta && actual > 0;
+      const deltaTxt = showDelta ? (delta >= 0 ? '+' : '−') + fmtRow(Math.abs(delta), rDef.money) : '—';
+      const deltaColor = showDelta ? (delta >= 0 ? 'var(--good)' : 'var(--bad)') : 'var(--text-tertiary)';
+      const deltaCell = row.querySelector('td:nth-child(4)');
+      deltaCell.style.color = deltaColor;
+      deltaCell.style.fontWeight = '600';
+      deltaCell.textContent = deltaTxt;
+      const pill = row.querySelector('.we-status-pill');
+      pill.className = `we-status-pill ${status.cls}`;
+      pill.textContent = status.label;
+      // Update head score pill
+      const headPill = document.querySelector(`.we-card[data-we-id="${id}"] .we-score`);
+      const score = weeklyEntryScore(e);
+      headPill.className = `we-score ${score.cls || ''}`;
+      headPill.textContent = score.scored ? `${score.hit}/${score.scored} ahead · ${Math.round(score.pct)}%` : 'no data yet';
+    });
+  });
+}
+
+function wireWeeklyEntryCard(id) {
+  const card = document.querySelector(`.we-card[data-we-id="${id}"]`);
+  if (!card) return;
+  const e = state.weeklyEntries[id];
+  card.querySelector('[data-we-toggle]').addEventListener('click', ev => {
+    if (ev.target.closest('input,select,textarea,button')) return;
+    e.open = !e.open;
+    card.classList.toggle('open', e.open);
+    saveState();
+    if (e.open) renderWeeklyEntryTable(id);
+  });
+  card.querySelectorAll('[data-we-meta]').forEach(inp => {
+    inp.addEventListener('input', ev => {
+      const k = ev.target.dataset.weMeta;
+      e[k] = ev.target.value;
+      saveState();
+      if (k === 'planMonth') renderWeeklyEntryTable(id);
+      if (k === 'weekStart') {
+        // Re-key the entry under the new Monday
+        const newId = ev.target.value;
+        if (newId && newId !== id && !state.weeklyEntries[newId]) {
+          state.weeklyEntries[newId] = e;
+          delete state.weeklyEntries[id];
+          saveState();
+          renderWeeklyEntries();
+        }
+      }
+    });
+  });
+  card.querySelector('[data-we-act="delete"]').addEventListener('click', () => {
+    if (!confirm(`Delete this weekly entry (${fmtWeekLabel(id)})?`)) return;
+    delete state.weeklyEntries[id];
+    saveState();
+    renderWeeklyEntries();
+  });
+  card.querySelector('[data-we-act="print"]').addEventListener('click', () => printWeeklyEntry(id));
+  card.querySelector('[data-we-act="publish"]').addEventListener('click', () => openWeeklyPublishModal(id));
+  if (e.open) renderWeeklyEntryTable(id);
+}
+
+// ────────────────────────────────────────────────────────────────────
+// Markdown report for Notion publish (and the source for the PDF print)
+// ────────────────────────────────────────────────────────────────────
+function weeklyEntryMarkdown(id) {
+  const e = state.weeklyEntries[id];
+  if (!e) return '';
+  const rows = weeklyTargetRows(e.planMonth);
+  const sym = CURRENCY_SYMBOLS[state.settings.currency];
+  const lines = [];
+  lines.push(`# ${fmtWeekLabel(id)}`);
+  lines.push('');
+  lines.push(`_Compared to ${fmtMonth(e.planMonth)} war plan._`);
+  lines.push('');
+  const score = weeklyEntryScore(e);
+  if (score.scored) {
+    lines.push(`**Aggregate:** ${score.hit}/${score.scored} metrics ahead of target (${Math.round(score.pct)}%)`);
+    lines.push('');
+  }
+  lines.push('| Metric | Weekly target | Actual | Δ | Status |');
+  lines.push('| --- | ---: | ---: | ---: | :---: |');
+  rows.forEach(r => {
+    if (r.section) { lines.push(`| **${r.section}** | | | | |`); return; }
+    const actual = Number((e.actuals || {})[r.k]) || 0;
+    const delta = actual - r.target;
+    const status = r.noDelta ? '—' : weeklyStatus(r.target, actual, !!r.lowerBetter).label;
+    const t = fmtRow(r.target, r.money);
+    const a = actual ? fmtRow(actual, r.money) : '—';
+    const d = r.noDelta || !actual ? '—' : (delta >= 0 ? '+' : '') + fmtRow(delta, r.money);
+    lines.push(`| ${r.lbl} | ${t} | ${a} | ${d} | ${status} |`);
+  });
+  if ((e.notes || '').trim()) {
+    lines.push('');
+    lines.push('## Notes');
+    lines.push('');
+    lines.push(e.notes.trim());
+  }
+  return lines.join('\n');
+}
+
+// ────────────────────────────────────────────────────────────────────
+// PDF — browser print of the entry summary
+// ────────────────────────────────────────────────────────────────────
+function printWeeklyEntry(id) {
+  const e = state.weeklyEntries[id];
+  if (!e) return;
+  const rows = weeklyTargetRows(e.planMonth);
+  const tableRows = rows.map(r => {
+    if (r.section) return `<tr class="section-row"><td colspan="5">${r.section}</td></tr>`;
+    const actual = Number((e.actuals || {})[r.k]) || 0;
+    const delta = actual - r.target;
+    const status = r.noDelta ? { cls: 'neutral', label: '—' } : weeklyStatus(r.target, actual, !!r.lowerBetter);
+    const deltaTxt = r.noDelta || !actual ? '—' : (delta >= 0 ? '+' : '') + fmtRow(delta, r.money);
+    const deltaCls = !actual || r.noDelta ? '' : (delta >= 0 ? 'we-print-good' : 'we-print-bad');
+    const stClsMap = { good: 'we-print-good', warn: 'we-print-warn', bad: 'we-print-bad', neutral: '' };
+    return `<tr>
+      <td>${r.lbl}</td>
+      <td class="num">${fmtRow(r.target, r.money)}</td>
+      <td class="num">${actual ? fmtRow(actual, r.money) : '—'}</td>
+      <td class="num ${deltaCls}">${deltaTxt}</td>
+      <td class="num ${stClsMap[status.cls]}">${status.label}</td>
+    </tr>`;
+  }).join('');
+  const score = weeklyEntryScore(e);
+  const html = `
+    <h1 style="margin:0 0 6px;font-size:22px">${fmtWeekLabel(id)}</h1>
+    <div style="color:#666;font-size:13px;margin-bottom:14px">Compared to ${fmtMonth(e.planMonth)} war plan</div>
+    ${score.scored ? `<div style="font-weight:600;margin-bottom:14px">${score.hit}/${score.scored} metrics ahead of target (${Math.round(score.pct)}%)</div>` : ''}
+    <table>
+      <thead><tr>
+        <th>Metric</th><th class="num">Weekly target</th><th class="num">Actual</th><th class="num">Δ</th><th class="num">Status</th>
+      </tr></thead>
+      <tbody>${tableRows}</tbody>
+    </table>
+    ${(e.notes || '').trim() ? `<h2 style="font-size:14px;margin:20px 0 6px">Notes</h2><div style="font-size:12px;white-space:pre-line">${(e.notes || '').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>` : ''}
+  `;
+  let area = document.getElementById('we-print-area');
+  if (!area) {
+    area = document.createElement('div');
+    area.id = 'we-print-area';
+    area.className = 'we-print-area';
+    document.body.appendChild(area);
+  }
+  area.innerHTML = html;
+  window.print();
+}
+
+// ────────────────────────────────────────────────────────────────────
+// Notion publish — reuses the existing plan-modal + api/publish.js
+// ────────────────────────────────────────────────────────────────────
+let activeWeeklyPublishId = null;
+function openWeeklyPublishModal(id) {
+  activeWeeklyPublishId = id;
+  const e = state.weeklyEntries[id];
+  const md = weeklyEntryMarkdown(id);
+  document.getElementById('plan-markdown').textContent = md;
+  document.getElementById('plan-modal-title').textContent = `${fmtWeekLabel(id)} — weekly report`;
+  modalStatus.textContent = '';
+  modalStatus.classList.remove('ok');
+  modalStatus.style.color = '';
+  const hasPrior = !!(e.notionPageId || '').trim();
+  const btn = document.getElementById('plan-publish-btn');
+  btn.textContent = hasPrior ? 'Re-publish to Notion ↻' : 'Publish to Notion →';
+  if (hasPrior) {
+    modalStatus.innerHTML = `<span style="color:var(--text-tertiary)">Last published — <a href="${e.notionPageUrl}" target="_blank" rel="noopener" style="color:var(--accent-hover);text-decoration:underline">open</a>. Re-publish overwrites that page.</span>`;
+  }
+  modal.classList.add('open');
+}
+
+// Hook into the existing plan-publish-btn click flow so weekly publishes
+// route to the same Vercel endpoint as the war plan. We patch the click
+// handler at boot — see the bd-add-btn wiring below.
+
+document.getElementById('we-add-btn').addEventListener('click', () => {
+  const today = new Date();
+  const monday = weekStartFor(today);
+  if (state.weeklyEntries[monday]) {
+    // Already exists — open it
+    state.weeklyEntries[monday].open = true;
+    saveState();
+    renderWeeklyEntries();
+    document.querySelector(`.we-card[data-we-id="${monday}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    return;
+  }
+  const planMonth = state.months[weekPlanMonth(monday)] ? weekPlanMonth(monday) : state.activeMonth;
+  state.weeklyEntries[monday] = {
+    weekStart: monday,
+    planMonth,
+    actuals: {},
+    notes: '',
+    open: true,
+    notionPageId: '',
+    notionPageUrl: '',
+  };
+  saveState();
+  renderWeeklyEntries();
+});
 
 document.getElementById('bd-add-btn').addEventListener('click', () => {
   const ids = Object.keys(state.businessData).sort();

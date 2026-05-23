@@ -2296,20 +2296,24 @@
     </div>
     <div class="settings-card">
       <h3>Notion API</h3>
-      <p class="settings-sub">Where the <b>Publish to Notion</b> button POSTs the markdown. Deploy <code>api/publish.js</code> to Vercel (see README), then paste the URL here.</p>
+      <p class="settings-sub">Where the <b>Publish to Notion</b> button POSTs the markdown. The team-tracker deployment already holds your <code>NOTION_TOKEN</code> — reuse it with one click, or paste a different endpoint URL below.</p>
       <div class="setting-row">
         <label for="set-api-url">Publish endpoint</label>
-        <input id="set-api-url" type="url" placeholder="https://reverse-engineering.vercel.app/api/publish" />
+        <input id="set-api-url" type="url" placeholder="https://tracker.agencyadvanta.com/api/external/notion-publish" />
+      </div>
+      <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+        <button type="button" id="set-api-url-tt" class="ghost small">↺ Use team-tracker (tracker.agencyadvanta.com)</button>
       </div>
       <details class="onboard-steps">
-        <summary>Step-by-step onboarding (Vercel + Notion integration)</summary>
+        <summary>How it works · alt option (your own Vercel deployment)</summary>
+        <p>The <b>team-tracker</b> Next.js app already exposes <code>/api/external/notion-publish</code> and writes to the same Notion database that hosts the scorecards. The "Use team-tracker" button above prefills the URL — that's all you need.</p>
+        <p>If you'd rather host the Notion publisher yourself, the original Vercel onboarding still works:</p>
         <ol>
           <li>Create a Notion <b>internal integration</b> at <a href="https://www.notion.so/my-integrations" target="_blank" rel="noopener">notion.so/my-integrations</a>. Copy the <b>Internal Integration Secret</b> — that's your <code>NOTION_TOKEN</code>.</li>
-          <li>In Notion, open the parent page (or database) where you want plans to live. Click <b>···</b> → <b>Add connections</b> → pick the integration you just made. Copy the page/database ID from the URL.</li>
+          <li>In Notion, open the parent page (or database) where you want plans to live. Click <b>···</b> → <b>Add connections</b> → pick the integration. Copy the page/database ID from the URL.</li>
           <li>Sign in to <a href="https://vercel.com" target="_blank" rel="noopener">vercel.com</a> with GitHub → <b>Add New → Project</b> → import <code>josiah-lgtm/reverse-engineering</code>. Framework preset <b>Other</b>, output directory <code>.</code></li>
           <li>In Vercel <b>Project Settings → Environment Variables</b>, add: <code>NOTION_TOKEN</code> and <code>NOTION_PARENT_DATABASE_ID</code> (or <code>NOTION_PARENT_PAGE_ID</code>).</li>
-          <li>Deploy. Copy the assigned URL like <code>reverse-engineering-xyz.vercel.app</code>.</li>
-          <li>Paste <code>https://reverse-engineering-xyz.vercel.app/api/publish</code> into the <b>Publish endpoint</b> field above.</li>
+          <li>Deploy. Paste <code>https://&lt;your-app&gt;.vercel.app/api/publish</code> into the field above.</li>
         </ol>
       </details>
 
@@ -2870,6 +2874,7 @@ function renderWarPlan(c) {
   rows.push({ k: 'wp_qshows2', lbl: 'Call 2 qualified shows', mo: c.qshows2, conv: `${p.sales.offerRate}% offer rate` });
   rows.push({ k: 'wp_shows2', lbl: 'Call 2 shows', mo: c.shows2, conv: `${p.sales.qshow2Rate}% qual-show rate` });
   rows.push({ k: 'wp_book2', lbl: 'Call 2 bookings', mo: c.book2, conv: `${p.sales.book2Rate}% → call 2 booked` });
+  rows.push({ k: 'wp_qual1', lbl: 'Call 1 qualified shows', mo: c.qual1, conv: `${p.sales.qual1Rate}% qual-show rate` });
   rows.push({ k: 'wp_shows1', lbl: 'Call 1 shows', mo: c.shows1, conv: `${p.sales.show1Rate}% show rate` });
   rows.push({ k: 'wp_bookings', lbl: 'Call 1 bookings', mo: c.bookings });
 
@@ -3078,6 +3083,7 @@ function populateMonthSelect() {
 const FUNNEL_STAGES = [
   { lbl: 'Call 1 booked', noteKey: 'bookings', valKey: 'bookings', hero: true },
   { lbl: 'Call 1 shows', noteKey: 'shows1', valKey: 'shows1' },
+  { lbl: 'Call 1 qual shows', noteKey: 'qual1', valKey: 'qual1' },
   { lbl: 'Call 2 bookings', noteKey: 'book2', valKey: 'book2' },
   { lbl: 'Call 2 shows', noteKey: 'shows2', valKey: 'shows2' },
   { lbl: 'Call 2 qual shows', noteKey: 'qshows2', valKey: 'qshows2' },
@@ -4015,6 +4021,18 @@ document.getElementById('set-api-url').addEventListener('input', e => {
   saveState();
 });
 
+// One-click preset — point at the team-tracker deployment that already
+// has NOTION_TOKEN + NOTION_PARENT_DATABASE_ID configured (production
+// server at tracker.agencyadvanta.com).
+document.getElementById('set-api-url-tt').addEventListener('click', () => {
+  const url = 'https://tracker.agencyadvanta.com/api/external/notion-publish';
+  const inp = document.getElementById('set-api-url');
+  inp.value = url;
+  state.settings.apiUrl = url;
+  saveState();
+  inp.focus();
+});
+
 (() => {
   const slider = document.getElementById('set-error-pct');
   const num = document.getElementById('set-error-pct-num');
@@ -4249,8 +4267,32 @@ function trackerTargetRows(kind, planMonth) {
     rows.push({ k: 'wp_qshows2', lbl: 'Call 2 qualified shows', target: scale(c.qshows2), conv: `${p.sales.offerRate}% offer rate` });
     rows.push({ k: 'wp_shows2', lbl: 'Call 2 shows', target: scale(c.shows2), conv: `${p.sales.qshow2Rate}% qual-show rate` });
     rows.push({ k: 'wp_book2', lbl: 'Call 2 bookings', target: scale(c.book2), conv: `${p.sales.book2Rate}% → call 2 booked` });
+    rows.push({ k: 'wp_qual1', lbl: 'Call 1 qualified shows', target: scale(c.qual1), conv: `${p.sales.qual1Rate}% qual-show rate` });
     rows.push({ k: 'wp_shows1', lbl: 'Call 1 shows', target: scale(c.shows1), conv: `${p.sales.show1Rate}% show rate` });
     rows.push({ k: 'wp_bookings', lbl: 'Call 1 bookings', target: scale(c.bookings) });
+
+    // ─── Sales-funnel stage-to-stage conversions — auto-computed from the
+    // volume actuals just above. Targets come from plan.sales rates.
+    rows.push({ section: 'Conversion rates — sales funnel (auto from your actuals)' });
+    const ratePct = (num, den) => (num && den) ? (num / den) * 100 : null;
+    rows.push({ k: 'cv_show1', lbl: 'Call 1 show rate', target: p.sales.show1Rate, rate: true, conv: '= Call 1 shows ÷ Call 1 bookings',
+                derive: (a) => ratePct(a.wp_shows1, a.wp_bookings) });
+    rows.push({ k: 'cv_qual1', lbl: 'Call 1 qual rate', target: p.sales.qual1Rate, rate: true, conv: '= Call 1 qual shows ÷ Call 1 shows',
+                derive: (a) => ratePct(a.wp_qual1, a.wp_shows1) });
+    rows.push({ k: 'cv_book2', lbl: 'Call 2 book rate', target: p.sales.book2Rate, rate: true, conv: '= Call 2 bookings ÷ Call 1 qual shows',
+                derive: (a) => ratePct(a.wp_book2, a.wp_qual1) });
+    rows.push({ k: 'cv_show2', lbl: 'Call 2 show rate (book→show, combined)', target: (p.sales.sched2Rate * p.sales.show2Rate) / 100, rate: true,
+                conv: '= Call 2 shows ÷ Call 2 bookings · combined sched + show',
+                derive: (a) => ratePct(a.wp_shows2, a.wp_book2) });
+    rows.push({ k: 'cv_qshow2', lbl: 'Call 2 qual-show rate', target: p.sales.qshow2Rate, rate: true, conv: '= Call 2 qual shows ÷ Call 2 shows',
+                derive: (a) => ratePct(a.wp_qshows2, a.wp_shows2) });
+    rows.push({ k: 'cv_offer', lbl: 'Offer rate', target: p.sales.offerRate, rate: true, conv: '= Offers ÷ Call 2 qual shows',
+                derive: (a) => ratePct(a.wp_offers, a.wp_qshows2) });
+    rows.push({ k: 'cv_close', lbl: 'Close rate', target: p.sales.closeRate, rate: true, conv: '= Closes ÷ Offers',
+                derive: (a) => ratePct(a.wp_closes, a.wp_offers) });
+    rows.push({ k: 'cv_book2close', lbl: 'Call 1 booked → closed (full funnel)', target: c.bookingToClose * 100, rate: true,
+                conv: '= Closes ÷ Call 1 bookings · full-funnel conversion',
+                derive: (a) => ratePct(a.wp_closes, a.wp_bookings) });
 
     rows.push({ section: 'Channels — outreach volume' });
     Object.entries(c.channelOutputs).forEach(([k, out]) => {
@@ -4300,11 +4342,59 @@ function trackerTargetRows(kind, planMonth) {
                   derive: (a) => ratePct(a.wp_em_bookings, a.wp_em_positives) });
     }
 
-    rows.push({ section: 'Spend & profit' });
-    rows.push({ k: 'wp_marketing',  lbl: 'Marketing spend',    target: scale(c.economics.totalMarketing),         money: true, lowerBetter: true });
-    rows.push({ k: 'wp_commissions',lbl: 'Commission spend',   target: scale(c.economics.totalCommissions),       money: true, lowerBetter: true });
-    rows.push({ k: 'wp_total_sm',   lbl: 'Total S+M spend',    target: scale(c.economics.totalSalesAndMarketing), money: true, lowerBetter: true });
-    rows.push({ k: 'wp_profit',     lbl: 'Profit on M+S',      target: scale(c.economics.profitAfterSM),          money: true });
+    // ─── Spend & profit — auto-computed from your volume actuals.
+    // Each row falls back to a manual input if its source actuals are blank
+    // (so old entries you typed before this auto-derive still work).
+    rows.push({ section: 'Spend & profit (auto from your actuals)' });
+    const li = p.channels.linkedin || {};
+    const em = p.channels.email || {};
+    const liActiveCost  = li.enabled
+      ? (a) => (Number(a.wp_li_profiles) || 0) * (li.costPerProfile || 0)
+             + (Number(a.wp_li_connections) || 0) * (li.costPerLead || 0)
+             + (li.softwareCost || 0)
+      : () => 0;
+    const emActiveCost = em.enabled
+      ? (a) => (Number(a.wp_em_inboxes) || 0) * (em.costPerInbox || 0)
+             + (Number(a.wp_em_sends) || 0) * (em.costPerLead || 0)
+             + (em.softwareCost || 0)
+      : () => 0;
+    const deriveMarketing = (a) => {
+      const v = liActiveCost(a) + emActiveCost(a);
+      return v > 0 ? v : null;
+    };
+    const deriveCommissions = (a) => {
+      const qsh = Number(a.wp_qshows2) || 0;
+      const cls = Number(a.wp_closes)  || 0;
+      const cash = p.cashPerClose || 0;
+      const srPct = (p.team && p.team.srCommissionPct) || 0;
+      const jrPer = (p.team && p.team.jrCommissionPerQshow) || 0;
+      const v = qsh * jrPer + cls * cash * (srPct / 100);
+      return v > 0 ? v : null;
+    };
+    const deriveTotalSM = (a) => {
+      const m = deriveMarketing(a);
+      const c2 = deriveCommissions(a);
+      if (m == null && c2 == null) return null;
+      return (m || 0) + (c2 || 0);
+    };
+    const deriveProfit = (a) => {
+      const rev = Number(a.wp_revenueTarget) || 0;
+      const sm = deriveTotalSM(a);
+      if (!rev || sm == null) return null;
+      return rev - sm;
+    };
+    rows.push({ k: 'wp_marketing',  lbl: 'Marketing spend',    target: scale(c.economics.totalMarketing),         money: true, lowerBetter: true,
+                conv: 'profiles × £ + connections × £ + software (LI + email)',
+                derive: deriveMarketing });
+    rows.push({ k: 'wp_commissions',lbl: 'Commission spend',   target: scale(c.economics.totalCommissions),       money: true, lowerBetter: true,
+                conv: `qshows × £${(p.team && p.team.jrCommissionPerQshow) || 0} + closes × cash × ${(p.team && p.team.srCommissionPct) || 0}%`,
+                derive: deriveCommissions });
+    rows.push({ k: 'wp_total_sm',   lbl: 'Total S+M spend',    target: scale(c.economics.totalSalesAndMarketing), money: true, lowerBetter: true,
+                conv: '= marketing + commissions',
+                derive: deriveTotalSM });
+    rows.push({ k: 'wp_profit',     lbl: 'Profit on M+S',      target: scale(c.economics.profitAfterSM),          money: true,
+                conv: '= contracted revenue − total S+M spend',
+                derive: deriveProfit });
     return rows;
   });
 }

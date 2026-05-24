@@ -675,6 +675,21 @@
     outline: none; border-color: var(--accent);
     box-shadow: 0 0 0 3px var(--accent-tint);
   }
+  .note-body .note-hint {
+    font-size: 11px;
+    color: var(--text-quaternary);
+    margin-top: 6px;
+    letter-spacing: 0.01em;
+  }
+  .note-body .note-hint kbd {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: 10.5px;
+    color: var(--text-tertiary);
+    font-family: ui-monospace, SFMono-Regular, monospace;
+  }
 
   /* Printable area for PDF — hidden on screen, visible only when printing */
   .we-print-area { display: none; }
@@ -702,6 +717,105 @@
     .we-print-area .we-print-bad { color: #b32a2a !important; }
     .we-print-area .we-print-warn { color: #b06f00 !important; }
     .we-print-area tr.section-row td { background: #f4f3ee !important; color: #666 !important; font-weight: 700; font-size: 10px; }
+
+    /* ─── Team-Meeting-style PDF skin ──────────────────────────── */
+    .we-print-area .pdf-header {
+      border-bottom: 2px solid #d4a017 !important;
+      padding-bottom: 14px;
+      margin-bottom: 20px;
+    }
+    .we-print-area .pdf-brand {
+      font-size: 22px !important;
+      font-weight: 800 !important;
+      color: #111 !important;
+      letter-spacing: -0.01em;
+      margin-bottom: 6px;
+    }
+    .we-print-area .pdf-meta-row {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 8px;
+      font-size: 12px !important; color: #555 !important; margin-bottom: 6px;
+    }
+    .we-print-area .pdf-meta-row .pdf-date { font-weight: 600; color: #111 !important; }
+    .we-print-area .pdf-meta-row .pdf-sep { color: #aaa !important; }
+    .we-print-area .pdf-agg-pill {
+      margin-left: auto;
+      background: #fff3d6 !important;
+      color: #8a6500 !important;
+      font-weight: 600; font-size: 11px !important;
+      padding: 3px 9px; border-radius: 999px;
+      border: 1px solid #e8d29a !important;
+    }
+    .we-print-area .pdf-tagline {
+      font-size: 11px !important; color: #666 !important;
+      letter-spacing: 0.02em;
+    }
+    .we-print-area .pdf-tagline-pillars { margin-top: 2px; color: #888 !important; }
+
+    .we-print-area .pdf-note-card {
+      background: #fafaf6 !important;
+      border: 1px solid #eceae1 !important;
+      border-radius: 8px;
+      padding: 12px 16px;
+      margin: 14px 0;
+      page-break-inside: avoid;
+    }
+    .we-print-area .pdf-note-h2 {
+      font-size: 13.5px !important;
+      font-weight: 700 !important;
+      margin: 0 0 8px !important;
+      color: #111 !important;
+      letter-spacing: -0.005em;
+    }
+    .we-print-area .pdf-note-icon { margin-right: 4px; }
+    .we-print-area .pdf-note-body { font-size: 12px !important; color: #222 !important; line-height: 1.5; }
+    .we-print-area .pdf-note-body p { margin: 4px 0; }
+    .we-print-area ul.pdf-bullets {
+      margin: 4px 0 4px 18px !important;
+      padding: 0;
+      font-size: 12px !important;
+      line-height: 1.55;
+      color: #222 !important;
+    }
+    .we-print-area ul.pdf-bullets li { margin: 2px 0; }
+
+    .we-print-area .pdf-section-h2 {
+      font-size: 13.5px !important;
+      font-weight: 700 !important;
+      color: #111 !important;
+      margin: 22px 0 8px !important;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #eceae1 !important;
+    }
+    .we-print-area .pdf-kpi-table {
+      width: 100%; border-collapse: collapse;
+      page-break-inside: avoid;
+      margin-bottom: 10px;
+    }
+    .we-print-area .pdf-kpi-table th {
+      background: #faf8f0 !important;
+      color: #777 !important;
+      font-weight: 600 !important;
+      font-size: 10px !important;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 6px 10px;
+      border-bottom: 1.5px solid #d4a017 !important;
+    }
+    .we-print-area .pdf-kpi-table td {
+      padding: 6px 10px;
+      font-size: 12px !important;
+      border-bottom: 1px solid #eee !important;
+      color: #111 !important;
+    }
+    .we-print-area .pdf-kpi-table tr:nth-child(even) td { background: #fcfbf8 !important; }
+    .we-print-area .pdf-status-pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px !important;
+      font-weight: 600;
+      white-space: nowrap;
+    }
   }
 
   .header { margin-bottom: 36px; }
@@ -4548,6 +4662,7 @@ function renderTrackerCardHtml(kind, id) {
             </button>
             <div class="note-body">
               <textarea data-note-input="${n.k}" placeholder="${n.placeholder}">${val.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
+              <div class="note-hint">Tip: type <kbd>-</kbd> + <kbd>space</kbd> to start a bullet · <kbd>Enter</kbd> continues the list · empty bullet + <kbd>Enter</kbd> exits</div>
             </div>
           </div>`;
         }).join('')}
@@ -4757,7 +4872,48 @@ function wireTrackerCard(kind, id) {
       sec.classList.toggle('open', e.openNotes[k]);
       saveState();
     });
-    sec.querySelector('[data-note-input]').addEventListener('input', ev => {
+    const noteTA = sec.querySelector('[data-note-input]');
+    // Notion-style bullet shortcut. Pressing Enter while the cursor is on a
+    // line that starts with "- " (or "* " / "• ") continues the list on the
+    // next line. Pressing Enter on an empty bullet ("- " with nothing after)
+    // exits the list. Typing "- " at the start of a line already produces a
+    // bullet because we just preserve what the user types — this handler only
+    // automates the *continuation*.
+    noteTA.addEventListener('keydown', ev => {
+      if (ev.key !== 'Enter' || ev.shiftKey || ev.isComposing) return;
+      const ta = ev.target;
+      const start = ta.selectionStart;
+      const value = ta.value;
+      // Find current line bounds
+      const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+      const nextNl = value.indexOf('\n', start);
+      const lineEnd = nextNl === -1 ? value.length : nextNl;
+      const currentLine = value.slice(lineStart, lineEnd);
+      // Match "  - ", "  * ", "  • " (any leading indent + bullet marker + space).
+      const m = currentLine.match(/^(\s*)([-*•])\s(.*)$/);
+      if (!m) return;
+      const [, indent, marker, rest] = m;
+      ev.preventDefault();
+      if (rest.trim() === '') {
+        // Empty bullet → wipe the marker, just break to a clean newline.
+        const before = value.slice(0, lineStart);
+        const after = value.slice(lineEnd);
+        ta.value = before + '\n' + after;
+        const newPos = before.length + 1;
+        ta.selectionStart = ta.selectionEnd = newPos;
+      } else {
+        // Continue the list — insert "\n<indent><marker> " at the cursor.
+        const before = value.slice(0, start);
+        const after = value.slice(start);
+        const prefix = `\n${indent}${marker} `;
+        ta.value = before + prefix + after;
+        const newPos = start + prefix.length;
+        ta.selectionStart = ta.selectionEnd = newPos;
+      }
+      // Persist & fire the same change pipeline that the input listener uses.
+      ta.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+    noteTA.addEventListener('input', ev => {
       if (!e.notes) e.notes = emptyNotes();
       e.notes[k] = ev.target.value;
       sec.classList.toggle('has-content', !!ev.target.value.trim());
@@ -4838,46 +4994,168 @@ function trackerDelete(kind) {
 // ────────────────────────────────────────────────────────────────────
 // Markdown for Notion publish + the printable PDF
 // ────────────────────────────────────────────────────────────────────
+// ────────────────────────────────────────────────────────────────────
+// Helpers for the styled report (used by both Notion markdown + PDF print).
+// Status → emoji + colour-class mapping mirrors the Team Meeting PDF:
+//   ✅ Above Target / 📊 Near Target / 🔴 Below Target.
+// ────────────────────────────────────────────────────────────────────
+function trackerStatusEmoji(cls, lowerBetter) {
+  if (cls === 'good') return lowerBetter ? '✅ Under cap' : '✅ Above Target';
+  if (cls === 'warn') return '📊 Near Target';
+  if (cls === 'bad')  return lowerBetter ? '🔴 Over cap' : '🔴 Below Target';
+  return '—';
+}
+
+// Group tracker rows into the four PDF-style buckets. Returns an ordered
+// array of { id, title, icon, rows[] }.
+function trackerGroupRows(rows) {
+  const groups = [];
+  let current = null;
+  // Map section text → { id, title, icon }
+  const SECTION_MAP = {
+    'Revenue & sales funnel': { id: 'sales', title: 'Sales Weekly KPIs', icon: '💬' },
+    'Conversion rates — sales funnel (auto from your actuals)':
+      { id: 'sales-conv', title: 'Sales Funnel — Conversion Rates', icon: '🎯' },
+    'Channels — outreach volume': { id: 'channels', title: 'Channels — Outreach Volume', icon: '🚀' },
+    'Conversion rates — auto-computed from your volume actuals':
+      { id: 'channel-conv', title: 'Channels — Conversion Rates', icon: '📈' },
+    'Spend & profit (auto from your actuals)':
+      { id: 'spend', title: 'Spend & Profit', icon: '💰' },
+  };
+  // We further split "Channels — outreach volume" by channel prefix (wp_li_*,
+  // wp_em_*) so LinkedIn + Email get their own KPI tables like the PDF.
+  for (const r of rows) {
+    if (r.section) {
+      const meta = SECTION_MAP[r.section] || { id: 'misc', title: r.section, icon: '📋' };
+      current = { ...meta, rows: [] };
+      groups.push(current);
+      continue;
+    }
+    if (current) current.rows.push(r);
+  }
+  // Post-process: split the "channels" group into per-channel groups by row
+  // key prefix so we get one table per channel just like the source PDF.
+  const out = [];
+  for (const g of groups) {
+    if (g.id !== 'channels') { out.push(g); continue; }
+    const li = g.rows.filter(r => r.k.startsWith('wp_li_'));
+    const em = g.rows.filter(r => r.k.startsWith('wp_em_'));
+    if (li.length) out.push({ id: 'linkedin', title: 'LinkedIn Weekly KPIs', icon: '💼', rows: li });
+    if (em.length) out.push({ id: 'email',    title: 'Email Weekly KPIs',    icon: '📧', rows: em });
+  }
+  return out;
+}
+
 function trackerEntryMarkdown(kind, id) {
   const t = TRACKERS[kind];
   const e = trackerStore(kind)[id];
   if (!e) return '';
   const rows = trackerTargetRows(kind, e.planMonth);
-  const lines = [];
-  lines.push(`# ${t.fmtLabel(id)}`);
-  lines.push('');
-  lines.push(`_Compared to ${fmtMonth(e.planMonth)} war plan._`);
-  lines.push('');
+  const groups = trackerGroupRows(rows);
   const score = trackerEntryScore(kind, e);
+  const lines = [];
+
+  // ─── Header ──────────────────────────────────────────────────────
+  lines.push(`# 🏆 Agency Advanta — ${kind === 'weekly' ? 'Weekly' : 'Monthly'} Team Meeting`);
+  lines.push('');
+  lines.push(`**${t.fmtLabel(id)}** · _vs ${fmtMonth(e.planMonth)} war plan_`);
+  lines.push('');
+  lines.push(`> Number #1 B2B Outbound Advisory In The World`);
+  lines.push(`> 🏆 Mastery · ⬆ Simplicity · 💀 Sacrifice`);
+  lines.push('');
   if (score.scored) {
     lines.push(`**Aggregate:** ${score.hit}/${score.scored} metrics ahead of target (${Math.round(score.pct)}%)`);
     lines.push('');
   }
-  lines.push(`| Metric | ${t.targetHeader} | Actual | Δ | Status | Note |`);
-  lines.push('| --- | ---: | ---: | ---: | :---: | --- |');
-  rows.forEach(r => {
-    if (r.section) { lines.push(`| **${r.section}** | | | | | |`); return; }
-    const eff = trackerEffectiveActual(r, e.actuals || {});
-    const actual = eff.value;
-    const delta = actual - r.target;
-    const status = r.noDelta ? '—' : trackerStatus(r.target, actual, !!r.lowerBetter).label;
-    const fmtOpts = { money: !!r.money, rate: !!r.rate };
-    const a = actual ? (eff.derived ? `${fmtNum(actual, fmtOpts)} _(auto)_` : fmtNum(actual, fmtOpts)) : '—';
-    const d = r.noDelta || !actual ? '—' : (delta >= 0 ? '+' : '−') + fmtNum(Math.abs(delta), fmtOpts);
-    const noteRaw = ((e.rowNotes || {})[r.k] || '').trim();
-    const note = noteRaw ? noteRaw.replace(/\|/g, '\\|').replace(/\n/g, ' ') : '';
-    lines.push(`| ${r.lbl} | ${fmtNum(r.target, fmtOpts)} | ${a} | ${d} | ${status} | ${note} |`);
-  });
-  // Section notes — only sections that have content
-  NOTE_SECTIONS.forEach(n => {
+
+  // ─── Note sections at the top, in PDF order ─────────────────────
+  // Match the source PDF: 🔴 Lessons & Problems, 🏆 Wins, 📢 Announcements,
+  // plus our extra ⚠ Pre-mortem. Render text verbatim so user's "- " bullets
+  // become Notion bulleted_list_item blocks via the existing publish handler.
+  const NOTE_ORDER = [
+    { k: 'blockers',      icon: '🔴', lbl: 'Lessons & Problems' },
+    { k: 'wins',          icon: '🏆', lbl: 'Wins' },
+    { k: 'announcements', icon: '📢', lbl: 'Announcements' },
+    { k: 'premortem',     icon: '⚠',  lbl: 'Pre-mortem' },
+  ];
+  NOTE_ORDER.forEach(n => {
     const v = ((e.notes || {})[n.k] || '').trim();
     if (!v) return;
-    lines.push('');
     lines.push(`## ${n.icon} ${n.lbl}`);
     lines.push('');
     lines.push(v);
+    lines.push('');
   });
+
+  // ─── KPI groups: one section + table per channel/group ──────────
+  groups.forEach(g => {
+    if (!g.rows.length) return;
+    lines.push(`## ${g.icon} ${g.title}`);
+    lines.push('');
+    lines.push(`| KPI | Target | Actual | Δ | Status |`);
+    lines.push('| --- | ---: | ---: | ---: | :--- |');
+    g.rows.forEach(r => {
+      const eff = trackerEffectiveActual(r, e.actuals || {});
+      const actual = eff.value;
+      const delta = actual - r.target;
+      const stObj = r.noDelta ? { cls: 'neutral', label: '—' } : trackerStatus(r.target, actual, !!r.lowerBetter);
+      const fmtOpts = { money: !!r.money, rate: !!r.rate };
+      const a = actual ? (eff.derived ? `${fmtNum(actual, fmtOpts)} _(auto)_` : fmtNum(actual, fmtOpts)) : '—';
+      const d = r.noDelta || !actual ? '—' : (delta >= 0 ? '+' : '−') + fmtNum(Math.abs(delta), fmtOpts);
+      const status = trackerStatusEmoji(stObj.cls, !!r.lowerBetter);
+      lines.push(`| ${r.lbl} | ${fmtNum(r.target, fmtOpts)} | ${a} | ${d} | ${status} |`);
+    });
+    lines.push('');
+  });
+
+  // ─── Per-metric row notes, only when they have content ──────────
+  const rowNotes = e.rowNotes || {};
+  const annotated = rows.filter(r => !r.section && ((rowNotes[r.k] || '').trim().length > 0));
+  if (annotated.length) {
+    lines.push('## 📝 Per-metric notes');
+    lines.push('');
+    annotated.forEach(r => {
+      lines.push(`- **${r.lbl}** — ${rowNotes[r.k].trim().replace(/\n/g, ' ')}`);
+    });
+    lines.push('');
+  }
+
+  // ─── Closer — bottleneck + $100M play prompt ────────────────────
+  lines.push(`## 🚧 Current Bottleneck`);
+  lines.push('');
+  lines.push(`_Capture the single biggest constraint you fixed or surfaced this period._`);
+  lines.push('');
+  lines.push(`## 💎 $100M Play — Ideation / Discuss / Solve`);
+  lines.push('');
+  lines.push(`_What's the bet that changes the trajectory this quarter?_`);
+  lines.push('');
+
   return lines.join('\n');
+}
+
+// Render a simple "- item" / "* item" list as <ul><li>. Anything else
+// becomes a paragraph. Used by the print PDF so the auto-bullets the user
+// typed render as a real bulleted list, not raw "- " text.
+function noteTextToHtml(text) {
+  const lines = (text || '').split('\n');
+  const out = [];
+  let inList = false;
+  const closeList = () => { if (inList) { out.push('</ul>'); inList = false; } };
+  for (const raw of lines) {
+    const line = raw.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const m = line.match(/^\s*[-*•]\s+(.*)$/);
+    if (m) {
+      if (!inList) { out.push('<ul class="pdf-bullets">'); inList = true; }
+      out.push(`<li>${m[1]}</li>`);
+    } else if (line.trim() === '') {
+      closeList();
+    } else {
+      closeList();
+      out.push(`<p style="margin:4px 0">${line}</p>`);
+    }
+  }
+  closeList();
+  return out.join('');
 }
 
 function printTrackerEntry(kind, id) {
@@ -4885,44 +5163,111 @@ function printTrackerEntry(kind, id) {
   const e = trackerStore(kind)[id];
   if (!e) return;
   const rows = trackerTargetRows(kind, e.planMonth);
-  const stClsMap = { good: 'we-print-good', warn: 'we-print-warn', bad: 'we-print-bad', neutral: '' };
-  const tableRows = rows.map(r => {
-    if (r.section) return `<tr class="section-row"><td colspan="6">${r.section}</td></tr>`;
-    const eff = trackerEffectiveActual(r, e.actuals || {});
-    const actual = eff.value;
-    const delta = actual - r.target;
-    const status = r.noDelta ? { cls: 'neutral', label: '—' } : trackerStatus(r.target, actual, !!r.lowerBetter);
-    const fmtOpts = { money: !!r.money, rate: !!r.rate };
-    const deltaTxt = r.noDelta || !actual ? '—' : (delta >= 0 ? '+' : '−') + fmtNum(Math.abs(delta), fmtOpts);
-    const deltaCls = !actual || r.noDelta ? '' : (delta >= 0 ? 'we-print-good' : 'we-print-bad');
-    const note = ((e.rowNotes || {})[r.k] || '').trim().replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    const actualTxt = actual ? (eff.derived ? `${fmtNum(actual, fmtOpts)} <span style="font-size:9px;color:#999">(auto)</span>` : fmtNum(actual, fmtOpts)) : '—';
-    return `<tr>
-      <td>${r.lbl}</td>
-      <td class="num">${fmtNum(r.target, fmtOpts)}</td>
-      <td class="num">${actualTxt}</td>
-      <td class="num ${deltaCls}">${deltaTxt}</td>
-      <td class="num ${stClsMap[status.cls]}">${status.label}</td>
-      <td style="font-size:11px;color:#444">${note}</td>
-    </tr>`;
-  }).join('');
+  const groups = trackerGroupRows(rows);
   const score = trackerEntryScore(kind, e);
-  const notesHtml = NOTE_SECTIONS.map(n => {
+
+  // Status pill colors mirror the source Team-Meeting PDF.
+  const STATUS_BG = {
+    good:    { bg: '#e4f5e9', fg: '#137b3c', emoji: '✅' },
+    warn:    { bg: '#fff3e0', fg: '#b06f00', emoji: '📊' },
+    bad:     { bg: '#fde2e2', fg: '#b32a2a', emoji: '🔴' },
+    neutral: { bg: '#f1f1ee', fg: '#666',    emoji: '—'  },
+  };
+
+  function renderGroupTable(g) {
+    const headerCells = `
+      <th>KPI</th>
+      <th class="num">Target</th>
+      <th class="num">Actual</th>
+      <th class="num">Δ</th>
+      <th>Status</th>
+    `;
+    const body = g.rows.map(r => {
+      const eff = trackerEffectiveActual(r, e.actuals || {});
+      const actual = eff.value;
+      const delta = actual - r.target;
+      const status = r.noDelta ? { cls: 'neutral', label: '—' } : trackerStatus(r.target, actual, !!r.lowerBetter);
+      const fmtOpts = { money: !!r.money, rate: !!r.rate };
+      const deltaTxt = r.noDelta || !actual ? '—' : (delta >= 0 ? '+' : '−') + fmtNum(Math.abs(delta), fmtOpts);
+      const deltaCls = !actual || r.noDelta ? '' : (delta >= 0 ? 'we-print-good' : 'we-print-bad');
+      const actualTxt = actual
+        ? (eff.derived ? `${fmtNum(actual, fmtOpts)} <span style="font-size:9px;color:#999">(auto)</span>` : fmtNum(actual, fmtOpts))
+        : '—';
+      const st = STATUS_BG[status.cls] || STATUS_BG.neutral;
+      const statusPill = `<span class="pdf-status-pill" style="background:${st.bg};color:${st.fg}">${st.emoji} ${status.label}</span>`;
+      return `<tr>
+        <td>${r.lbl}</td>
+        <td class="num">${fmtNum(r.target, fmtOpts)}</td>
+        <td class="num">${actualTxt}</td>
+        <td class="num ${deltaCls}">${deltaTxt}</td>
+        <td>${statusPill}</td>
+      </tr>`;
+    }).join('');
+    return `
+      <h2 class="pdf-section-h2">${g.icon} ${g.title}</h2>
+      <table class="pdf-kpi-table">
+        <thead><tr>${headerCells}</tr></thead>
+        <tbody>${body}</tbody>
+      </table>
+    `;
+  }
+
+  // Note sections in PDF order (Lessons & Problems first, like the source).
+  const NOTE_ORDER = [
+    { k: 'blockers',      icon: '🔴', lbl: 'Lessons & Problems', accent: '#b32a2a' },
+    { k: 'wins',          icon: '🏆', lbl: 'Wins',               accent: '#137b3c' },
+    { k: 'announcements', icon: '📢', lbl: 'Announcements',       accent: '#b06f00' },
+    { k: 'premortem',     icon: '⚠',  lbl: 'Pre-mortem',          accent: '#5e64ff' },
+  ];
+  const notesHtml = NOTE_ORDER.map(n => {
     const v = ((e.notes || {})[n.k] || '').trim();
     if (!v) return '';
-    return `<h2 style="font-size:14px;margin:18px 0 4px">${n.icon} ${n.lbl}</h2><div style="font-size:12px;white-space:pre-line">${v.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>`;
+    return `<section class="pdf-note-card" style="border-left:4px solid ${n.accent}">
+      <h2 class="pdf-note-h2"><span class="pdf-note-icon">${n.icon}</span> ${n.lbl}</h2>
+      <div class="pdf-note-body">${noteTextToHtml(v)}</div>
+    </section>`;
   }).join('');
+
+  // Per-metric row notes
+  const rowNotes = e.rowNotes || {};
+  const annotatedRows = rows.filter(r => !r.section && ((rowNotes[r.k] || '').trim().length > 0));
+  const rowNotesHtml = annotatedRows.length ? `
+    <section class="pdf-note-card" style="border-left:4px solid #888">
+      <h2 class="pdf-note-h2"><span class="pdf-note-icon">📝</span> Per-metric notes</h2>
+      <ul class="pdf-bullets">
+        ${annotatedRows.map(r => `<li><b>${r.lbl}</b> — ${(rowNotes[r.k] || '').trim().replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, ' ')}</li>`).join('')}
+      </ul>
+    </section>` : '';
+
+  const aggregateBadge = score.scored
+    ? `<span class="pdf-agg-pill">${score.hit}/${score.scored} ahead · ${Math.round(score.pct)}%</span>`
+    : '';
+
   const html = `
-    <h1 style="margin:0 0 6px;font-size:22px">${t.fmtLabel(id)}</h1>
-    <div style="color:#666;font-size:13px;margin-bottom:14px">Compared to ${fmtMonth(e.planMonth)} war plan</div>
-    ${score.scored ? `<div style="font-weight:600;margin-bottom:14px">${score.hit}/${score.scored} metrics ahead of target (${Math.round(score.pct)}%)</div>` : ''}
-    <table>
-      <thead><tr>
-        <th>Metric</th><th class="num">${t.targetHeader}</th><th class="num">Actual</th><th class="num">Δ</th><th class="num">Status</th><th>Note</th>
-      </tr></thead>
-      <tbody>${tableRows}</tbody>
-    </table>
+    <header class="pdf-header">
+      <div class="pdf-brand">🏆 Agency Advanta — ${kind === 'weekly' ? 'Weekly' : 'Monthly'} Team Meeting</div>
+      <div class="pdf-meta-row">
+        <span class="pdf-date">${t.fmtLabel(id)}</span>
+        <span class="pdf-sep">·</span>
+        <span class="pdf-plan">vs ${fmtMonth(e.planMonth)} war plan</span>
+        ${aggregateBadge}
+      </div>
+      <div class="pdf-tagline">Number #1 B2B Outbound Advisory In The World</div>
+      <div class="pdf-tagline pdf-tagline-pillars">🏆 Mastery &nbsp;·&nbsp; ⬆ Simplicity &nbsp;·&nbsp; 💀 Sacrifice</div>
+    </header>
+
     ${notesHtml}
+    ${groups.map(renderGroupTable).join('')}
+    ${rowNotesHtml}
+
+    <section class="pdf-note-card" style="border-left:4px solid #5e9eff">
+      <h2 class="pdf-note-h2"><span class="pdf-note-icon">🚧</span> Current Bottleneck</h2>
+      <div class="pdf-note-body"><p style="color:#666;margin:4px 0">_Single biggest constraint you fixed or surfaced this period._</p></div>
+    </section>
+    <section class="pdf-note-card" style="border-left:4px solid #d4a017">
+      <h2 class="pdf-note-h2"><span class="pdf-note-icon">💎</span> $100M Play — Ideation / Discuss / Solve</h2>
+      <div class="pdf-note-body"><p style="color:#666;margin:4px 0">_What's the bet that changes the trajectory this quarter?_</p></div>
+    </section>
   `;
   let area = document.getElementById('we-print-area');
   if (!area) {

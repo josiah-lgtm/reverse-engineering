@@ -5141,15 +5141,33 @@ function trackerEntryMarkdown(kind, id) {
       const delta = actual - r.target;
       const stObj = r.noDelta ? { cls: 'neutral', label: '—' } : trackerStatus(r.target, actual, !!r.lowerBetter);
       const fmtOpts = { money: !!r.money, rate: !!r.rate };
-      const a = actual ? (eff.derived ? `${fmtNum(actual, fmtOpts)} _(auto)_` : fmtNum(actual, fmtOpts)) : '—';
-      const d = r.noDelta || !actual ? '—' : (delta >= 0 ? '+' : '−') + fmtNum(Math.abs(delta), fmtOpts);
+      // Cell-colour tokens — the team-tracker Notion parser turns {c:NAME|TEXT}
+      // into a coloured rich_text span. Target + Δ go gray (muted), Actual
+      // gets a green/red background highlight so it pops as "the answer".
+      const targetTxt = fmtNum(r.target, fmtOpts);
+      let actualTxt;
+      if (actual) {
+        const formatted = fmtNum(actual, fmtOpts);
+        // Highlight colour follows the metric's status — green = on/above
+        // target, yellow = close, red = behind. Cap rows invert (good = under).
+        const hl =
+          stObj.cls === 'good' ? 'green_background' :
+          stObj.cls === 'warn' ? 'yellow_background' :
+          stObj.cls === 'bad'  ? 'red_background'   : 'gray_background';
+        actualTxt = `{c:${hl}|${formatted}}${eff.derived ? ' _(auto)_' : ''}`;
+      } else {
+        actualTxt = '{c:gray_background|—}';
+      }
+      const deltaTxt = r.noDelta || !actual ? '—' : (delta >= 0 ? '+' : '−') + fmtNum(Math.abs(delta), fmtOpts);
       const status = trackerStatusEmoji(stObj.cls, !!r.lowerBetter);
+      const targetCell = `{c:gray|${targetTxt}}`;
+      const deltaCell  = `{c:gray|${deltaTxt}}`;
       if (anyNote) {
         const noteRaw = (rowNotes[r.k] || '').trim();
         const note = noteRaw ? noteToMarkdown(noteRaw).replace(/\|/g, '\\|').replace(/\n/g, ' ') : '';
-        lines.push(`| ${r.lbl} | ${fmtNum(r.target, fmtOpts)} | ${a} | ${d} | ${status} | ${note} |`);
+        lines.push(`| ${r.lbl} | ${targetCell} | ${actualTxt} | ${deltaCell} | ${status} | ${note} |`);
       } else {
-        lines.push(`| ${r.lbl} | ${fmtNum(r.target, fmtOpts)} | ${a} | ${d} | ${status} |`);
+        lines.push(`| ${r.lbl} | ${targetCell} | ${actualTxt} | ${deltaCell} | ${status} |`);
       }
     });
     lines.push('');

@@ -816,6 +816,12 @@
       font-weight: 600;
       white-space: nowrap;
     }
+    .we-print-area .pdf-note-cell {
+      font-size: 11px !important;
+      color: #555 !important;
+      line-height: 1.45;
+      max-width: 240px;
+    }
   }
 
   .header { margin-bottom: 36px; }
@@ -4304,10 +4310,12 @@ function withActiveMonth(monthId, fn) {
 // Note sections — the four collapsible note types, shared by all entries
 // ────────────────────────────────────────────────────────────────────
 const NOTE_SECTIONS = [
-  { k: 'announcements', icon: '📢', lbl: 'Announcements', placeholder: 'New hires, comp changes, target shifts the team needs to know about…' },
-  { k: 'wins',          icon: '🏆', lbl: 'Wins',          placeholder: 'What worked this period — best campaigns, biggest deals, team wins…' },
-  { k: 'blockers',      icon: '⛔', lbl: 'Blockers',      placeholder: 'What slowed us down — tooling failures, dependency gaps, lost time…' },
-  { k: 'premortem',     icon: '⚠',  lbl: 'Pre-mortem',    placeholder: 'If the next period underperforms, what\'s the most likely reason? Name the risks now…' },
+  { k: 'announcements', icon: '📢', lbl: 'Announcements',     placeholder: 'New hires, comp changes, target shifts the team needs to know about…' },
+  { k: 'wins',          icon: '🏆', lbl: 'Wins',              placeholder: 'What worked this period — best campaigns, biggest deals, team wins…' },
+  { k: 'blockers',      icon: '⛔', lbl: 'Blockers',           placeholder: 'What slowed us down — tooling failures, dependency gaps, lost time…' },
+  { k: 'premortem',     icon: '⚠',  lbl: 'Pre-mortem',         placeholder: 'If the next period underperforms, what\'s the most likely reason? Name the risks now…' },
+  { k: 'bottleneck',    icon: '🚧', lbl: 'Current Bottleneck', placeholder: 'The single biggest constraint right now. What\'s capping volume or quality?' },
+  { k: 'bigplay',       icon: '💎', lbl: '$100M Play',         placeholder: 'The bet that changes the trajectory this quarter. Ideation / Discuss / Solve.' },
 ];
 
 function emptyNotes() {
@@ -4662,7 +4670,7 @@ function renderTrackerCardHtml(kind, id) {
             </button>
             <div class="note-body">
               <textarea data-note-input="${n.k}" placeholder="${n.placeholder}">${val.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</textarea>
-              <div class="note-hint">Tip: type <kbd>-</kbd> + <kbd>space</kbd> to start a bullet · <kbd>Enter</kbd> continues the list · empty bullet + <kbd>Enter</kbd> exits</div>
+              <div class="note-hint">Tip: type <kbd>-</kbd> + <kbd>space</kbd> → a • bullet appears · <kbd>Enter</kbd> continues the list · empty bullet + <kbd>Enter</kbd> exits</div>
             </div>
           </div>`;
         }).join('')}
@@ -4873,44 +4881,60 @@ function wireTrackerCard(kind, id) {
       saveState();
     });
     const noteTA = sec.querySelector('[data-note-input]');
-    // Notion-style bullet shortcut. Pressing Enter while the cursor is on a
-    // line that starts with "- " (or "* " / "• ") continues the list on the
-    // next line. Pressing Enter on an empty bullet ("- " with nothing after)
-    // exits the list. Typing "- " at the start of a line already produces a
-    // bullet because we just preserve what the user types — this handler only
-    // automates the *continuation*.
+    // Notion-style bullet shortcut.
+    //   Typing "- " (or "* ") at the start of a line auto-replaces with
+    //   "• " — the real bullet character, so the textarea visually shows
+    //   bullets. Enter continues the list with another "• ". Enter on an
+    //   empty bullet exits the list cleanly.
+    //   On serialise-to-markdown we convert "• " back to "- " so Notion's
+    //   markdown parser still turns it into bulleted_list_item blocks.
     noteTA.addEventListener('keydown', ev => {
-      if (ev.key !== 'Enter' || ev.shiftKey || ev.isComposing) return;
+      if (ev.isComposing) return;
       const ta = ev.target;
       const start = ta.selectionStart;
+      const end   = ta.selectionEnd;
       const value = ta.value;
-      // Find current line bounds
       const lineStart = value.lastIndexOf('\n', start - 1) + 1;
+      const prefixOnLine = value.slice(lineStart, start);
+
+      // ─── "- " or "* " at line start → swap to "• " ──────────────────
+      if (ev.key === ' ' && start === end && /^(\s*)[-*]$/.test(prefixOnLine)) {
+        ev.preventDefault();
+        const indent = prefixOnLine.replace(/[-*]$/, '');
+        const before = value.slice(0, lineStart);
+        const after  = value.slice(start);
+        ta.value = before + indent + '• ' + after;
+        const newPos = lineStart + indent.length + 2;
+        ta.selectionStart = ta.selectionEnd = newPos;
+        ta.dispatchEvent(new Event('input', { bubbles: true }));
+        return;
+      }
+
+      // ─── Enter: continue or exit the list ───────────────────────────
+      if (ev.key !== 'Enter' || ev.shiftKey) return;
       const nextNl = value.indexOf('\n', start);
       const lineEnd = nextNl === -1 ? value.length : nextNl;
       const currentLine = value.slice(lineStart, lineEnd);
-      // Match "  - ", "  * ", "  • " (any leading indent + bullet marker + space).
       const m = currentLine.match(/^(\s*)([-*•])\s(.*)$/);
       if (!m) return;
       const [, indent, marker, rest] = m;
       ev.preventDefault();
       if (rest.trim() === '') {
-        // Empty bullet → wipe the marker, just break to a clean newline.
+        // Empty bullet → wipe the marker, drop to a clean newline.
         const before = value.slice(0, lineStart);
-        const after = value.slice(lineEnd);
+        const after  = value.slice(lineEnd);
         ta.value = before + '\n' + after;
         const newPos = before.length + 1;
         ta.selectionStart = ta.selectionEnd = newPos;
       } else {
-        // Continue the list — insert "\n<indent><marker> " at the cursor.
+        // Continue with the same marker (• if user got the swap, else as-typed).
         const before = value.slice(0, start);
-        const after = value.slice(start);
+        const after  = value.slice(start);
         const prefix = `\n${indent}${marker} `;
         ta.value = before + prefix + after;
         const newPos = start + prefix.length;
         ta.selectionStart = ta.selectionEnd = newPos;
       }
-      // Persist & fire the same change pipeline that the input listener uses.
       ta.dispatchEvent(new Event('input', { bubbles: true }));
     });
     noteTA.addEventListener('input', ev => {
@@ -4999,6 +5023,12 @@ function trackerDelete(kind) {
 // Status → emoji + colour-class mapping mirrors the Team Meeting PDF:
 //   ✅ Above Target / 📊 Near Target / 🔴 Below Target.
 // ────────────────────────────────────────────────────────────────────
+
+// Convert UI bullets ("• ") back to standard markdown ("- ") so the Notion
+// publish handler renders them as bulleted_list_item blocks.
+function noteToMarkdown(text) {
+  return (text || '').replace(/^(\s*)•\s/gm, '$1- ');
+}
 function trackerStatusEmoji(cls, lowerBetter) {
   if (cls === 'good') return lowerBetter ? '✅ Under cap' : '✅ Above Target';
   if (cls === 'warn') return '📊 Near Target';
@@ -5070,16 +5100,18 @@ function trackerEntryMarkdown(kind, id) {
 
   // ─── Note sections at the top, in PDF order ─────────────────────
   // Match the source PDF: 🔴 Lessons & Problems, 🏆 Wins, 📢 Announcements,
-  // plus our extra ⚠ Pre-mortem. Render text verbatim so user's "- " bullets
-  // become Notion bulleted_list_item blocks via the existing publish handler.
-  const NOTE_ORDER = [
+  // plus our extras ⚠ Pre-mortem. Render text verbatim (bullets included)
+  // after converting "• " back to "- " so Notion's parser turns them into
+  // bulleted_list_item blocks.
+  const TOP_NOTES = [
     { k: 'blockers',      icon: '🔴', lbl: 'Lessons & Problems' },
     { k: 'wins',          icon: '🏆', lbl: 'Wins' },
     { k: 'announcements', icon: '📢', lbl: 'Announcements' },
     { k: 'premortem',     icon: '⚠',  lbl: 'Pre-mortem' },
   ];
-  NOTE_ORDER.forEach(n => {
-    const v = ((e.notes || {})[n.k] || '').trim();
+  const noteText = (k) => noteToMarkdown(((e.notes || {})[k] || '').trim());
+  TOP_NOTES.forEach(n => {
+    const v = noteText(n.k);
     if (!v) return;
     lines.push(`## ${n.icon} ${n.lbl}`);
     lines.push('');
@@ -5088,12 +5120,21 @@ function trackerEntryMarkdown(kind, id) {
   });
 
   // ─── KPI groups: one section + table per channel/group ──────────
+  // The Note column only appears when at least one row in the group has a
+  // per-metric note. Keeps clean tables clean.
+  const rowNotes = e.rowNotes || {};
   groups.forEach(g => {
     if (!g.rows.length) return;
+    const anyNote = g.rows.some(r => (rowNotes[r.k] || '').trim().length > 0);
     lines.push(`## ${g.icon} ${g.title}`);
     lines.push('');
-    lines.push(`| KPI | Target | Actual | Δ | Status |`);
-    lines.push('| --- | ---: | ---: | ---: | :--- |');
+    if (anyNote) {
+      lines.push(`| KPI | Target | Actual | Δ | Status | Note |`);
+      lines.push('| --- | ---: | ---: | ---: | :--- | --- |');
+    } else {
+      lines.push(`| KPI | Target | Actual | Δ | Status |`);
+      lines.push('| --- | ---: | ---: | ---: | :--- |');
+    }
     g.rows.forEach(r => {
       const eff = trackerEffectiveActual(r, e.actuals || {});
       const actual = eff.value;
@@ -5103,31 +5144,30 @@ function trackerEntryMarkdown(kind, id) {
       const a = actual ? (eff.derived ? `${fmtNum(actual, fmtOpts)} _(auto)_` : fmtNum(actual, fmtOpts)) : '—';
       const d = r.noDelta || !actual ? '—' : (delta >= 0 ? '+' : '−') + fmtNum(Math.abs(delta), fmtOpts);
       const status = trackerStatusEmoji(stObj.cls, !!r.lowerBetter);
-      lines.push(`| ${r.lbl} | ${fmtNum(r.target, fmtOpts)} | ${a} | ${d} | ${status} |`);
+      if (anyNote) {
+        const noteRaw = (rowNotes[r.k] || '').trim();
+        const note = noteRaw ? noteToMarkdown(noteRaw).replace(/\|/g, '\\|').replace(/\n/g, ' ') : '';
+        lines.push(`| ${r.lbl} | ${fmtNum(r.target, fmtOpts)} | ${a} | ${d} | ${status} | ${note} |`);
+      } else {
+        lines.push(`| ${r.lbl} | ${fmtNum(r.target, fmtOpts)} | ${a} | ${d} | ${status} |`);
+      }
     });
     lines.push('');
   });
 
-  // ─── Per-metric row notes, only when they have content ──────────
-  const rowNotes = e.rowNotes || {};
-  const annotated = rows.filter(r => !r.section && ((rowNotes[r.k] || '').trim().length > 0));
-  if (annotated.length) {
-    lines.push('## 📝 Per-metric notes');
-    lines.push('');
-    annotated.forEach(r => {
-      lines.push(`- **${r.lbl}** — ${rowNotes[r.k].trim().replace(/\n/g, ' ')}`);
-    });
-    lines.push('');
-  }
-
-  // ─── Closer — bottleneck + $100M play prompt ────────────────────
+  // ─── Closer — Bottleneck + $100M Play ────────────────────────────
+  // Use the actual content from the new note sections when present; fall
+  // back to a one-line prompt when blank so the meeting still has a slot
+  // to fill in live.
+  const bottleneck = noteText('bottleneck');
   lines.push(`## 🚧 Current Bottleneck`);
   lines.push('');
-  lines.push(`_Capture the single biggest constraint you fixed or surfaced this period._`);
+  lines.push(bottleneck || `_The single biggest constraint right now. What's capping volume or quality?_`);
   lines.push('');
+  const bigplay = noteText('bigplay');
   lines.push(`## 💎 $100M Play — Ideation / Discuss / Solve`);
   lines.push('');
-  lines.push(`_What's the bet that changes the trajectory this quarter?_`);
+  lines.push(bigplay || `_The bet that changes the trajectory this quarter._`);
   lines.push('');
 
   return lines.join('\n');
@@ -5174,13 +5214,16 @@ function printTrackerEntry(kind, id) {
     neutral: { bg: '#f1f1ee', fg: '#666',    emoji: '—'  },
   };
 
+  const rowNotes = e.rowNotes || {};
   function renderGroupTable(g) {
+    const anyNote = g.rows.some(r => (rowNotes[r.k] || '').trim().length > 0);
     const headerCells = `
       <th>KPI</th>
       <th class="num">Target</th>
       <th class="num">Actual</th>
       <th class="num">Δ</th>
       <th>Status</th>
+      ${anyNote ? '<th>Note</th>' : ''}
     `;
     const body = g.rows.map(r => {
       const eff = trackerEffectiveActual(r, e.actuals || {});
@@ -5195,12 +5238,14 @@ function printTrackerEntry(kind, id) {
         : '—';
       const st = STATUS_BG[status.cls] || STATUS_BG.neutral;
       const statusPill = `<span class="pdf-status-pill" style="background:${st.bg};color:${st.fg}">${st.emoji} ${status.label}</span>`;
+      const noteTxt = anyNote ? ((rowNotes[r.k] || '').trim().replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, '<br>')) : '';
       return `<tr>
         <td>${r.lbl}</td>
         <td class="num">${fmtNum(r.target, fmtOpts)}</td>
         <td class="num">${actualTxt}</td>
         <td class="num ${deltaCls}">${deltaTxt}</td>
         <td>${statusPill}</td>
+        ${anyNote ? `<td class="pdf-note-cell">${noteTxt}</td>` : ''}
       </tr>`;
     }).join('');
     return `
@@ -5213,13 +5258,13 @@ function printTrackerEntry(kind, id) {
   }
 
   // Note sections in PDF order (Lessons & Problems first, like the source).
-  const NOTE_ORDER = [
+  const TOP_NOTES = [
     { k: 'blockers',      icon: '🔴', lbl: 'Lessons & Problems', accent: '#b32a2a' },
     { k: 'wins',          icon: '🏆', lbl: 'Wins',               accent: '#137b3c' },
     { k: 'announcements', icon: '📢', lbl: 'Announcements',       accent: '#b06f00' },
     { k: 'premortem',     icon: '⚠',  lbl: 'Pre-mortem',          accent: '#5e64ff' },
   ];
-  const notesHtml = NOTE_ORDER.map(n => {
+  const notesHtml = TOP_NOTES.map(n => {
     const v = ((e.notes || {})[n.k] || '').trim();
     if (!v) return '';
     return `<section class="pdf-note-card" style="border-left:4px solid ${n.accent}">
@@ -5228,16 +5273,20 @@ function printTrackerEntry(kind, id) {
     </section>`;
   }).join('');
 
-  // Per-metric row notes
-  const rowNotes = e.rowNotes || {};
-  const annotatedRows = rows.filter(r => !r.section && ((rowNotes[r.k] || '').trim().length > 0));
-  const rowNotesHtml = annotatedRows.length ? `
-    <section class="pdf-note-card" style="border-left:4px solid #888">
-      <h2 class="pdf-note-h2"><span class="pdf-note-icon">📝</span> Per-metric notes</h2>
-      <ul class="pdf-bullets">
-        ${annotatedRows.map(r => `<li><b>${r.lbl}</b> — ${(rowNotes[r.k] || '').trim().replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\n/g, ' ')}</li>`).join('')}
-      </ul>
-    </section>` : '';
+  // Closer note-cards — use real content from the new bottleneck/bigplay
+  // note sections, else show an inline prompt.
+  const bottleneck = ((e.notes || {}).bottleneck || '').trim();
+  const bigplay    = ((e.notes || {}).bigplay    || '').trim();
+  const closerHtml = `
+    <section class="pdf-note-card" style="border-left:4px solid #5e9eff">
+      <h2 class="pdf-note-h2"><span class="pdf-note-icon">🚧</span> Current Bottleneck</h2>
+      <div class="pdf-note-body">${bottleneck ? noteTextToHtml(bottleneck) : '<p style="color:#888;margin:4px 0;font-style:italic">The single biggest constraint right now. What\'s capping volume or quality?</p>'}</div>
+    </section>
+    <section class="pdf-note-card" style="border-left:4px solid #d4a017">
+      <h2 class="pdf-note-h2"><span class="pdf-note-icon">💎</span> $100M Play — Ideation / Discuss / Solve</h2>
+      <div class="pdf-note-body">${bigplay ? noteTextToHtml(bigplay) : '<p style="color:#888;margin:4px 0;font-style:italic">The bet that changes the trajectory this quarter.</p>'}</div>
+    </section>
+  `;
 
   const aggregateBadge = score.scored
     ? `<span class="pdf-agg-pill">${score.hit}/${score.scored} ahead · ${Math.round(score.pct)}%</span>`
@@ -5258,16 +5307,7 @@ function printTrackerEntry(kind, id) {
 
     ${notesHtml}
     ${groups.map(renderGroupTable).join('')}
-    ${rowNotesHtml}
-
-    <section class="pdf-note-card" style="border-left:4px solid #5e9eff">
-      <h2 class="pdf-note-h2"><span class="pdf-note-icon">🚧</span> Current Bottleneck</h2>
-      <div class="pdf-note-body"><p style="color:#666;margin:4px 0">_Single biggest constraint you fixed or surfaced this period._</p></div>
-    </section>
-    <section class="pdf-note-card" style="border-left:4px solid #d4a017">
-      <h2 class="pdf-note-h2"><span class="pdf-note-icon">💎</span> $100M Play — Ideation / Discuss / Solve</h2>
-      <div class="pdf-note-body"><p style="color:#666;margin:4px 0">_What's the bet that changes the trajectory this quarter?_</p></div>
-    </section>
+    ${closerHtml}
   `;
   let area = document.getElementById('we-print-area');
   if (!area) {

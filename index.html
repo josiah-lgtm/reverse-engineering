@@ -704,6 +704,21 @@
     font-weight: 400;
     margin-top: 1px;
   }
+  /* ✓ chip for entries that have been explicitly Saved to History */
+  .hist-table tbody td.sticky-left .saved-chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 6px;
+    width: 16px; height: 16px;
+    border-radius: 50%;
+    background: rgba(48,209,88,0.18);
+    border: 1px solid var(--good);
+    color: var(--good);
+    font-size: 10px;
+    font-weight: 700;
+    vertical-align: middle;
+  }
 
   /* Editable cell — looks like text until clicked */
   .hist-table td.editable { cursor: text; }
@@ -5035,6 +5050,13 @@ function renderTrackerCardHtml(kind, id) {
       <div class="we-row-actions">
         <button class="ghost" data-tracker-act="print">Print / Save as PDF</button>
         <button class="primary" data-tracker-act="publish">Publish to Notion →</button>
+        <button class="primary" data-tracker-act="save-history" style="background:var(--good);color:#0a1a0a">${(function() {
+          const e = trackerStore(kind)[id];
+          return e && e.savedToHistory ? '✓ In History — re-save' : '✓ Save to History';
+        })()}</button>
+      </div>
+      <div style="text-align:right;font-size:11px;color:var(--text-tertiary);margin-top:6px">
+        Every field already autosaves — clicking <b>Save to History</b> marks this entry as final and surfaces it on the History page.
       </div>
     </div>
   </div>`;
@@ -5315,6 +5337,49 @@ function wireTrackerCard(kind, id) {
   // Actions
   card.querySelector('[data-tracker-act="print"]').addEventListener('click', () => printTrackerEntry(kind, id));
   card.querySelector('[data-tracker-act="publish"]').addEventListener('click', () => openTrackerPublishModal(kind, id));
+  card.querySelector('[data-tracker-act="save-history"]').addEventListener('click', () => trackerSaveToHistory(kind, id));
+}
+
+// Stamp the entry as finalised, then jump to the History view and
+// scroll the matching row into view. Re-clicking is fine — it just
+// refreshes savedAt + scrolls again.
+function trackerSaveToHistory(kind, id) {
+  const e = trackerStore(kind)[id];
+  if (!e) return;
+  const wasSaved = !!e.savedToHistory;
+  e.savedToHistory = true;
+  e.savedAt = new Date().toISOString();
+  saveState();
+  // Make sure the History range covers this entry — if the user is on
+  // a tight preset that excludes it, bump to All so the row is visible.
+  state.history = state.history || {};
+  if (state.history.kind !== kind) state.history.kind = kind;
+  if (state.history.preset && state.history.preset !== 'all') {
+    // Check whether the entry id is in range; if not, bump to all.
+    const inRange = (() => {
+      if (kind === 'monthly') {
+        const monthStart = id + '-01';
+        const monthEnd   = id + '-31';
+        return monthEnd >= state.history.from && monthStart <= state.history.to;
+      }
+      return id >= state.history.from && id <= state.history.to;
+    })();
+    if (!inRange) historyApplyPreset('all');
+  }
+  saveState();
+  switchView('history');
+  // After the view renders, highlight the matching row.
+  setTimeout(() => {
+    const row = document.querySelector(`#hist-table-wrap tr[data-eid="${id}"]`);
+    if (row) {
+      row.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      row.style.transition = 'background 0.6s';
+      row.style.background = 'rgba(48,209,88,0.18)';
+      setTimeout(() => { row.style.background = ''; }, 1800);
+    }
+    // Re-render the tracker card next time it's viewed so the button
+    // label switches to "✓ In History — re-save".
+  }, 140);
 }
 
 // ────────────────────────────────────────────────────────────────────
@@ -5650,8 +5715,11 @@ function renderHistoryTable(entries) {
         <button type="button" class="note-btn" data-act="hist-note" title="${hasNote ? 'Edit note' : 'Add a note'}">✎</button>
       </td>`;
     }).join('');
+    const savedBadge = e.savedToHistory
+      ? `<span class="saved-chip" title="Saved to History on ${escapeAttr(new Date(e.savedAt || Date.now()).toLocaleString('en-GB'))}">✓</span>`
+      : '';
     return `<tr data-eid="${escapeAttr(id)}">
-      <td class="sticky-left">${escapeAttr(TRACKERS[h.kind].fmtLabel(id))}<span class="meta">${escapeAttr('vs ' + fmtMonth(e.planMonth))}</span></td>
+      <td class="sticky-left">${escapeAttr(TRACKERS[h.kind].fmtLabel(id))}${savedBadge}<span class="meta">${escapeAttr('vs ' + fmtMonth(e.planMonth))}</span></td>
       ${cells}
     </tr>`;
   }).join('');

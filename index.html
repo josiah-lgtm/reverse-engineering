@@ -5436,12 +5436,27 @@ function trackerGroupRows(rows) {
 // ────────────────────────────────────────────────────────────────────
 // History view — table of all entries with custom date range
 // ────────────────────────────────────────────────────────────────────
-// Settings live on state.history. Defaults: weekly, last 8 weeks.
+// Settings live on state.history. Defaults: weekly, all entries — so the
+// view opens onto whatever past data you already have in Business Data.
 function historyState() {
   if (!state.history) state.history = {};
   if (!state.history.kind) state.history.kind = 'weekly';
-  if (!state.history.preset) state.history.preset = '8w';
+  if (!state.history.preset) state.history.preset = 'all';
   if (!state.history.from || !state.history.to) historyApplyPreset(state.history.preset);
+  // One-shot migration for users who landed on the old "8w" default:
+  // if their current preset is "8w" AND there are entries older than
+  // from, bump them to "all" so past data isn't silently hidden.
+  if (!state.history._migratedToAll && state.history.preset === '8w') {
+    const ids = [
+      ...Object.keys(state.weeklyEntries  || {}),
+      ...Object.keys(state.monthlyEntries || {}),
+    ];
+    const earliest = ids.sort()[0];
+    if (earliest && earliest < state.history.from) {
+      historyApplyPreset('all');
+    }
+    state.history._migratedToAll = true;
+  }
   return state.history;
 }
 function historyApplyPreset(preset) {
@@ -5452,7 +5467,23 @@ function historyApplyPreset(preset) {
   else if (preset === '8w') from = isoDate(new Date(today.getTime() - 56  * 86400000));
   else if (preset === '13w')from = isoDate(new Date(today.getTime() - 91  * 86400000));
   else if (preset === 'ytd')from = `${today.getFullYear()}-01-01`;
-  else if (preset === 'all')from = '2020-01-01';
+  else if (preset === 'all') {
+    // Truly all: walk every entry in BOTH stores and pick the earliest id.
+    // Fallback to a far past date if there are no entries yet.
+    const ids = [
+      ...Object.keys(state.weeklyEntries  || {}),
+      ...Object.keys(state.monthlyEntries || {}),
+    ];
+    if (ids.length) {
+      const earliest = ids.sort()[0];
+      // earliest may be YYYY-MM (monthly) — normalise to a full date.
+      from = /^\d{4}-\d{2}$/.test(earliest) ? earliest + '-01' : earliest;
+      // Use 2020-01-01 as a hard floor if anything went weird.
+      if (from > to) from = '2020-01-01';
+    } else {
+      from = '2020-01-01';
+    }
+  }
   if (from) {
     state.history.from = from;
     state.history.to = to;
@@ -5461,12 +5492,30 @@ function historyApplyPreset(preset) {
 }
 
 // Pull all entries in the active range (sorted newest-first).
+// Normalises ids to a full YYYY-MM-DD so weekly ("2026-05-12") and monthly
+// ("2026-05") rows both compare correctly against the YYYY-MM-DD range
+// inputs — previously `"2026-01" >= "2026-01-01"` was false (lexical
+// string compare) so monthly entries in-range still got dropped.
 function historyEntriesInRange() {
   const h = historyState();
   const store = state[TRACKERS[h.kind].storeKey] || {};
   const from = h.from, to = h.to;
+  const normalise = (id) => {
+    if (h.kind === 'monthly' && /^\d{4}-\d{2}$/.test(id)) return id + '-01';
+    return id;
+  };
   const entries = Object.entries(store)
-    .filter(([id]) => id >= from && id <= to)
+    .filter(([id]) => {
+      const n = normalise(id);
+      // For monthly, treat the entry as covering from -01 to -28..-31. We
+      // match "in range" if the month overlaps the picked range at all.
+      if (h.kind === 'monthly') {
+        const monthStart = n;
+        const monthEnd = id + '-31';
+        return monthEnd >= from && monthStart <= to;
+      }
+      return id >= from && id <= to;
+    })
     .map(([id, e]) => ({ id, entry: e }))
     .sort((a, b) => b.id.localeCompare(a.id));
   return entries;

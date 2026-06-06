@@ -519,6 +519,305 @@
   }
   .we-row-actions .spacer { flex: 1; }
 
+  /* ─── History page ─── */
+  .history-controls {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 22px;
+    padding: 14px 16px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+  }
+  .history-controls .hc-group { display: flex; align-items: center; gap: 8px; }
+  .history-controls label {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-tertiary);
+    font-weight: 600;
+    margin-right: 2px;
+  }
+  .history-controls input[type="date"] {
+    background: var(--surface-input);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 7px 10px;
+    border-radius: 7px;
+    font-family: inherit;
+    font-size: 13px;
+    color-scheme: dark;
+  }
+  .history-controls input[type="date"]:focus {
+    outline: none;
+    border-color: var(--accent);
+    box-shadow: 0 0 0 2px var(--accent-tint);
+  }
+  .history-controls .hc-sep { color: var(--text-tertiary); font-size: 12px; }
+  .history-controls .hc-toggle {
+    display: inline-flex;
+    background: var(--surface-input);
+    border-radius: 8px;
+    padding: 3px;
+    gap: 2px;
+  }
+  .history-controls .hc-toggle-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    padding: 5px 12px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .history-controls .hc-toggle-btn.active {
+    background: var(--accent);
+    color: #1a1a1a;
+    font-weight: 600;
+  }
+  .history-controls .hc-presets { gap: 4px; }
+  .history-controls .hc-preset {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--text-secondary);
+    padding: 5px 10px;
+    border-radius: 6px;
+    font-size: 11.5px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: border-color 0.12s, color 0.12s;
+  }
+  .history-controls .hc-preset:hover { border-color: var(--accent); color: var(--accent-hover); }
+  .history-controls .hc-preset.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: var(--accent-tint);
+  }
+
+  .hist-dashboard {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 10px;
+    margin-bottom: 18px;
+  }
+  .hist-dashboard .hd-tile {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+  .hist-dashboard .hd-tile .lbl {
+    color: var(--text-tertiary);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  .hist-dashboard .hd-tile .val {
+    color: var(--text);
+    font-size: 22px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
+  }
+  .hist-dashboard .hd-tile .val.good { color: var(--good); }
+  .hist-dashboard .hd-tile .val.bad  { color: var(--bad); }
+  .hist-dashboard .hd-tile .val.warn { color: var(--warn); }
+  .hist-dashboard .hd-tile .sub {
+    color: var(--text-tertiary);
+    font-size: 11.5px;
+    margin-top: 3px;
+  }
+
+  /* The big editable table */
+  .hist-table-wrap {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: auto;
+    max-height: calc(100vh - 320px);
+    position: relative;
+  }
+  .hist-table {
+    width: max-content;
+    min-width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 12.5px;
+  }
+  .hist-table thead th {
+    background: var(--surface-raised);
+    color: var(--text-secondary);
+    font-weight: 600;
+    text-align: right;
+    padding: 9px 11px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    white-space: nowrap;
+  }
+  .hist-table thead th.sticky-left {
+    left: 0;
+    z-index: 3;
+    text-align: left;
+  }
+  .hist-table thead th .col-target {
+    display: block;
+    color: var(--text-quaternary);
+    font-size: 10.5px;
+    font-weight: 500;
+    margin-top: 2px;
+    letter-spacing: 0.02em;
+  }
+  .hist-table tbody td {
+    padding: 8px 11px;
+    border-bottom: 1px solid var(--border-subtle);
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    color: var(--text);
+    position: relative;
+    background: var(--surface);
+  }
+  .hist-table tbody tr:hover td { background: rgba(255,255,255,0.02); }
+  .hist-table tbody tr:last-child td { border-bottom: none; }
+  .hist-table tbody td.sticky-left {
+    position: sticky;
+    left: 0;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text);
+    z-index: 1;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+  }
+  .hist-table tbody tr:hover td.sticky-left { background: rgba(255,255,255,0.03); }
+  .hist-table tbody td.sticky-left .meta {
+    display: block;
+    color: var(--text-tertiary);
+    font-size: 10.5px;
+    font-weight: 400;
+    margin-top: 1px;
+  }
+
+  /* Editable cell — looks like text until clicked */
+  .hist-table td.editable { cursor: text; }
+  .hist-table td.editable:hover { background: var(--accent-tint) !important; }
+  .hist-table td.editable input.cell-input {
+    background: var(--surface);
+    border: 1px solid var(--accent);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 12.5px;
+    padding: 4px 6px;
+    border-radius: 5px;
+    width: 100%;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    box-shadow: 0 0 0 2px var(--accent-tint);
+  }
+  .hist-table td.editable input.cell-input:focus { outline: none; }
+
+  /* Cell status backgrounds (echo the Notion table colours) */
+  .hist-table td.cell-good { background: rgba(48,209,88,0.08); color: var(--good); font-weight: 600; }
+  .hist-table td.cell-warn { background: rgba(255,159,10,0.08); color: var(--warn); font-weight: 600; }
+  .hist-table td.cell-bad  { background: rgba(255,69,58,0.08);  color: var(--bad);  font-weight: 600; }
+  .hist-table td.cell-neutral { color: var(--text-quaternary); }
+
+  /* Note indicator on cells that have a per-cell note */
+  .hist-table td .note-pin {
+    position: absolute;
+    top: 3px;
+    right: 4px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--accent);
+    pointer-events: none;
+    box-shadow: 0 0 0 2px var(--surface);
+  }
+  .hist-table td.note-active .note-pin { background: var(--accent-hover); }
+  .hist-table td .note-btn {
+    position: absolute;
+    bottom: 1px;
+    right: 2px;
+    width: 16px; height: 16px;
+    border-radius: 4px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid transparent;
+    color: var(--text-quaternary);
+    cursor: pointer;
+    font-size: 9px;
+    line-height: 14px;
+    text-align: center;
+    padding: 0;
+    opacity: 0;
+    transition: opacity 0.12s;
+  }
+  .hist-table td:hover .note-btn,
+  .hist-table td.note-active .note-btn { opacity: 1; }
+  .hist-table td.note-active .note-btn { color: var(--accent); border-color: var(--accent); }
+  .hist-table td .note-btn:hover { color: var(--accent-hover); border-color: var(--accent); }
+
+  /* Floating note popover */
+  .hist-note-pop {
+    position: absolute;
+    background: var(--surface-raised);
+    border: 1px solid var(--accent);
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.50);
+    padding: 0;
+    width: 280px;
+    z-index: 50;
+  }
+  .hist-note-pop .hnp-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .hist-note-pop .hnp-title {
+    color: var(--accent);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+  .hist-note-pop .hnp-close {
+    background: transparent;
+    border: none;
+    color: var(--text-tertiary);
+    cursor: pointer;
+    font-size: 18px;
+    line-height: 1;
+    padding: 0;
+  }
+  .hist-note-pop .hnp-close:hover { color: var(--text); }
+  .hist-note-pop .hnp-textarea {
+    width: 100%;
+    border: none;
+    background: var(--surface);
+    color: var(--text);
+    font-family: inherit;
+    font-size: 12.5px;
+    padding: 10px 12px;
+    resize: vertical;
+    min-height: 90px;
+    border-radius: 0 0 10px 10px;
+  }
+  .hist-note-pop .hnp-textarea:focus { outline: none; }
+
+  /* Native title tooltip is fine for hover-preview, but force-fix
+     overflow so long titles wrap nicely in modern browsers. */
+  .hist-table td[title] { cursor: help; }
+  .hist-table td.editable[title] { cursor: text; }
+
   /* Tracker section head — title left, picker + actions right */
   .tracker-head {
     display: flex;
@@ -2249,6 +2548,7 @@
   <aside class="sidenav">
     <button class="nav-item active" data-view="reverse-engineering"><span class="dot"></span>Reverse Engineering</button>
     <button class="nav-item" data-view="business-data"><span class="dot"></span>Business Data</button>
+    <button class="nav-item" data-view="history"><span class="dot"></span>History</button>
   </aside>
 
   <main class="view-host">
@@ -2520,6 +2820,55 @@
 
   <div class="footer">
     Every field autosaves. Use the note sections to capture context — announcements, wins, blockers, what we'd do differently next time.
+  </div>
+</div>
+
+<!-- ─── History view: table of all entries with custom date range ─── -->
+<div class="container view-pane hidden" data-view="history">
+  <div class="header">
+    <h1>📈 History</h1>
+    <div class="sub">Every entry in one place. Pick a date range, see the totals at a glance, edit any cell inline. ✎ on a cell means it has a note — hover to read it.</div>
+  </div>
+
+  <div class="history-controls">
+    <div class="hc-group">
+      <label>Range</label>
+      <input id="hist-from" type="date" />
+      <span class="hc-sep">→</span>
+      <input id="hist-to"   type="date" />
+    </div>
+    <div class="hc-group">
+      <label>Tracker</label>
+      <div class="hc-toggle">
+        <button class="hc-toggle-btn active" data-hist-kind="weekly">Weekly</button>
+        <button class="hc-toggle-btn"        data-hist-kind="monthly">Monthly</button>
+      </div>
+    </div>
+    <div class="hc-group hc-presets">
+      <button class="hc-preset" data-hist-preset="4w">Last 4w</button>
+      <button class="hc-preset" data-hist-preset="8w">Last 8w</button>
+      <button class="hc-preset" data-hist-preset="13w">Last 13w</button>
+      <button class="hc-preset" data-hist-preset="ytd">YTD</button>
+      <button class="hc-preset" data-hist-preset="all">All</button>
+    </div>
+    <div class="hc-group" style="margin-left:auto">
+      <button class="ghost" id="hist-export-csv">Export CSV</button>
+    </div>
+  </div>
+
+  <!-- Aggregate dashboard tiles for the picked range -->
+  <div id="hist-dashboard" class="hist-dashboard"></div>
+
+  <!-- The wide editable table -->
+  <div id="hist-table-wrap" class="hist-table-wrap"></div>
+
+  <!-- Floating note popover anchored to the active cell -->
+  <div id="hist-note-pop" class="hist-note-pop" style="display:none">
+    <div class="hnp-head">
+      <span class="hnp-title">Note</span>
+      <button class="hnp-close" type="button" title="Close">×</button>
+    </div>
+    <textarea class="hnp-textarea" rows="4" placeholder="Add a note for this cell…"></textarea>
   </div>
 </div>
 
@@ -4243,7 +4592,7 @@ function switchView(view) {
   document.querySelectorAll('.view-pane').forEach(el => {
     el.classList.toggle('hidden', el.dataset.view !== view);
   });
-  // Topbar title + hide month picker on business-data
+  // Topbar title + hide month picker on the data-only views
   const title = document.getElementById('topbar-view-title');
   const mpWrap = document.getElementById('month-picker-wrap');
   const resetBtn = document.getElementById('reset-btn');
@@ -4252,6 +4601,11 @@ function switchView(view) {
     if (mpWrap) mpWrap.style.display = 'none';
     if (resetBtn) resetBtn.style.display = 'none';
     renderBusinessData();
+  } else if (view === 'history') {
+    title.textContent = 'HISTORY';
+    if (mpWrap) mpWrap.style.display = 'none';
+    if (resetBtn) resetBtn.style.display = 'none';
+    renderHistory();
   } else {
     title.textContent = 'REVERSE ENGINEERING';
     if (mpWrap) mpWrap.style.display = '';
@@ -4261,6 +4615,9 @@ function switchView(view) {
 document.querySelectorAll('.sidenav .nav-item').forEach(el => {
   el.addEventListener('click', () => switchView(el.dataset.view));
 });
+// Wire the History page controls once at boot. Safe even if the user
+// never opens the view — listeners just sit dormant until then.
+wireHistoryControls();
 
 // ============================================================
 // Trackers — weekly + monthly actuals vs the war plan
@@ -5074,6 +5431,385 @@ function trackerGroupRows(rows) {
     if (em.length) out.push({ id: 'email',    title: 'Email Weekly KPIs',    icon: '📧', rows: em });
   }
   return out;
+}
+
+// ────────────────────────────────────────────────────────────────────
+// History view — table of all entries with custom date range
+// ────────────────────────────────────────────────────────────────────
+// Settings live on state.history. Defaults: weekly, last 8 weeks.
+function historyState() {
+  if (!state.history) state.history = {};
+  if (!state.history.kind) state.history.kind = 'weekly';
+  if (!state.history.preset) state.history.preset = '8w';
+  if (!state.history.from || !state.history.to) historyApplyPreset(state.history.preset);
+  return state.history;
+}
+function historyApplyPreset(preset) {
+  state.history = state.history || {};
+  const today = new Date();
+  let from, to = isoDate(today);
+  if (preset === '4w')      from = isoDate(new Date(today.getTime() - 28  * 86400000));
+  else if (preset === '8w') from = isoDate(new Date(today.getTime() - 56  * 86400000));
+  else if (preset === '13w')from = isoDate(new Date(today.getTime() - 91  * 86400000));
+  else if (preset === 'ytd')from = `${today.getFullYear()}-01-01`;
+  else if (preset === 'all')from = '2020-01-01';
+  if (from) {
+    state.history.from = from;
+    state.history.to = to;
+    state.history.preset = preset;
+  }
+}
+
+// Pull all entries in the active range (sorted newest-first).
+function historyEntriesInRange() {
+  const h = historyState();
+  const store = state[TRACKERS[h.kind].storeKey] || {};
+  const from = h.from, to = h.to;
+  const entries = Object.entries(store)
+    .filter(([id]) => id >= from && id <= to)
+    .map(([id, e]) => ({ id, entry: e }))
+    .sort((a, b) => b.id.localeCompare(a.id));
+  return entries;
+}
+
+// Aggregate dashboard for the picked range.
+function historyDashboardData(entries) {
+  if (!entries.length) {
+    return { count: 0, scorePct: null, totals: {}, avgPct: {} };
+  }
+  // Per-key totals across all entries (sum the actuals, ignore derived rates).
+  const totals = {};
+  let scoreNum = 0, scoreDen = 0;
+  const h = historyState();
+  entries.forEach(({ entry: e }) => {
+    const rows = trackerTargetRows(h.kind, e.planMonth);
+    rows.forEach(r => {
+      if (r.section || r.rate || r.noDelta) return;
+      const actual = Number((e.actuals || {})[r.k]) || 0;
+      if (!actual) return;
+      totals[r.k] = (totals[r.k] || 0) + actual;
+      scoreDen++;
+      const ahead = r.lowerBetter ? actual <= r.target : actual >= r.target;
+      if (ahead) scoreNum++;
+    });
+  });
+  return {
+    count: entries.length,
+    scorePct: scoreDen ? Math.round((scoreNum / scoreDen) * 100) : null,
+    totals,
+  };
+}
+
+function renderHistory() {
+  const h = historyState();
+  // Sync the inputs to state
+  const fromInp = document.getElementById('hist-from');
+  const toInp   = document.getElementById('hist-to');
+  if (fromInp && fromInp.value !== h.from) fromInp.value = h.from;
+  if (toInp   && toInp.value   !== h.to)   toInp.value   = h.to;
+  document.querySelectorAll('#history-controls [data-hist-kind], .history-controls [data-hist-kind]').forEach(b =>
+    b.classList.toggle('active', b.dataset.histKind === h.kind));
+  document.querySelectorAll('.history-controls [data-hist-preset]').forEach(b =>
+    b.classList.toggle('active', b.dataset.histPreset === h.preset));
+
+  const entries = historyEntriesInRange();
+  renderHistoryDashboard(entries);
+  renderHistoryTable(entries);
+}
+
+function renderHistoryDashboard(entries) {
+  const host = document.getElementById('hist-dashboard');
+  if (!host) return;
+  const h = historyState();
+  const data = historyDashboardData(entries);
+  const rows = entries.length ? trackerTargetRows(h.kind, entries[0].entry.planMonth) : [];
+  // Pick the headline KPIs to surface as big tiles.
+  const headlineKeys = [
+    { k: 'wp_revenueTarget',  lbl: 'Contracted revenue',  money: true },
+    { k: 'wp_cashCollectedTarget', lbl: 'Cash collected', money: true },
+    { k: 'wp_closes',         lbl: 'Closes' },
+    { k: 'wp_bookings',       lbl: 'Call 1 bookings' },
+    { k: 'wp_marketing',      lbl: 'Marketing spend', money: true, lowerBetter: true },
+    { k: 'wp_profit',         lbl: 'Profit on M+S',   money: true },
+  ];
+  const tiles = [];
+  tiles.push(`<div class="hd-tile">
+    <div class="lbl">${h.kind === 'weekly' ? 'Weeks' : 'Months'}</div>
+    <div class="val">${data.count}</div>
+    <div class="sub">${h.from} → ${h.to}</div>
+  </div>`);
+  tiles.push(`<div class="hd-tile">
+    <div class="lbl">Hit rate</div>
+    <div class="val ${data.scorePct == null ? '' : data.scorePct >= 75 ? 'good' : data.scorePct >= 50 ? 'warn' : 'bad'}">${data.scorePct == null ? '—' : data.scorePct + '%'}</div>
+    <div class="sub">metrics at-or-above target</div>
+  </div>`);
+  headlineKeys.forEach(hk => {
+    const total = data.totals[hk.k] || 0;
+    tiles.push(`<div class="hd-tile">
+      <div class="lbl">${hk.lbl}</div>
+      <div class="val">${fmtNum(total, { money: hk.money })}</div>
+      <div class="sub">total · ${h.kind}</div>
+    </div>`);
+  });
+  host.innerHTML = tiles.join('');
+}
+
+function renderHistoryTable(entries) {
+  const host = document.getElementById('hist-table-wrap');
+  if (!host) return;
+  const h = historyState();
+  if (!entries.length) {
+    host.innerHTML = `<div style="padding:38px;text-align:center;color:var(--text-tertiary)">
+      No ${h.kind} entries in this range. Try a wider preset above, or add entries from the Business Data page.
+    </div>`;
+    return;
+  }
+  // Build the column model from the first entry's plan month (the rows are
+  // stable shape across entries; only target values differ).
+  const allRows = trackerTargetRows(h.kind, entries[0].entry.planMonth);
+  const columns = allRows.filter(r => !r.section && !r.noDelta);
+
+  const formatTarget = (r) => {
+    const fmtOpts = { money: !!r.money, rate: !!r.rate };
+    return fmtNum(r.target, fmtOpts);
+  };
+
+  const headHtml = `<tr>
+    <th class="sticky-left">Entry</th>
+    ${columns.map(c => `<th title="${escapeAttr(c.lbl)}${c.conv ? ' · ' + escapeAttr(c.conv) : ''}">
+      ${escapeAttr(c.lbl)}
+      <span class="col-target">${formatTarget(c)}</span>
+    </th>`).join('')}
+  </tr>`;
+
+  const bodyHtml = entries.map(({ id, entry: e }) => {
+    const cells = columns.map(r => {
+      const eff = trackerEffectiveActual(r, e.actuals || {});
+      const actual = eff.value;
+      const status = r.noDelta || !actual ? { cls: 'neutral' } : trackerStatus(r.target, actual, !!r.lowerBetter);
+      const fmtOpts = { money: !!r.money, rate: !!r.rate };
+      const note = (e.rowNotes || {})[r.k] || '';
+      const hasNote = note.trim().length > 0;
+      const cellCls = `editable cell-${status.cls}${hasNote ? ' has-note' : ''}`;
+      const valueTxt = actual ? fmtNum(actual, fmtOpts) : '—';
+      const titleAttr = hasNote ? ` title="📝 ${escapeAttr(note)}"` : '';
+      // The pin + invisible note button live as siblings; CSS handles
+      // hover-reveal and color states.
+      return `<td class="${cellCls}" data-eid="${escapeAttr(id)}" data-mk="${escapeAttr(r.k)}"${titleAttr}>
+        ${valueTxt}
+        ${hasNote ? '<span class="note-pin"></span>' : ''}
+        <button type="button" class="note-btn" data-act="hist-note" title="${hasNote ? 'Edit note' : 'Add a note'}">✎</button>
+      </td>`;
+    }).join('');
+    return `<tr data-eid="${escapeAttr(id)}">
+      <td class="sticky-left">${escapeAttr(TRACKERS[h.kind].fmtLabel(id))}<span class="meta">${escapeAttr('vs ' + fmtMonth(e.planMonth))}</span></td>
+      ${cells}
+    </tr>`;
+  }).join('');
+
+  host.innerHTML = `<table class="hist-table">
+    <thead>${headHtml}</thead>
+    <tbody>${bodyHtml}</tbody>
+  </table>`;
+  wireHistoryCells();
+}
+
+// HTML-attr safe escape
+function escapeAttr(s) {
+  return String(s ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function wireHistoryCells() {
+  const wrap = document.getElementById('hist-table-wrap');
+  if (!wrap) return;
+  // Inline-edit on cell click. Note button click is intercepted before
+  // this fires (capture-mode handler below).
+  wrap.querySelectorAll('td.editable').forEach(td => {
+    td.addEventListener('click', ev => {
+      if (ev.target.closest('.note-btn')) return;
+      if (td.querySelector('input.cell-input')) return;
+      const eid = td.dataset.eid;
+      const mk  = td.dataset.mk;
+      const h = historyState();
+      const store = state[TRACKERS[h.kind].storeKey];
+      const entry = store[eid];
+      if (!entry) return;
+      const current = Number((entry.actuals || {})[mk]) || 0;
+      const inp = document.createElement('input');
+      inp.type = 'number';
+      inp.step = '0.01';
+      inp.min = '0';
+      inp.value = current || '';
+      inp.className = 'cell-input';
+      td.textContent = '';
+      td.appendChild(inp);
+      inp.focus();
+      inp.select();
+      function commit() {
+        const v = parseFloat(inp.value);
+        if (!entry.actuals) entry.actuals = {};
+        if (isFinite(v) && v > 0) entry.actuals[mk] = v;
+        else delete entry.actuals[mk];
+        saveState();
+        renderHistory();
+      }
+      inp.addEventListener('blur', commit);
+      inp.addEventListener('keydown', e => {
+        if (e.key === 'Enter') { e.preventDefault(); inp.blur(); }
+        else if (e.key === 'Escape') { e.preventDefault(); renderHistory(); }
+      });
+    });
+  });
+  // Note popover open
+  wrap.querySelectorAll('[data-act="hist-note"]').forEach(btn => {
+    btn.addEventListener('click', ev => {
+      ev.stopPropagation();
+      historyOpenNotePopover(btn.closest('td'));
+    });
+  });
+}
+
+function historyOpenNotePopover(td) {
+  if (!td) return;
+  const pop = document.getElementById('hist-note-pop');
+  if (!pop) return;
+  const eid = td.dataset.eid;
+  const mk  = td.dataset.mk;
+  const h = historyState();
+  const store = state[TRACKERS[h.kind].storeKey];
+  const entry = store[eid];
+  if (!entry) return;
+  if (!entry.rowNotes) entry.rowNotes = {};
+  const ta = pop.querySelector('.hnp-textarea');
+  ta.value = entry.rowNotes[mk] || '';
+  // Position the popover near the cell
+  const rect = td.getBoundingClientRect();
+  const popW = 280;
+  let left = rect.left + window.scrollX;
+  if (left + popW > window.innerWidth - 8) left = window.innerWidth - popW - 8;
+  pop.style.left = left + 'px';
+  pop.style.top  = (rect.bottom + window.scrollY + 6) + 'px';
+  pop.style.display = 'block';
+  pop.dataset.eid = eid;
+  pop.dataset.mk  = mk;
+  td.classList.add('note-active');
+  setTimeout(() => ta.focus(), 30);
+}
+
+function wireHistoryControls() {
+  const fromInp = document.getElementById('hist-from');
+  const toInp   = document.getElementById('hist-to');
+  if (fromInp) fromInp.addEventListener('input', e => {
+    historyState().from = e.target.value;
+    historyState().preset = 'custom';
+    saveState();
+    renderHistory();
+  });
+  if (toInp) toInp.addEventListener('input', e => {
+    historyState().to = e.target.value;
+    historyState().preset = 'custom';
+    saveState();
+    renderHistory();
+  });
+  document.querySelectorAll('.history-controls [data-hist-kind]').forEach(b => {
+    b.addEventListener('click', () => {
+      historyState().kind = b.dataset.histKind;
+      saveState();
+      renderHistory();
+    });
+  });
+  document.querySelectorAll('.history-controls [data-hist-preset]').forEach(b => {
+    b.addEventListener('click', () => {
+      historyApplyPreset(b.dataset.histPreset);
+      saveState();
+      renderHistory();
+    });
+  });
+  // Note popover wiring
+  const pop = document.getElementById('hist-note-pop');
+  if (pop) {
+    const ta = pop.querySelector('.hnp-textarea');
+    ta.addEventListener('input', () => {
+      const eid = pop.dataset.eid;
+      const mk  = pop.dataset.mk;
+      if (!eid || !mk) return;
+      const h = historyState();
+      const entry = (state[TRACKERS[h.kind].storeKey] || {})[eid];
+      if (!entry) return;
+      entry.rowNotes = entry.rowNotes || {};
+      const val = ta.value;
+      if (val.trim()) entry.rowNotes[mk] = val;
+      else delete entry.rowNotes[mk];
+      saveState();
+      // Update the cell indicator without losing the popover
+      const td = document.querySelector(`#hist-table-wrap td[data-eid="${eid}"][data-mk="${mk}"]`);
+      if (td) {
+        const hasNote = !!val.trim();
+        td.classList.toggle('has-note', hasNote);
+        // Refresh pin
+        td.querySelector('.note-pin')?.remove();
+        if (hasNote) {
+          const pin = document.createElement('span');
+          pin.className = 'note-pin';
+          td.appendChild(pin);
+        }
+        // Refresh tooltip title
+        if (hasNote) td.title = '📝 ' + val;
+        else td.removeAttribute('title');
+      }
+    });
+    pop.querySelector('.hnp-close').addEventListener('click', historyCloseNotePopover);
+    document.addEventListener('click', ev => {
+      if (pop.style.display === 'none') return;
+      if (ev.target.closest('#hist-note-pop')) return;
+      if (ev.target.closest('[data-act="hist-note"]')) return;
+      historyCloseNotePopover();
+    });
+  }
+  const exp = document.getElementById('hist-export-csv');
+  if (exp) exp.addEventListener('click', historyExportCsv);
+}
+
+function historyCloseNotePopover() {
+  const pop = document.getElementById('hist-note-pop');
+  if (!pop) return;
+  pop.style.display = 'none';
+  document.querySelectorAll('#hist-table-wrap td.note-active').forEach(t => t.classList.remove('note-active'));
+}
+
+function historyExportCsv() {
+  const h = historyState();
+  const entries = historyEntriesInRange();
+  if (!entries.length) return alert('No entries in range to export.');
+  const allRows = trackerTargetRows(h.kind, entries[0].entry.planMonth);
+  const columns = allRows.filter(r => !r.section && !r.noDelta);
+  const escapeCsv = (v) => {
+    const s = String(v ?? '');
+    if (/[",\n]/.test(s)) return '"' + s.replace(/"/g, '""') + '"';
+    return s;
+  };
+  const headers = ['Entry', 'Plan month', ...columns.map(c => c.lbl)];
+  const lines = [headers.map(escapeCsv).join(',')];
+  entries.forEach(({ id, entry: e }) => {
+    const row = [TRACKERS[h.kind].fmtLabel(id), fmtMonth(e.planMonth)];
+    columns.forEach(r => {
+      const v = Number((e.actuals || {})[r.k]) || 0;
+      row.push(v || '');
+    });
+    lines.push(row.map(escapeCsv).join(','));
+  });
+  const blob = new Blob([lines.join('\n')], { type: 'text/csv' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `history-${h.kind}-${h.from}-to-${h.to}.csv`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 function trackerEntryMarkdown(kind, id) {

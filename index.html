@@ -5524,13 +5524,18 @@ function historyState() {
   }
   return state.history;
 }
+// Tiny YYYY-MM-DD helper local to History (the rest of the file uses
+// `weekStartFor` / `toISOString().slice(0,10)` inline — no shared isoDate).
+function histIsoDate(d) {
+  return new Date(d).toISOString().slice(0, 10);
+}
 function historyApplyPreset(preset) {
   state.history = state.history || {};
   const today = new Date();
-  let from, to = isoDate(today);
-  if (preset === '4w')      from = isoDate(new Date(today.getTime() - 28  * 86400000));
-  else if (preset === '8w') from = isoDate(new Date(today.getTime() - 56  * 86400000));
-  else if (preset === '13w')from = isoDate(new Date(today.getTime() - 91  * 86400000));
+  let from, to = histIsoDate(today);
+  if (preset === '4w')      from = histIsoDate(new Date(today.getTime() - 28  * 86400000));
+  else if (preset === '8w') from = histIsoDate(new Date(today.getTime() - 56  * 86400000));
+  else if (preset === '13w')from = histIsoDate(new Date(today.getTime() - 91  * 86400000));
   else if (preset === 'ytd')from = `${today.getFullYear()}-01-01`;
   else if (preset === 'all') {
     // Truly all: walk every entry in BOTH stores and pick the earliest id.

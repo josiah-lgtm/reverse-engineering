@@ -639,8 +639,8 @@
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: 12px;
-    overflow: auto;
-    max-height: calc(100vh - 320px);
+    overflow-x: auto;    /* horizontal scroll only — table is wide */
+    min-height: 220px;
     position: relative;
   }
   .hist-table {
@@ -5672,15 +5672,38 @@ function renderHistoryTable(entries) {
   const host = document.getElementById('hist-table-wrap');
   if (!host) return;
   const h = historyState();
+  // Empty state — explain why and how to fix it.
   if (!entries.length) {
-    host.innerHTML = `<div style="padding:38px;text-align:center;color:var(--text-tertiary)">
-      No ${h.kind} entries in this range. Try a wider preset above, or add entries from the Business Data page.
+    const totalInStore = Object.keys(state[TRACKERS[h.kind].storeKey] || {}).length;
+    const hint = totalInStore > 0
+      ? `You have ${totalInStore} ${h.kind} entr${totalInStore === 1 ? 'y' : 'ies'} in total — they're outside your <b>${h.from} → ${h.to}</b> range. Click <b>All</b> above to see everything.`
+      : `Add entries from the <b>Business Data</b> page first — every weekly / monthly entry you create shows up here automatically.`;
+    host.innerHTML = `<div style="padding:38px 24px;text-align:center;color:var(--text-tertiary);line-height:1.6">
+      <div style="font-size:14px;color:var(--text-secondary);margin-bottom:6px">No ${h.kind} entries in this range.</div>
+      <div style="font-size:12.5px">${hint}</div>
     </div>`;
     return;
   }
-  // Build the column model from the first entry's plan month (the rows are
-  // stable shape across entries; only target values differ).
-  const allRows = trackerTargetRows(h.kind, entries[0].entry.planMonth);
+  // Pick a planMonth for the column header that actually has a real plan
+  // backing it — fall back to the current active month if the first
+  // entry's planMonth was deleted/empty. This guarantees the columns
+  // render even when the entry was created long ago.
+  const planMonthForCols = (() => {
+    const candidate = entries[0].entry.planMonth;
+    if (candidate && state.months[candidate]) return candidate;
+    return state.activeMonth;
+  })();
+  let allRows;
+  try {
+    allRows = trackerTargetRows(h.kind, planMonthForCols);
+  } catch (e) {
+    console.error('History: trackerTargetRows failed', e);
+    host.innerHTML = `<div style="padding:38px;text-align:center;color:var(--bad)">
+      Could not build the table — check the browser console.<br/>
+      <span style="color:var(--text-tertiary);font-size:12px">Fall back: go to Business Data and tap any entry to refresh its plan link.</span>
+    </div>`;
+    return;
+  }
   const columns = allRows.filter(r => !r.section && !r.noDelta);
 
   const formatTarget = (r) => {

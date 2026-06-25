@@ -17,7 +17,9 @@ const NOTION_VERSION = "2022-06-28";
 
 const ALLOWED_ORIGINS = new Set([
   "https://josiah-lgtm.github.io",
-  "http://localhost:8793",
+  "http://localhost:8793", // legacy python static server
+  "http://localhost:5173", // Vite dev server
+  "http://localhost:4173", // Vite preview server
 ]);
 
 function setCors(req, res) {

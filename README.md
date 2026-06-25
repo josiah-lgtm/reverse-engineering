@@ -55,9 +55,13 @@ npm run build      # type-check + production build to dist/
 on every push to `main` (enable Pages → "GitHub Actions" in repo settings). The
 Vite `base` is `'./'`, so it works at any subpath.
 
-**Vercel** (for the Notion publish function) — import the repo; Vercel
-auto-detects the Vite framework (build `npm run build`, output `dist/`) and
-serves `api/publish.js` as a serverless function. Set environment variables:
+**Vercel** (production — `reverseengineering.agencyadvanta.com`) — import the
+repo; Vercel auto-detects the Vite framework (build `npm run build`, output
+`dist/`) and serves `api/publish.js` as a serverless function on the same origin.
+Add the domain under **Project → Settings → Domains** and point its DNS (CNAME →
+`cname.vercel-dns.com`) at Vercel. On this host the **Publish to Notion** button
+auto-resolves to the co-located `/api/publish` — no Settings change needed. Set
+environment variables:
 
 - `NOTION_TOKEN` — internal integration secret from
   [notion.so/my-integrations](https://www.notion.so/my-integrations) (the
@@ -71,4 +75,6 @@ The "Use team-tracker" preset points it at
 `tracker.agencyadvanta.com/api/external/notion-publish`, which shares the exact
 `{title, markdown, pageId}` → `{ok, page_id, page_url, updated}` contract.
 
-> CORS allow-list lives in `api/publish.js` — add any new front-end origin there.
+> CORS allow-list lives in `api/publish.js` (`ALLOWED_ORIGINS`) — it already
+> includes `https://reverseengineering.agencyadvanta.com`; add any new front-end
+> origin there.

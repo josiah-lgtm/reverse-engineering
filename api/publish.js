@@ -16,7 +16,8 @@ const NOTION_API = "https://api.notion.com/v1";
 const NOTION_VERSION = "2022-06-28";
 
 const ALLOWED_ORIGINS = new Set([
-  "https://josiah-lgtm.github.io",
+  "https://reverseengineering.agencyadvanta.com", // production (Vercel custom domain)
+  "https://josiah-lgtm.github.io",                // legacy GitHub Pages deploy
   "http://localhost:8793", // legacy python static server
   "http://localhost:5173", // Vite dev server
   "http://localhost:4173", // Vite preview server

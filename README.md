@@ -7,6 +7,10 @@ to hit it. Tune any conversion rate right on the at-a-glance funnel and everythi
 updates live; drill into any acquisition channel (LinkedIn / Email) for its required
 activities, conversions, revenue, and funnel.
 
+server 4
+cd /opt/reverse-engineering && git pull
+&& docker compose up -d --build
+
 Four shareable, deep-linkable views (each at its own clean URL):
 
 - **Reverse Engineering** (`/`) — targets → editable funnel → channels → team.

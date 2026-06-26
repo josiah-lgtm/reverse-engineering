@@ -1,0 +1,19 @@
+# Self-hosted deploy: one container serves the static SPA + /api/publish.
+# nginx on the host terminates TLS and reverse-proxies to 127.0.0.1:3001.
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: reverse-engineering:latest
+    container_name: reverse-engineering
+    restart: unless-stopped
+    # Notion secrets (NOTION_TOKEN, NOTION_PARENT_DATABASE_ID|PAGE_ID) live here.
+    # Copy .env.example -> .env on the server and fill it in (.env is gitignored).
+    env_file:
+      - .env
+    environment:
+      - PORT=3001
+    # Bind to loopback only — nginx is the sole public entry point.
+    ports:
+      - "127.0.0.1:3001:3001"

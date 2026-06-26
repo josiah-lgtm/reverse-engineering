@@ -1,0 +1,13 @@
+{
+  "name": "reverse-engineering-server",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Runtime server for the self-hosted deploy: static SPA + /api/publish, behind nginx.",
+  "main": "server.cjs",
+  "scripts": {
+    "start": "node server.cjs"
+  },
+  "dependencies": {
+    "express": "^4.21.2"
+  }
+}

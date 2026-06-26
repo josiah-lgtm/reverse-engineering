@@ -26,3 +26,6 @@ yarn-error.log*
 
 # Local env
 *.local
+.env
+.env.*
+!.env.example

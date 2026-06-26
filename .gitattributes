@@ -1,0 +1,9 @@
+# Deploy assets run on Linux — force LF so a CRLF checkout never breaks them
+# (e.g. `/bin/bash^M: bad interpreter`).
+*.sh                text eol=lf
+*.cjs               text eol=lf
+*.conf              text eol=lf
+Dockerfile          text eol=lf
+docker-compose.yml  text eol=lf
+.dockerignore       text eol=lf
+.env.example        text eol=lf

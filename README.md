@@ -1,10 +1,18 @@
 # Reverse Engineering
 
-Universal reverse-engineering calculator for **Agency Advanta**: type a revenue
-target → the math walks backwards through your sales funnel, channel mix,
-outreach actions, and team capacity to tell you exactly what you need to hit it.
-Plus a **Business Data** tracker (weekly/monthly actuals vs the war plan) and a
-**History** view that aggregates every entry into one editable grid.
+Universal reverse-engineering calculator for **Agency Advanta**: type a **revenue
+or cash-collection** target → the math walks backwards through your sales funnel,
+channel mix, outreach actions, and team capacity to tell you exactly what you need
+to hit it. Tune any conversion rate right on the at-a-glance funnel and everything
+updates live; drill into any acquisition channel (LinkedIn / Email) for its required
+activities, conversions, revenue, and funnel.
+
+Four shareable, deep-linkable views (each at its own clean URL):
+
+- **Reverse Engineering** (`/`) — targets → editable funnel → channels → team.
+- **Monthly Planning** (`/monthly-planning`) — the war plan + monthly notes, publishable to Notion.
+- **Business Data** (`/business-data`) — weekly/monthly actuals vs the war plan, as a **scorecard (cards) or dense table**, with auto-totals.
+- **History** (`/history`) — every saved entry in one editable grid, with per-metric **change history**.
 
 This is a clean **React + TypeScript + Vite** rewrite of the original single-file
 app. The calculation core is a pure, side-effect-free engine that is
@@ -51,13 +59,20 @@ npm run build      # type-check + production build to dist/
 
 ## Deploy
 
-**GitHub Pages** — `.github/workflows/deploy.yml` builds and publishes `dist/`
-on every push to `main` (enable Pages → "GitHub Actions" in repo settings). The
-Vite `base` is `'./'`, so it works at any subpath.
+**GitHub Pages** — *retired.* The app now uses path-based routing with an absolute
+Vite `base` of `'/'`, which is incompatible with the Pages project subpath, so
+`.github/workflows/deploy.yml` is **manual-only** (`workflow_dispatch`) and no longer
+runs on push. Re-enable its `push` trigger only if you also restore a subpath base.
 
 **Vercel** (production — `reverseengineering.agencyadvanta.com`) — import the
 repo; Vercel auto-detects the Vite framework (build `npm run build`, output
 `dist/`) and serves `api/publish.js` as a serverless function on the same origin.
+`vercel.json` adds an SPA rewrite (`/(.*) → /`, excluding `/api/`) so deep links
+like `/business-data` resolve on refresh, plus a 60s `maxDuration` for the publish
+function. The publish endpoint also answers `GET /api/publish` as a **connection
+health check** (verifies the token *and* that the integration can see the parent),
+which the publish modal uses to show a live "Notion connected ✓ / not connected ✗"
+indicator with a specific fix-it hint.
 Add the domain under **Project → Settings → Domains** and point its DNS (CNAME →
 `cname.vercel-dns.com`) at Vercel. On this host the **Publish to Notion** button
 auto-resolves to the co-located `/api/publish` — no Settings change needed. Set

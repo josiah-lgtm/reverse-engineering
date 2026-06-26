@@ -3,6 +3,7 @@ import { DialRow } from '../primitives/DialRow';
 import { useComputed, usePlan } from '../../selectors/hooks';
 import { useFormatters } from '../../format/useMoney';
 import { useStore } from '../../state/store';
+import { cssVars } from '../../lib/css';
 import type {
   ChannelKey,
   Computed,
@@ -45,8 +46,79 @@ function DialField({
   );
 }
 
-function plural(n: number, one: string, many: string) {
-  return n === 1 ? one : many;
+interface FunnelStep {
+  lbl: string;
+  val: number;
+  hero?: boolean;
+}
+
+/** Per-channel activity funnel: top-volume activity down to closes. */
+function ChannelFunnel({
+  steps,
+  fmt,
+  wkDiv,
+  mDiv,
+}: {
+  steps: FunnelStep[];
+  fmt: Formatters;
+  wkDiv: number;
+  mDiv: number;
+}) {
+  const { num, ceil } = fmt;
+  const max = steps[0]?.val || 0;
+  return (
+    <div className="ch-funnel">
+      {steps.map((s) => {
+        const w = max > 0 ? Math.max(5, (s.val / max) * 100) : 0;
+        return (
+          <div className={`funnel-row ${s.hero ? 'hero' : ''}`.trim()} key={s.lbl}>
+            <div className="fr-bar" style={cssVars({ '--w': w + '%' })} />
+            <div className="fr-content">
+              <span className="fr-lbl">{s.lbl}</span>
+              <span className="fr-val">{num(ceil(s.val))}</span>
+            </div>
+            <div className="fr-sub">
+              {num(s.val / wkDiv, 1)} /wk · {num(s.val / mDiv, 1)} /day
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+/** Revenue/economics tiles shared by every channel body. */
+function RevenueTiles({ out, c, fmt }: { out: { closesAttributable: number; cac: number; ltvCac: number }; c: Computed; fmt: Formatters }) {
+  const { num, money } = fmt;
+  const revAttr = out.closesAttributable * c.revPerClose;
+  const cashAttr = out.closesAttributable * c.cashPerClose;
+  return (
+    <>
+      <div className="ch-section-title">Revenue this channel must produce</div>
+      <div className="outputs">
+        <div className="out hero">
+          <div className="lbl">Revenue / mo</div>
+          <div className="val">{money(revAttr)}</div>
+          <div className="sub">{num(out.closesAttributable, 1)} closes × {money(c.revPerClose)}</div>
+        </div>
+        <div className="out">
+          <div className="lbl">Cash collected / mo</div>
+          <div className="val">{money(cashAttr)}</div>
+          <div className="sub">{money(c.cashPerClose)} per close</div>
+        </div>
+        <div className="out">
+          <div className="lbl">CAC (this channel)</div>
+          <div className="val">{money(out.cac)}</div>
+          <div className="sub">marketing ÷ closes</div>
+        </div>
+        <div className="out">
+          <div className="lbl">LTV : CAC</div>
+          <div className="val">{out.ltvCac > 0 ? `${num(out.ltvCac, 1)}×` : '—'}</div>
+          <div className="sub">{money(c.economics.ltv)} LTV</div>
+        </div>
+      </div>
+    </>
+  );
 }
 
 function LinkedInBody({ plan, c, fmt }: { plan: Plan; c: Computed; fmt: Formatters }) {
@@ -71,8 +143,17 @@ function LinkedInBody({ plan, c, fmt }: { plan: Plan; c: Computed; fmt: Formatte
     { field: 'softwareCost', label: '£ additional software / mo', hint: 'Sales Nav, Heyreach, etc.', min: 0, max: 2000, step: 25, unit: symbol + '/mo' },
   ];
 
+  const steps: FunnelStep[] = [
+    { lbl: 'Connections sent', val: out.connections },
+    { lbl: 'Accepts', val: out.accepts },
+    { lbl: 'Positive replies', val: out.positives },
+    { lbl: 'Calendly clicks', val: out.calendlyClicks },
+    { lbl: 'Bookings', val: out.bk, hero: true },
+  ];
+
   return (
     <>
+      <div className="ch-section-title">Required activities &amp; infrastructure</div>
       <div className="outputs">
         <div className="out">
           <div className="lbl">Bookings target</div>
@@ -99,12 +180,13 @@ function LinkedInBody({ plan, c, fmt }: { plan: Plan; c: Computed; fmt: Formatte
           <div className="val">{money(out.costPerBooking)}</div>
           <div className="sub">{num(ceil(out.messagesPerBooking))} msgs / booking</div>
         </div>
-        <div className="out">
-          <div className="lbl">CAC (this channel)</div>
-          <div className="val">{money(out.cac)}</div>
-          <div className="sub">{num(out.closesAttributable, 1)} closes attributable</div>
-        </div>
       </div>
+
+      <div className="ch-section-title">Funnel performance — activity → booking</div>
+      <ChannelFunnel steps={steps} fmt={fmt} wkDiv={wkDiv} mDiv={mDiv} />
+
+      <RevenueTiles out={out} c={c} fmt={fmt} />
+
       <div className="ch-section-title">Conversion rates</div>
       {conv.map((f) => (
         <DialField
@@ -149,8 +231,16 @@ function EmailBody({ plan, c, fmt }: { plan: Plan; c: Computed; fmt: Formatters 
     { field: 'softwareCost', label: '£ additional software / mo', hint: 'Instantly, Clay, etc.', min: 0, max: 2000, step: 25, unit: symbol + '/mo' },
   ];
 
+  const steps: FunnelStep[] = [
+    { lbl: 'Sends', val: out.sends },
+    { lbl: 'Replies', val: out.replies },
+    { lbl: 'Positive replies', val: out.positives },
+    { lbl: 'Bookings', val: out.bk, hero: true },
+  ];
+
   return (
     <>
+      <div className="ch-section-title">Required activities &amp; infrastructure</div>
       <div className="outputs">
         <div className="out">
           <div className="lbl">Bookings target</div>
@@ -177,12 +267,13 @@ function EmailBody({ plan, c, fmt }: { plan: Plan; c: Computed; fmt: Formatters 
           <div className="val">{money(out.costPerBooking)}</div>
           <div className="sub">{num(ceil(out.messagesPerBooking))} msgs / booking</div>
         </div>
-        <div className="out">
-          <div className="lbl">CAC (this channel)</div>
-          <div className="val">{money(out.cac)}</div>
-          <div className="sub">{num(out.closesAttributable, 1)} closes attributable</div>
-        </div>
       </div>
+
+      <div className="ch-section-title">Funnel performance — activity → booking</div>
+      <ChannelFunnel steps={steps} fmt={fmt} wkDiv={wkDiv} mDiv={mDiv} />
+
+      <RevenueTiles out={out} c={c} fmt={fmt} />
+
       <div className="ch-section-title">Conversion rates</div>
       {conv.map((f) => (
         <DialField
@@ -212,15 +303,15 @@ function ChannelCard({ k }: { k: ChannelKey }) {
   const updatePlan = useStore((s) => s.updatePlan);
   const ch = plan.channels[k];
   const out = c.channelOutputs[k];
-  const { num, ceil } = fmt;
+  const { num, money, ceil } = fmt;
 
   let summary = 'disabled';
   if (k === 'linkedin' && c.channelOutputs.linkedin) {
     const o = c.channelOutputs.linkedin;
-    summary = `${num(ceil(o.connections))} connects/mo · ${o.profilesNeeded} ${plural(o.profilesNeeded, 'profile', 'profiles')}`;
+    summary = `${num(ceil(o.connections))} connects/mo · ${money(o.closesAttributable * c.revPerClose)}/mo`;
   } else if (k === 'email' && c.channelOutputs.email) {
     const o = c.channelOutputs.email;
-    summary = `${num(ceil(o.sends))} sends/mo · ${o.inboxesNeeded} ${plural(o.inboxesNeeded, 'inbox', 'inboxes')} · ${o.domainsNeeded} ${plural(o.domainsNeeded, 'domain', 'domains')}`;
+    summary = `${num(ceil(o.sends))} sends/mo · ${money(o.closesAttributable * c.revPerClose)}/mo`;
   }
 
   return (
@@ -249,7 +340,10 @@ export function ChannelsOutreach() {
   const plan = usePlan();
   const keys = Object.keys(plan.channels) as ChannelKey[];
   return (
-    <Section title="Channels — outreach you need">
+    <Section
+      title="Channels — reverse-engineered by channel"
+      summary="click a channel for its required activities, conversions, revenue & funnel"
+    >
       <div>
         {keys.map((k) => (
           <ChannelCard key={k} k={k} />

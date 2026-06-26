@@ -7,7 +7,9 @@ export type MonthId = string; // "YYYY-MM"
 export type EntryId = string; // weekly: "YYYY-MM-DD" (Monday) · monthly: "YYYY-MM"
 export type Currency = 'GBP' | 'USD' | 'EUR';
 export type TrackerKind = 'weekly' | 'monthly';
-export type ViewKey = 'reverse-engineering' | 'business-data' | 'history';
+export type ViewKey = 'reverse-engineering' | 'monthly-planning' | 'business-data' | 'history';
+/** Which figure the user drives the whole model from. */
+export type TargetMode = 'revenue' | 'cash';
 
 export interface SalesRates {
   show1Rate: number;
@@ -93,7 +95,11 @@ export interface PlanNotes {
 }
 
 export interface Plan {
-  revenueTarget: number; // total contracted revenue target / month
+  revenueTarget: number; // total contracted revenue target / month — ALWAYS the model driver
+  /** Which figure the user types; the other is back-solved. Invariant: cashTarget = revenueTarget × cashCollectedPct%. */
+  targetMode: TargetMode;
+  /** Cash-collection target / month. Kept in sync with revenueTarget; the pinned figure when targetMode==='cash'. */
+  cashTarget: number;
   packagePrice: number; // contracted price per close (= LTV)
   cashCollectedPct: number; // % upfront cash (slider)
   /** DERIVED cache — compute() is the source of truth. Persisted only for backward-compat. */
@@ -110,10 +116,13 @@ export interface Plan {
   notionPageId: string;
 }
 
+export type BdView = 'cards' | 'table';
+
 export interface Settings {
   apiUrl: string;
   errorPct: number; // per-stage forecast variance %, default ±10
   currency: Currency;
+  bdView: BdView; // Business Data layout: scorecard cards vs dense table
 }
 
 export interface NotesBlock {
@@ -123,6 +132,15 @@ export interface NotesBlock {
   premortem: string;
   bottleneck: string;
   bigplay: string;
+}
+
+/** One entry in an entry's append-only audit trail. */
+export interface ChangeEvent {
+  at: string; // ISO timestamp
+  kind: 'actual' | 'note' | 'save';
+  rowKey?: string; // metric key for 'actual'/'note'
+  from?: string | number | null;
+  to?: string | number | null;
 }
 
 export interface TrackerEntry {
@@ -136,6 +154,8 @@ export interface TrackerEntry {
   notionPageUrl: string;
   savedToHistory?: boolean;
   savedAt?: string; // ISO string
+  /** Append-only history of edits/saves (coalesced + capped). */
+  changeLog?: ChangeEvent[];
 }
 
 export interface HistoryRange {
@@ -280,6 +300,8 @@ export interface FunnelStage {
     'bookings' | 'shows1' | 'qual1' | 'book2' | 'shows2' | 'qshows2' | 'offers' | 'closes'
   >;
   hero?: boolean;
+  /** Conversion rate(s) that turn the PREVIOUS displayed stage into this one (top stage has none). */
+  rateKeys?: (keyof SalesRates)[];
 }
 
 export interface SectionRow {

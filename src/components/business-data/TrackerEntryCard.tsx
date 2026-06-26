@@ -10,6 +10,8 @@ import { useStore } from '../../state/store';
 import { useModalStore } from '../../state/modalStore';
 import { usePrintStore } from '../../state/printStore';
 import { TrackerTable } from './TrackerTable';
+import { TrackerCards } from './TrackerCards';
+import { TrackerKpiStrip } from './TrackerKpiStrip';
 import { NoteStack } from './NoteSection';
 
 export function TrackerEntryCard({
@@ -26,6 +28,8 @@ export function TrackerEntryCard({
   const renameEntry = useStore((s) => s.trackerRename);
   const setEntryPlanMonth = useStore((s) => s.setEntryPlanMonth);
   const saveToHistory = useStore((s) => s.saveToHistory);
+  const bdView = useStore((s) => s.settings.bdView);
+  const setBdView = useStore((s) => s.setBdView);
   const openPlanModal = useModalStore((s) => s.openPlanModal);
   const requestPrint = usePrintStore((s) => s.requestPrint);
 
@@ -92,8 +96,33 @@ export function TrackerEntryCard({
           </div>
         </div>
 
+        <TrackerKpiStrip rows={rows} entry={entry} />
+
+        <div className="bd-view-bar">
+          <div className="hc-toggle">
+            <button
+              type="button"
+              className={`hc-toggle-btn ${bdView === 'cards' ? 'active' : ''}`.trim()}
+              onClick={() => setBdView('cards')}
+            >
+              ▦ Cards
+            </button>
+            <button
+              type="button"
+              className={`hc-toggle-btn ${bdView === 'table' ? 'active' : ''}`.trim()}
+              onClick={() => setBdView('table')}
+            >
+              ☰ Table
+            </button>
+          </div>
+        </div>
+
         <div>
-          <TrackerTable kind={kind} id={id} rows={rows} entry={entry} targetHeader={t.targetHeader} />
+          {bdView === 'cards' ? (
+            <TrackerCards kind={kind} id={id} rows={rows} entry={entry} />
+          ) : (
+            <TrackerTable kind={kind} id={id} rows={rows} entry={entry} targetHeader={t.targetHeader} />
+          )}
         </div>
 
         <NoteStack kind={kind} id={id} entry={entry} />

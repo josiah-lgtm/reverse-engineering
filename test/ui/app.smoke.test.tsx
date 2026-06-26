@@ -7,6 +7,9 @@ import { defaultState } from '../../src/engine/defaults';
 
 beforeEach(() => {
   localStorage.clear();
+  // Reset the URL too — jsdom's location persists across tests in a file, and the
+  // app now syncs activeView <-> path, so a stale path would leak between tests.
+  window.history.replaceState(null, '', '/');
   // Reset the singleton store to a clean default before each test.
   useStore.setState({ ...defaultState(), saveStatus: 'saved', flashEntryId: null });
 });
@@ -31,7 +34,8 @@ describe('App smoke (jsdom)', () => {
     expect(revInput).toBeTruthy();
     fireEvent.change(revInput, { target: { value: '150000' } });
     expect(useStore.getState().months[useStore.getState().activeMonth].revenueTarget).toBe(150000);
-    // 150000 / 15000 = 10 closes; the war plan summary should mention 10 closes.
+    // 150000 / 15000 = 10 closes; the Monthly Planning war plan reflects it.
+    fireEvent.click(screen.getByRole('link', { name: 'Monthly Planning' }));
     expect(screen.getAllByText(/10 closes/).length).toBeGreaterThan(0);
   });
 
@@ -41,9 +45,11 @@ describe('App smoke (jsdom)', () => {
     expect(screen.getByText(/Weekly tracking/)).toBeTruthy();
     fireEvent.click(screen.getByText('+ Add this week'));
     expect(useStore.getState().activeWeeklyId).toBeTruthy();
-    // The metrics table header renders.
-    expect(screen.getByText('Weekly target')).toBeTruthy();
+    // Default scorecard (cards) view shows the metric.
     expect(screen.getAllByText('Contracted revenue').length).toBeGreaterThan(0);
+    // Toggling to Table view reveals the target-header column.
+    fireEvent.click(screen.getByRole('button', { name: /Table/ }));
+    expect(screen.getByText('Weekly target')).toBeTruthy();
   });
 
   it('switches to History without crashing and shows the empty state', () => {
@@ -56,6 +62,7 @@ describe('App smoke (jsdom)', () => {
 
   it('opens the war-plan publish modal with generated markdown', () => {
     render(<App />);
+    fireEvent.click(screen.getByRole('link', { name: 'Monthly Planning' }));
     fireEvent.click(screen.getByText('Send war plan to Notion →'));
     const pre = document.querySelector('.modal-overlay pre');
     expect(pre).toBeTruthy();

@@ -4,6 +4,10 @@ export interface PublishResult {
   page_url?: string;
   updated?: boolean;
   error?: string;
+  /** Notion error code (e.g. 'unauthorized', 'object_not_found') when ok is false. */
+  code?: string;
+  /** One-line remediation from the server when a publish fails. */
+  hint?: string;
 }
 
 export interface PublishPayload {
@@ -24,6 +28,9 @@ export async function publishToNotion(apiUrl: string, payload: PublishPayload): 
     body: JSON.stringify(payload),
   });
   const data: PublishResult = await res.json().catch(() => ({ ok: false }));
-  if (!res.ok || !data.ok) throw new Error(data.error || `HTTP ${res.status}`);
+  if (!res.ok || !data.ok) {
+    const base = data.error || `HTTP ${res.status}`;
+    throw new Error(data.hint ? `${base} — ${data.hint}` : base);
+  }
   return data;
 }

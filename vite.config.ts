@@ -1,13 +1,12 @@
 import { defineConfig } from 'vitest/config';
 import react from '@vitejs/plugin-react';
 
-// Relative base ('./') keeps asset URLs portable across BOTH deploy targets:
-//   • GitHub Pages project subpath (josiah-lgtm.github.io/reverse-engineering/)
-//   • Vercel root (where /api/publish is also served)
-// The app is a single page with store-driven views (no router), so no SPA
-// 404-fallback is needed.
+// Absolute root base — production is Vercel root (reverseengineering.agencyadvanta.com),
+// where /api/publish is also served. The app now has path-based routing
+// (/business-data, /history, …), so a root base + a Vercel SPA rewrite (vercel.json)
+// lets deep links resolve and refresh cleanly. (GitHub Pages subpath deploy is retired.)
 export default defineConfig({
-  base: './',
+  base: '/',
   plugins: [react()],
   test: {
     globals: true,

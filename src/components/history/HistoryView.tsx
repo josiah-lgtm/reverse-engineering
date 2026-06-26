@@ -96,9 +96,13 @@ export function HistoryView() {
     setTimeout(() => URL.revokeObjectURL(url), 1000);
   }
 
-  const popoverNote = popover
-    ? ((kind === 'weekly' ? weeklyEntries : monthlyEntries)[popover.eid]?.rowNotes || {})[popover.mk] || ''
-    : '';
+  const popoverEntry = popover
+    ? (kind === 'weekly' ? weeklyEntries : monthlyEntries)[popover.eid]
+    : undefined;
+  const popoverNote = popover ? (popoverEntry?.rowNotes || {})[popover.mk] || '' : '';
+  const popoverEvents = popover
+    ? (popoverEntry?.changeLog || []).filter((ev) => ev.rowKey === popover.mk)
+    : [];
 
   return (
     <div className="container">
@@ -127,6 +131,7 @@ export function HistoryView() {
           left={popover.left}
           top={popover.top}
           value={popoverNote}
+          events={popoverEvents}
           onChange={(v) => setRowNote(kind, popover.eid, popover.mk, v)}
           onClose={() => setPopover(null)}
         />

@@ -10,12 +10,15 @@ import type { Draft } from 'immer';
 import { TRACKERS } from '../engine/constants';
 import { createEntry, defaultPlan, defaultState, emptyNotes } from '../engine/defaults';
 import type {
+  BdView,
   Currency,
   EntryId,
   MonthId,
   NotesBlock,
   Plan,
   State,
+  TargetMode,
+  TrackerEntry,
   TrackerKind,
   ViewKey,
 } from '../engine/types';
@@ -41,9 +44,15 @@ interface Actions {
   setCurrency: (c: Currency) => void;
   setApiUrl: (url: string) => void;
   setErrorPct: (n: number) => void;
+  setBdView: (v: BdView) => void;
   // plan
   updatePlan: (recipe: (plan: Draft<Plan>) => void) => void;
   setPlanNote: (key: string, value: string) => void;
+  // targets (maintain the invariant cashTarget = revenueTarget × cashCollectedPct%)
+  setTargetMode: (mode: TargetMode) => void;
+  setRevenueTarget: (value: number) => void;
+  setCashTarget: (value: number) => void;
+  setCashPct: (value: number) => void;
   // trackers
   trackerAdd: (kind: TrackerKind) => void;
   trackerDuplicate: (kind: TrackerKind) => void;
@@ -86,6 +95,44 @@ function entriesFor(s: Draft<State>, kind: TrackerKind) {
   return kind === 'weekly' ? s.weeklyEntries : s.monthlyEntries;
 }
 
+// ── Change log (append-only audit trail per entry) ─────────────────────
+const LOG_CAP = 200; // bound localStorage growth
+const VALUE_TRUNC = 280; // don't store giant note bodies in the log
+const COALESCE_MS = 60_000; // rapid edits to the same field collapse into one event
+
+function clampVal(v: string | number | null | undefined): string | number | null {
+  if (v == null) return null;
+  if (typeof v === 'string' && v.length > VALUE_TRUNC) return v.slice(0, VALUE_TRUNC) + '…';
+  return v;
+}
+
+function logChange(
+  e: Draft<TrackerEntry>,
+  evKind: 'actual' | 'note',
+  rowKey: string,
+  from: string | number | null,
+  to: string | number | null,
+) {
+  if (String(from ?? '') === String(to ?? '')) return; // genuine no-op
+  const log = e.changeLog || (e.changeLog = []);
+  const last = log[log.length - 1];
+  if (last && last.kind === evKind && last.rowKey === rowKey && Date.now() - Date.parse(last.at) < COALESCE_MS) {
+    // coalesce: keep the original `from`, advance `to` + timestamp
+    last.to = clampVal(to);
+    last.at = new Date().toISOString();
+    if (String(last.from ?? '') === String(last.to ?? '')) log.pop(); // edited back to original
+    return;
+  }
+  log.push({ at: new Date().toISOString(), kind: evKind, rowKey, from: clampVal(from), to: clampVal(to) });
+  if (log.length > LOG_CAP) log.splice(0, log.length - LOG_CAP);
+}
+
+function logSave(e: Draft<TrackerEntry>) {
+  const log = e.changeLog || (e.changeLog = []);
+  log.push({ at: new Date().toISOString(), kind: 'save' });
+  if (log.length > LOG_CAP) log.splice(0, log.length - LOG_CAP);
+}
+
 function setActiveId(s: Draft<State>, kind: TrackerKind, id: EntryId | null) {
   if (kind === 'weekly') s.activeWeeklyId = id;
   else s.activeMonthlyId = id;
@@ -126,10 +173,43 @@ export const useStore = create<Store>()(
     setCurrency: (c) => set((s) => void (s.settings.currency = c)),
     setApiUrl: (url) => set((s) => void (s.settings.apiUrl = url)),
     setErrorPct: (n) => set((s) => void (s.settings.errorPct = n)),
+    setBdView: (v) => set((s) => void (s.settings.bdView = v)),
 
     // ── plan ───────────────────────────────────────────────
     updatePlan: (recipe) => set((s) => recipe(s.months[s.activeMonth])),
     setPlanNote: (key, value) => set((s) => void (s.months[s.activeMonth].notes[key] = value)),
+
+    // ── targets ────────────────────────────────────────────
+    // revenueTarget is ALWAYS the model driver (keeps compute() parity-safe).
+    // cashTarget tracks revenueTarget × cashCollectedPct%; in cash mode we pin
+    // cashTarget and back-solve revenueTarget instead.
+    setTargetMode: (mode) => set((s) => void (s.months[s.activeMonth].targetMode = mode)),
+    setRevenueTarget: (value) =>
+      set((s) => {
+        const p = s.months[s.activeMonth];
+        const v = value > 0 ? value : 0;
+        p.revenueTarget = v;
+        p.cashTarget = (v * (p.cashCollectedPct || 0)) / 100;
+      }),
+    setCashTarget: (value) =>
+      set((s) => {
+        const p = s.months[s.activeMonth];
+        const v = value > 0 ? value : 0;
+        p.cashTarget = v;
+        const pct = (p.cashCollectedPct || 0) / 100;
+        if (pct > 0) p.revenueTarget = v / pct; // leave revenue untouched when cash%=0
+      }),
+    setCashPct: (value) =>
+      set((s) => {
+        const p = s.months[s.activeMonth];
+        const pct = Math.max(0, Math.min(100, value || 0));
+        p.cashCollectedPct = pct;
+        if (p.targetMode === 'cash' && pct > 0) {
+          p.revenueTarget = p.cashTarget / (pct / 100); // keep cash pinned
+        } else {
+          p.cashTarget = (p.revenueTarget * pct) / 100; // keep revenue pinned
+        }
+      }),
 
     // ── trackers ───────────────────────────────────────────
     trackerAdd: (kind) =>
@@ -184,15 +264,19 @@ export const useStore = create<Store>()(
       set((s) => {
         const e = entriesFor(s, kind)[id];
         if (!e) return;
+        const prev = e.actuals[rowKey];
         if (value != null && isFinite(value) && value > 0) e.actuals[rowKey] = value;
         else delete e.actuals[rowKey];
+        logChange(e, 'actual', rowKey, prev ?? null, e.actuals[rowKey] ?? null);
       }),
     setRowNote: (kind, id, rowKey, value) =>
       set((s) => {
         const e = entriesFor(s, kind)[id];
         if (!e) return;
+        const prev = e.rowNotes[rowKey];
         if (value.trim()) e.rowNotes[rowKey] = value;
         else delete e.rowNotes[rowKey];
+        logChange(e, 'note', rowKey, prev ?? null, value.trim() ? value : null);
       }),
     setEntryNote: (kind, id, sectionKey, value) =>
       set((s) => {
@@ -210,6 +294,7 @@ export const useStore = create<Store>()(
         if (!e) return;
         e.savedToHistory = true;
         e.savedAt = new Date().toISOString();
+        logSave(e);
         s.activeView = 'history';
         if (s.history!.kind !== kind) s.history!.kind = kind;
         const { from, to } = s.history!;

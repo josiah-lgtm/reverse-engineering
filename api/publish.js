@@ -28,7 +28,7 @@ function setCors(req, res) {
   if (ALLOWED_ORIGINS.has(origin)) {
     res.setHeader("Access-Control-Allow-Origin", origin);
   }
-  res.setHeader("Access-Control-Allow-Methods", "POST, OPTIONS");
+  res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.setHeader("Access-Control-Allow-Headers", "Content-Type");
   res.setHeader("Access-Control-Max-Age", "86400");
   res.setHeader("Vary", "Origin");
@@ -36,7 +36,12 @@ function setCors(req, res) {
 
 async function notion(path, init = {}) {
   const token = process.env.NOTION_TOKEN;
-  if (!token) throw new Error("NOTION_TOKEN env var not set");
+  if (!token) {
+    const e = new Error("NOTION_TOKEN env var not set");
+    e.notionStatus = 401;
+    e.notionCode = "no_token";
+    throw e;
+  }
   const r = await fetch(`${NOTION_API}${path}`, {
     ...init,
     headers: {
@@ -47,8 +52,69 @@ async function notion(path, init = {}) {
     },
   });
   const body = await r.text();
-  if (!r.ok) throw new Error(`Notion ${r.status} ${path}: ${body.slice(0, 400)}`);
+  if (!r.ok) {
+    // Notion returns JSON { code, message } — surface both so callers can classify.
+    let code = "";
+    let message = body.slice(0, 400);
+    try {
+      const j = JSON.parse(body);
+      code = j.code || "";
+      message = j.message || message;
+    } catch {}
+    const e = new Error(`Notion ${r.status} (${code || "error"}) ${path}: ${message}`);
+    e.notionStatus = r.status;
+    e.notionCode = code;
+    throw e;
+  }
   return body ? JSON.parse(body) : null;
+}
+
+// Map a Notion/transport error to a real HTTP status + a one-line remediation the
+// front-end can show the user. This is what turns "it just stops" into "here's why".
+function classifyNotionError(e) {
+  const status = e && e.notionStatus;
+  const code = (e && e.notionCode) || "";
+  if (code === "no_token" || status === 401 || code === "unauthorized") {
+    return { status: 401, code: "unauthorized", hint: "The server's Notion token is missing, invalid, or was rotated. Set/refresh NOTION_TOKEN in your Vercel project settings and redeploy." };
+  }
+  if (status === 404 || code === "object_not_found" || code === "restricted_resource") {
+    return { status: 404, code: code || "object_not_found", hint: "Your Notion integration can't see the target page/database. Open it in Notion → ••• menu → Connections → add your integration, then retry." };
+  }
+  if (code === "validation_error" || status === 400) {
+    return { status: 400, code: "validation_error", hint: "Notion rejected the request. Check that NOTION_PARENT_DATABASE_ID / NOTION_PARENT_PAGE_ID points at a real, shared destination." };
+  }
+  if (status === 429 || code === "rate_limited") {
+    return { status: 429, code: "rate_limited", hint: "Notion is rate-limiting requests. Wait a few seconds and try again." };
+  }
+  return { status: 502, code: code || "notion_error", hint: "Unexpected Notion error — see the message above. If it persists, re-check the integration token and that the destination is shared with it." };
+}
+
+// GET /api/publish — connection health check (no writes). Verifies the token AND
+// that the integration can actually see the configured parent.
+async function handleHealth(req, res) {
+  if (!process.env.NOTION_TOKEN) {
+    return res.status(401).json({ ok: false, connected: false, code: "no_token", hint: "NOTION_TOKEN is not set on the server. Add it in Vercel → Settings → Environment Variables and redeploy." });
+  }
+  if (!process.env.NOTION_PARENT_DATABASE_ID && !process.env.NOTION_PARENT_PAGE_ID) {
+    return res.status(400).json({ ok: false, connected: false, code: "no_parent", hint: "NOTION_PARENT_DATABASE_ID or NOTION_PARENT_PAGE_ID is not set on the server." });
+  }
+  let me;
+  try {
+    me = await notion("/users/me");
+  } catch (e) {
+    const c = classifyNotionError(e);
+    return res.status(c.status).json({ ok: false, connected: false, code: c.code, error: e.message, hint: c.hint });
+  }
+  const workspace = (me && me.bot && me.bot.workspace_name) || "";
+  const parent = notionParent();
+  try {
+    if (parent.kind === "database") await notion(`/databases/${parent.id}`);
+    else await notion(`/pages/${parent.id}`);
+  } catch (e) {
+    const c = classifyNotionError(e);
+    return res.status(200).json({ ok: true, connected: false, workspace, code: c.code, error: e.message, hint: c.hint });
+  }
+  return res.status(200).json({ ok: true, connected: true, workspace, parentKind: parent.kind });
 }
 
 function notionParent() {
@@ -223,9 +289,17 @@ async function updateNotionPage({ pageId, title, markdown }) {
 module.exports = async (req, res) => {
   setCors(req, res);
   if (req.method === "OPTIONS") return res.status(204).end();
-  if (req.method !== "POST") return res.status(405).json({ error: "POST only" });
 
   const origin = req.headers.origin || "";
+
+  // Health check (GET). Same-origin browser GETs omit the Origin header, so allow
+  // an empty origin here; still block disallowed cross-origin callers.
+  if (req.method === "GET") {
+    if (origin && !ALLOWED_ORIGINS.has(origin)) return res.status(403).json({ error: "origin not allowed" });
+    return handleHealth(req, res);
+  }
+
+  if (req.method !== "POST") return res.status(405).json({ error: "POST only" });
   if (!ALLOWED_ORIGINS.has(origin)) {
     return res.status(403).json({ error: "origin not allowed" });
   }
@@ -261,8 +335,12 @@ module.exports = async (req, res) => {
         return res.status(200).json({ ok: true, page_id: updated.id, page_url: updated.url, updated: true });
       } catch (e) {
         // Page may have been archived/deleted in Notion since we saved its id.
-        // Fall through and create a fresh one rather than fail the publish.
-        if (!/404|not found|archived/i.test(e.message || '')) throw e;
+        // Fall through and create a fresh one rather than fail the publish. Only
+        // for genuinely-missing pages — an auth/sharing error must NOT silently
+        // create a duplicate (create would fail the same way), so let it surface.
+        const code = e.notionCode || '';
+        const missing = e.notionStatus === 404 || /404|object_not_found|not found|archived/i.test(`${code} ${e.message || ''}`);
+        if (!missing) throw e;
       }
     }
     const created = await createNotionPage({
@@ -272,6 +350,7 @@ module.exports = async (req, res) => {
     });
     return res.status(200).json({ ok: true, page_id: created.id, page_url: created.url, updated: false });
   } catch (e) {
-    return res.status(500).json({ error: e.message || String(e) });
+    const c = classifyNotionError(e);
+    return res.status(c.status).json({ error: e.message || String(e), code: c.code, hint: c.hint });
   }
 };

@@ -3,6 +3,7 @@ import { useModalStore } from '../../state/modalStore';
 import { useStore } from '../../state/store';
 import { getPublishApiUrl } from '../../publish/getPublishApiUrl';
 import { publishToNotion } from '../../publish/publishToNotion';
+import { checkNotionConnection, type NotionHealth } from '../../publish/checkNotionConnection';
 
 interface Status {
   text: string;
@@ -34,6 +35,8 @@ export function PlanModal() {
   const [status, setStatus] = useState<Status>({ text: '', cls: '' });
   const [busy, setBusy] = useState(false);
   const [publishedUrl, setPublishedUrl] = useState('');
+  const [health, setHealth] = useState<NotionHealth | null>(null);
+  const [checking, setChecking] = useState(false);
 
   useEffect(() => {
     if (open) {
@@ -43,6 +46,15 @@ export function PlanModal() {
           : { text: '', cls: '' },
       );
       setPublishedUrl('');
+      setHealth(null);
+      setChecking(true);
+      let cancelled = false;
+      checkNotionConnection(getPublishApiUrl(apiUrl))
+        .then((h) => !cancelled && setHealth(h))
+        .finally(() => !cancelled && setChecking(false));
+      return () => {
+        cancelled = true;
+      };
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
@@ -108,6 +120,19 @@ export function PlanModal() {
           <button className="x" onClick={close}>
             ×
           </button>
+        </div>
+        <div
+          className={`modal-conn ${
+            checking ? 'unknown' : health?.connected ? 'ok' : health?.reachable ? 'bad' : 'unknown'
+          }`}
+        >
+          {checking
+            ? 'Checking Notion connection…'
+            : health?.connected
+              ? `✓ Notion connected${health.workspace ? ` · ${health.workspace}` : ''} — publishing will work`
+              : health?.reachable
+                ? `✕ Not connected — ${health.hint || health.error || 'check the integration'}`
+                : `• ${health?.hint || 'Connection status unavailable'} You can still Copy markdown and paste it manually.`}
         </div>
         <div className="modal-body">
           <pre>{markdown}</pre>

@@ -1,50 +1,13 @@
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import {
   trackerEffectiveActual,
   trackerStatus,
 } from '../../engine/tracker';
 import { isSectionRow } from '../../engine/types';
-import type { EntryId, TrackerEntry, TrackerKind, TrackerMetricRow, TrackerRow } from '../../engine/types';
+import type { EntryId, TrackerEntry, TrackerKind, TrackerRow } from '../../engine/types';
 import { useFormatters } from '../../format/useMoney';
 import { useStore } from '../../state/store';
-
-function ActualInput({
-  kind, id, row, actuals,
-}: {
-  kind: TrackerKind;
-  id: EntryId;
-  row: TrackerMetricRow;
-  actuals: Record<string, number>;
-}) {
-  const updateActual = useStore((s) => s.updateActual);
-  const stored = Number(actuals[row.k]) || 0;
-  const [draft, setDraft] = useState(stored ? String(stored) : '');
-  const focused = useRef(false);
-  useEffect(() => {
-    if (!focused.current) setDraft(stored ? String(stored) : '');
-  }, [stored]);
-  const step = row.money ? '1' : '0.1';
-  return (
-    <input
-      type="number"
-      min={0}
-      step={step}
-      className="we-actual"
-      placeholder="0"
-      value={draft}
-      onFocus={() => (focused.current = true)}
-      onChange={(e) => {
-        setDraft(e.target.value);
-        const v = parseFloat(e.target.value);
-        updateActual(kind, id, row.k, isFinite(v) ? v : null);
-      }}
-      onBlur={() => {
-        focused.current = false;
-        setDraft(stored ? String(stored) : '');
-      }}
-    />
-  );
-}
+import { ActualInput } from './ActualInput';
 
 export function TrackerTable({
   kind, id, rows, entry, targetHeader,

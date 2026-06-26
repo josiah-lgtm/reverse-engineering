@@ -23,7 +23,7 @@ import type {
 type AnyRec = Record<string, any>;
 
 const NOTE_KEYS = NOTE_SECTIONS.map((s) => s.k);
-const VIEWS: ViewKey[] = ['reverse-engineering', 'business-data', 'history'];
+const VIEWS: ViewKey[] = ['reverse-engineering', 'monthly-planning', 'business-data', 'history'];
 
 function backfillPlan(p: AnyRec): Plan {
   const dp = defaultPlan();
@@ -70,6 +70,21 @@ function backfillPlan(p: AnyRec): Plan {
   p.notes = { ...dp.notes, ...(p.notes || {}) };
   if (p.notionPageUrl === undefined) p.notionPageUrl = '';
   if (p.notionPageId === undefined) p.notionPageId = '';
+
+  // Enforce the dual-target invariant (cashTarget = revenueTarget × cashCollectedPct%)
+  // AFTER revenue/pct/mode are guaranteed present. This self-heals the stale default
+  // that the v1->v2 spread of defaultPlan() can leave behind, and any drift from a
+  // hand-edited import. In cash mode the user's cashTarget is the source of truth;
+  // otherwise revenue is. The invariant holds in BOTH modes, so this is idempotent.
+  if (p.targetMode !== 'cash' && p.targetMode !== 'revenue') p.targetMode = 'revenue';
+  {
+    const pct = (p.cashCollectedPct || 0) / 100;
+    if (p.targetMode === 'cash' && Number.isFinite(p.cashTarget) && pct > 0) {
+      p.revenueTarget = p.cashTarget / pct;
+    } else {
+      p.cashTarget = (p.revenueTarget || 0) * pct;
+    }
+  }
   return p as Plan;
 }
 
@@ -100,6 +115,7 @@ function normalizeEntry(raw: AnyRec, id: string, fallbackPlanMonth: MonthId): Tr
     notionPageUrl: raw.notionPageUrl || '',
     ...(raw.savedToHistory ? { savedToHistory: true } : {}),
     ...(raw.savedAt ? { savedAt: raw.savedAt } : {}),
+    ...(Array.isArray(raw.changeLog) ? { changeLog: raw.changeLog } : {}),
   };
 }
 

@@ -1,11 +1,30 @@
 import { useEffect, useRef } from 'react';
+import type { ChangeEvent } from '../../engine/types';
+
+function fmtAt(at: string): string {
+  const d = new Date(at);
+  if (isNaN(d.getTime())) return '';
+  return d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
+function fmtVal(v: ChangeEvent['from']): string {
+  if (v == null || v === '') return '—';
+  return String(v);
+}
+
+function describe(ev: ChangeEvent): string {
+  if (ev.kind === 'save') return 'Saved to history';
+  if (ev.kind === 'note') return `Note: ${fmtVal(ev.from)} → ${fmtVal(ev.to)}`;
+  return `${fmtVal(ev.from)} → ${fmtVal(ev.to)}`;
+}
 
 export function CellNotePopover({
-  left, top, value, onChange, onClose,
+  left, top, value, events, onChange, onClose,
 }: {
   left: number;
   top: number;
   value: string;
+  events?: ChangeEvent[];
   onChange: (v: string) => void;
   onClose: () => void;
 }) {
@@ -21,6 +40,8 @@ export function CellNotePopover({
     document.addEventListener('mousedown', onDoc);
     return () => document.removeEventListener('mousedown', onDoc);
   }, [onClose]);
+
+  const timeline = (events || []).slice().reverse(); // newest first
 
   return (
     <div
@@ -42,6 +63,17 @@ export function CellNotePopover({
         placeholder="Add a note for this cell…"
         onChange={(e) => onChange(e.target.value)}
       />
+      {timeline.length > 0 && (
+        <div className="hnp-timeline">
+          <div className="hnp-timeline-title">History · {timeline.length}</div>
+          {timeline.slice(0, 12).map((ev, i) => (
+            <div className={`hnp-event ${ev.kind}`} key={i}>
+              <span className="hnp-when">{fmtAt(ev.at)}</span>
+              <span className="hnp-what">{describe(ev)}</span>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

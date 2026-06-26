@@ -19,6 +19,8 @@ import type {
 export function defaultPlan(): Plan {
   return {
     revenueTarget: 120000, // total contracted revenue target / month
+    targetMode: 'revenue', // type revenue by default; cash mode back-solves revenue
+    cashTarget: 80400, // = 120000 × 67% — kept in sync with revenueTarget
     packagePrice: 15000, // contracted price per close (the program price = LTV)
     cashCollectedPct: 67, // % of contracted revenue paid upfront in cash
     cashPerClose: 10050, // DERIVED cache (compute recomputes)
@@ -101,6 +103,7 @@ export function defaultSettings(): Settings {
     apiUrl: '',
     errorPct: 10,
     currency: 'GBP',
+    bdView: 'cards',
   };
 }
 

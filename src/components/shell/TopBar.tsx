@@ -7,6 +7,7 @@ import type { ViewKey } from '../../engine/types';
 
 const TITLES: Record<ViewKey, string> = {
   'reverse-engineering': 'REVERSE ENGINEERING',
+  'monthly-planning': 'MONTHLY PLANNING',
   'business-data': 'BUSINESS DATA',
   history: 'HISTORY',
 };
@@ -15,6 +16,8 @@ export function TopBar() {
   const activeView = useStore((s) => s.activeView);
   const resetMonth = useStore((s) => s.resetMonth);
   const isRE = activeView === 'reverse-engineering';
+  // Both RE and Monthly Planning operate on the active month's plan.
+  const isMonthScoped = isRE || activeView === 'monthly-planning';
 
   return (
     <header className="topbar">
@@ -25,7 +28,7 @@ export function TopBar() {
       <span className="title" id="topbar-view-title">
         {TITLES[activeView]}
       </span>
-      {isRE && <MonthPicker />}
+      {isMonthScoped && <MonthPicker />}
       <CurrencySelect />
       <span className="spacer" />
       <SaveStatus />

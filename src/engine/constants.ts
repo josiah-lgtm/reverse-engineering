@@ -25,17 +25,32 @@ import {
 
 export const CURRENCY_SYMBOLS: Record<Currency, string> = { GBP: '£', USD: '$', EUR: '€' };
 
-// Funnel stages, top -> bottom. Hero stages get a ±variance chip.
+// Funnel stages, top -> bottom. Hero stages get a ±variance chip. rateKeys are
+// the conversion rate(s) that turn the stage ABOVE into this one — they let the
+// funnel render an inline-editable conversion control between each pair of tiles
+// (book2->shows2 collapses two rates: scheduled then showed).
 export const FUNNEL_STAGES: FunnelStage[] = [
   { lbl: 'Call 1 booked', noteKey: 'bookings', valKey: 'bookings', hero: true },
-  { lbl: 'Call 1 shows', noteKey: 'shows1', valKey: 'shows1' },
-  { lbl: 'Call 1 qual shows', noteKey: 'qual1', valKey: 'qual1' },
-  { lbl: 'Call 2 bookings', noteKey: 'book2', valKey: 'book2' },
-  { lbl: 'Call 2 shows', noteKey: 'shows2', valKey: 'shows2' },
-  { lbl: 'Call 2 qual shows', noteKey: 'qshows2', valKey: 'qshows2' },
-  { lbl: 'Offers', noteKey: 'offers', valKey: 'offers' },
-  { lbl: 'Closes', noteKey: 'closes', valKey: 'closes', hero: true },
+  { lbl: 'Call 1 shows', noteKey: 'shows1', valKey: 'shows1', rateKeys: ['show1Rate'] },
+  { lbl: 'Call 1 qual shows', noteKey: 'qual1', valKey: 'qual1', rateKeys: ['qual1Rate'] },
+  { lbl: 'Call 2 bookings', noteKey: 'book2', valKey: 'book2', rateKeys: ['book2Rate'] },
+  { lbl: 'Call 2 shows', noteKey: 'shows2', valKey: 'shows2', rateKeys: ['sched2Rate', 'show2Rate'] },
+  { lbl: 'Call 2 qual shows', noteKey: 'qshows2', valKey: 'qshows2', rateKeys: ['qshow2Rate'] },
+  { lbl: 'Offers', noteKey: 'offers', valKey: 'offers', rateKeys: ['offerRate'] },
+  { lbl: 'Closes', noteKey: 'closes', valKey: 'closes', hero: true, rateKeys: ['closeRate'] },
 ];
+
+// Short, story-style labels for each conversion rate (used inline in the funnel).
+export const SALES_RATE_SHORT: Record<keyof Plan['sales'], string> = {
+  show1Rate: 'show up',
+  qual1Rate: 'qualify',
+  book2Rate: 'book call 2',
+  sched2Rate: 'scheduled',
+  show2Rate: 'show up',
+  qshow2Rate: 'still qualified',
+  offerRate: 'get an offer',
+  closeRate: 'close',
+};
 
 // The six free-text note sections shared by every tracker entry.
 export const NOTE_SECTIONS: NoteSection[] = [

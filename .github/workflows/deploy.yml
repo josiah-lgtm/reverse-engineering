@@ -1,8 +1,11 @@
 name: Deploy to GitHub Pages
 
+# DEPRECATED: production is Vercel (reverseengineering.agencyadvanta.com) with a
+# root absolute base + SPA rewrite. The app no longer builds for the GitHub Pages
+# project SUBPATH (vite base is now '/'), so this workflow is manual-only to avoid
+# publishing a broken build on every push. Re-enable the `push` trigger only if you
+# also restore a subpath base in vite.config.ts.
 on:
-  push:
-    branches: [main]
   workflow_dispatch:
 
 permissions:
